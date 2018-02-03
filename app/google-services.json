@@ -1,0 +1,48 @@
+{
+  "project_info": {
+    "project_number": "427921577912",
+    "project_id": "pajakmedan-192111"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:427921577912:android:ef460e5ffc8850e0",
+        "android_client_info": {
+          "package_name": "com.pajakmedan.pajakmedan"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "427921577912-52u075jflfh28qjk20b270bag9khqodq.apps.googleusercontent.com",
+          "client_type": 3
+        },
+        {
+          "client_id": "427921577912-hhrmk3gqabopnb92nst6lft64f1sqjuv.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.pajakmedan.pajakmedan",
+            "certificate_hash": "c0e8d8bf89d8f9f4bbb984adf7d1f41886124fe8"
+          }
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyAs9SVg6nojx3ys_H2BXUW5-vn2m6sDhP4"
+        }
+      ],
+      "services": {
+        "analytics_service": {
+          "status": 1
+        },
+        "appinvite_service": {
+          "status": 1,
+          "other_platform_oauth_client": []
+        },
+        "ads_service": {
+          "status": 1
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

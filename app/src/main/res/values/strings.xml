@@ -1,0 +1,42 @@
+<resources>
+    <string name="app_name">Pajak Medan</string>
+    <string name="username_hint">Username</string>
+    <string name="password_hint">Password</string>
+    <string name="btn_login_text">Login</string>
+    <string name="btn_chooseFromGallery_text">Choose From Gallery</string>
+    <string name="btn_uploadFile">Upload File</string>
+    <string name="txtVw_buatAkun">Buat Akun</string>
+    <string name="edtTxt_nama">Nama</string>
+    <string name="edtTxt_email">Email</string>
+    <string name="edtTxt_noHp">Nomor HP</string>
+    <string name="btn_daftar">DAFTAR</string>
+    <string name="edtTxt_confirmPassword">Confirm Password</string>
+    <string name="silahkan_buat_akum">Silahkan membuat akun jika anda belum memiliki akun</string>
+    <string name="gunakan_akun">Gunakan Akun</string>
+    <string name="register_butuhBantuan">Butuh bantuan untuk mendaftar? </string>
+    <string name="contact_us">HUBUNGI KAMI</string>
+    <string name="btn_google">GOOGLE</string>
+    <string name="btn_facebook">FACEBOOK</string>
+    <string name="txtVw_punyaAkun">Sudah punya akun?</string>
+    <string name="txtVw_masuk">MASUK</string>
+    <string name="txtVw_gunakanAkunTerdaftar">Silahkan gunakan akun yang sudah terdaftar</string>
+    <string name="txtVw_register">REGISTER</string>
+    <string name="txtVw_register_belumPunyaAkun">Belum punya akun?</string>
+    <string name="facebook_app_id">159800427983228</string>
+    <string name="fb_login_protocol_scheme">fb159800427983228</string>
+    <string name="title_activity_testing_drawer">TestingDrawer</string>
+    <string name="navigation_drawer_open">Open navigation drawer</string>
+    <string name="navigation_drawer_close">Close navigation drawer</string>
+    <string name="action_settings">Settings</string>
+    <string name="notifikasi">Notifikasi</string>
+    <string name="keranjang_belanja">Keranjang Belanja</string>
+    <string name="wishlist">Wishlist</string>
+    <string name="riwayat_pemesanan">Riwayat Pemesanan</string>
+    <string name="open">Open</string>
+    <string name="close">Close</string>
+    <string name="cari_barang">Cari Barang...</string>
+    <string name="logout">Logout</string>
+
+    <!-- TODO: Remove or change this placeholder text -->
+    <string name="hello_blank_fragment">Hello blank fragment</string>
+</resources>

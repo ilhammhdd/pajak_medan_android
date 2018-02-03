@@ -1,0 +1,31 @@
+<?xml version="1.0" encoding="utf-8"?>
+<menu xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    tools:showIn="navigation_view">
+    <group>
+        <item
+            android:id="@+id/customer_sidenav_menu_basket"
+            android:icon="@mipmap/shopping_basket3"
+            android:title="@string/keranjang_belanja" />
+
+        <item
+            android:id="@+id/customer_sidenav_menu_wishlist"
+            android:icon="@mipmap/star4"
+            android:title="@string/wishlist" />
+
+        <item
+            android:id="@+id/customer_sidenav_menu_notifikasi"
+            android:icon="@mipmap/notifications_button"
+            android:title="@string/notifikasi" />
+
+        <item
+            android:id="@+id/customer_sidenav_menu_order_history"
+            android:icon="@mipmap/history_clock_button"
+            android:title="@string/riwayat_pemesanan" />
+
+        <item
+            android:id="@+id/customer_sidenav_menu_logout"
+            android:icon="@mipmap/logout"
+            android:title="@string/logout" />
+    </group>
+</menu>
