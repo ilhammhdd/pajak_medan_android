@@ -5,6 +5,7 @@ import android.net.Uri;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.support.v7.app.AppCompatActivity;
+import android.util.Log;
 import android.view.View;
 import android.widget.Button;
 import android.widget.EditText;
@@ -17,6 +18,8 @@ import com.facebook.CallbackManager;
 import com.facebook.FacebookCallback;
 import com.facebook.FacebookException;
 import com.facebook.FacebookSdk;
+import com.facebook.GraphRequest;
+import com.facebook.GraphResponse;
 import com.facebook.Profile;
 import com.facebook.ProfileTracker;
 import com.facebook.login.LoginManager;
@@ -33,6 +36,7 @@ import com.google.android.gms.common.api.GoogleApiClient;
 import com.google.android.gms.common.api.ResultCallback;
 import com.google.android.gms.common.api.Status;
 import com.google.android.gms.tasks.Task;
+import com.pajakmedan.pajakmedan.asynctasks.Login;
 import com.pajakmedan.pajakmedan.asynctasks.Register;
 import com.pajakmedan.pajakmedan.listeners.OnPostListener;
 
@@ -44,261 +48,132 @@ import java.io.IOException;
 import java.net.URL;
 import java.util.Arrays;
 
+import butterknife.BindView;
+import butterknife.ButterKnife;
+import butterknife.OnClick;
+import butterknife.OnLongClick;
+
 /**
  * Created by milha on 1/6/2018.
  */
 
 public class RegisterActivity extends AppCompatActivity implements GoogleApiClient.OnConnectionFailedListener {
-    Button button_register, button_register_google, button_register_signOutGoogle, button_register_facebook, button_register_signOutFacebook;
-    EditText editText_nama, editText_email, editText_noHp, editText_username, editText_password, editText_confirmPassword;
-    TextView textView_status, textView_login;
+    @BindView(R.id.editText_register_nama)
+    EditText editText_nama;
+    @BindView(R.id.editText_register_email)
+    EditText editText_email;
+    @BindView(R.id.editText_register_noHp)
+    EditText editText_noHp;
+    @BindView(R.id.editText_register_username)
+    EditText editText_username;
+    @BindView(R.id.editText_register_password)
+    EditText editText_password;
+    @BindView(R.id.editText_register_confirmPassword)
+    EditText editText_confirmPassword;
+    @BindView(R.id.textView_register_text)
+    TextView textView_status;
 
     GoogleSignInOptions gso;
     GoogleApiClient gac;
     CallbackManager callbackManager;
 
-    AccessTokenTracker accessTokenTracker;
-    ProfileTracker profileTracker;
-
-    private static final int REQ_CODE = 9001;
+    private static final int REQ_CODE = 9002;
+    private final String TAG = "REGISTER_ACTIVITY";
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_register);
+        ButterKnife.bind(this);
 
         if (!Constants.AUTH_TYPE.equals("")) {
+            Log.d(TAG, "User already authenticated");
             startActivity(new Intent(getApplicationContext(), CustomerHome.class));
             finish();
         }
 
-        button_register = findViewById(R.id.button_register);
-        button_register_google = findViewById(R.id.button_register_google);
-        button_register_signOutGoogle = findViewById(R.id.button_register_signOutGoogle);
-        button_register_facebook = findViewById(R.id.button_register_facebook);
-        button_register_signOutFacebook = findViewById(R.id.button_register_signOutFacebook);
-        editText_nama = findViewById(R.id.editText_register_nama);
-        editText_email = findViewById(R.id.editText_register_email);
-        editText_noHp = findViewById(R.id.editText_register_noHp);
-        editText_username = findViewById(R.id.editText_register_username);
-        editText_password = findViewById(R.id.editText_register_password);
-        editText_confirmPassword = findViewById(R.id.editText_register_confirmPassword);
-        textView_status = findViewById(R.id.textView_register_text);
-        textView_login = findViewById(R.id.textView_register_loginDisini);
+        gso = new GoogleSignInOptions.Builder(GoogleSignInOptions.DEFAULT_SIGN_IN).requestEmail().build();
+        Constants.GOOGLE_API_CLIENT = new GoogleApiClient.Builder(getApplicationContext()).addApi(Auth.GOOGLE_SIGN_IN_API, gso).build();
+        callbackManager = CallbackManager.Factory.create();
+        Constants.GOOGLE_API_CLIENT.connect();
 
-        /*gso*/
-        Constants.GOOGLE_SIGN_IN_OPTIONS = new GoogleSignInOptions.Builder(GoogleSignInOptions.DEFAULT_SIGN_IN).requestEmail().build();
-        /*gac*/
-//        Constants.GOOGLE_API_CLIENT = new GoogleApiClient.Builder(this).enableAutoManage(this, this).addApi(Auth.GOOGLE_SIGN_IN_API, Constants.GOOGLE_SIGN_IN_OPTIONS).build();
-        Constants.GOOGLE_API_CLIENT = new GoogleApiClient.Builder(this).addApi(Auth.GOOGLE_SIGN_IN_API, Constants.GOOGLE_SIGN_IN_OPTIONS).build();
-        /*callbackManager*/
-        Constants.CALLBACK_MANAGER = CallbackManager.Factory.create();
-
-        button_register.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                Register register = new Register();
-
-                if (!editText_password.getText().toString().equals(editText_confirmPassword.getText().toString())) {
-                    textView_status.setText("Konfirmasi password harus sesuai");
-                } else {
-                    try {
-                        JSONObject data = new JSONObject();
-                        data.put("url", Constants.DOMAIN + "api/register");
-                        data.put("fullName", editText_nama.getText());
-                        data.put("phoneNumber", editText_noHp.getText());
-                        data.put("email", editText_email.getText());
-                        data.put("username", editText_username.getText());
-                        data.put("password", editText_password.getText());
-
-                        JSONObject dataChunk = new JSONObject();
-                        dataChunk.put("data", data);
-
-                        register.execute(dataChunk);
-
-                        register.setOnPostListener(new OnPostListener() {
-                            @Override
-                            public void onPost(JSONObject response) throws JSONException {
-                                textView_status.setText(response.getString("message"));
-                            }
-                        });
-
-                    } catch (JSONException e) {
-                        e.printStackTrace();
-                    }
-                }
-            }
-        });
-
-        textView_login.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                Intent login = new Intent(getApplicationContext(), LoginActivity.class);
-                startActivity(login);
-                finish();
-            }
-        });
-
-        button_register_google.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                signInGoogle();
-            }
-        });
-
-        button_register_signOutGoogle.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View View) {
-                signOutGoogle();
-            }
-        });
-
-        button_register_facebook.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                signInFacebook();
-            }
-        });
-
-        button_register_signOutFacebook.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                signOutFacebook();
-            }
-        });
-
-        LoginManager.getInstance().registerCallback(/*callbackManager*/ Constants.CALLBACK_MANAGER,
+        LoginManager.getInstance().registerCallback(callbackManager,
                 new FacebookCallback<LoginResult>() {
                     @Override
                     public void onSuccess(LoginResult loginResult) {
-                        System.out.println("===============Sign in Facebook Success===============");
                         facebookSignInOnSuccess(loginResult);
                     }
 
                     @Override
                     public void onCancel() {
-                        System.out.println("===============Sign in Facebook Canceled===============");
                     }
 
                     @Override
                     public void onError(FacebookException error) {
-                        System.out.println("===============Sign in Facebook Error===============");
                     }
                 });
-
-
-    }
-
-
-    @Override
-    protected void onStart() {
-        super.onStart();
-
-        Constants.GOOGLE_API_CLIENT.connect();
-    }
-
-    @Override
-    protected void onResume() {
-        super.onResume();
-
-    }
-
-    private void signInGoogle() {
-        Intent signInIntent = Auth.GoogleSignInApi.getSignInIntent(Constants.GOOGLE_API_CLIENT);
-        startActivityForResult(signInIntent, REQ_CODE);
-    }
-
-    private void signOutGoogle() {
-        Auth.GoogleSignInApi.signOut(Constants.GOOGLE_API_CLIENT).setResultCallback(new ResultCallback<Status>() {
-
-            @Override
-            public void onResult(@NonNull Status status) {
-                System.out.println("===============Sign Out Google Success===============");
-            }
-        });
-    }
-
-    private void signInFacebook() {
-        LoginManager.getInstance().logInWithReadPermissions(RegisterActivity.this, Arrays.asList("public_profile", "user_friends"));
-    }
-
-    private void signOutFacebook() {
-        System.out.println("==================Sign Out Facebook Success==================");
-        LoginManager.getInstance().logOut();
     }
 
     private void facebookSignInOnSuccess(LoginResult loginResult) {
+        Log.d(TAG, "Facebook sign in success");
         AccessToken accessToken = loginResult.getAccessToken();
+        final Login login = new Login();
+        Log.d(TAG, "Sending Facebook graph request");
+        GraphRequest graphRequest = GraphRequest.newMeRequest(accessToken, new GraphRequest.GraphJSONObjectCallback() {
+            @Override
+            public void onCompleted(JSONObject object, GraphResponse response) {
+                try {
+                    Log.d(TAG, "Facebook graph request completed");
+                    JSONObject alternativeAuth = new JSONObject();
+                    alternativeAuth.put("url", Constants.DOMAIN + "api/alternative-login");
+                    alternativeAuth.put("alternative_auth", true);
+                    alternativeAuth.put("email", object.getString("email"));
+                    alternativeAuth.put("id", object.getString("id"));
+                    alternativeAuth.put("auth_type", "facebook");
+                    alternativeAuth.put("photo_url", "https://graph.facebook.com/" + object.getString("id") + "/picture?type=large");
 
-        if (accessToken != null) {
-            System.out.println("==================Token : " + accessToken.getToken() + "==================");
-            System.out.println("==================Application Id : " + accessToken.getApplicationId() + "==================");
-            System.out.println("==================User Id : " + accessToken.getUserId() + "==================");
-            System.out.println("==================Permissions : " + accessToken.getPermissions() + "==================");
-        } else {
-            /*accessTokenTracker*/
-            Constants.ACCESS_TOKEN_TRACKER = new AccessTokenTracker() {
-                @Override
-                protected void onCurrentAccessTokenChanged(AccessToken oldAccessToken, AccessToken currentAccessToken) {
-                    if (currentAccessToken != null) {
-                        System.out.println("==================Token : " + currentAccessToken.getToken() + "==================");
-                        System.out.println("==================Application Id : " + currentAccessToken.getApplicationId() + "==================");
-                        System.out.println("==================User Id : " + currentAccessToken.getUserId() + "==================");
-                        System.out.println("==================Permissions : " + currentAccessToken.getPermissions() + "==================");
-                    }
+                    JSONObject alternativeAuthChunk = new JSONObject();
+                    alternativeAuthChunk.put("data", alternativeAuth);
+
+                    Log.d(TAG, alternativeAuthChunk.toString());
+                    login.execute(alternativeAuthChunk);
+
+                    Log.d(TAG, "Login async task executed");
+
+                    login.setOnPostListener(new OnPostListener() {
+                        @Override
+                        public void onPost(JSONObject response) throws JSONException {
+                            Log.d(TAG, "The response : " + response.toString());
+                            if (response.getBoolean("authenticated")) {
+                                Log.d(TAG, "User authenticated with facebook authentication");
+                                Constants.AUTH_TYPE = "facebook";
+                                startActivity(new Intent(getApplicationContext(), CustomerHome.class));
+                                finish();
+                            }
+
+                            if (response.getBoolean("email_taken")) {
+                                textView_status.setText(response.getString("message"));
+                                LoginManager.getInstance().logOut();
+                            }
+                        }
+                    });
+                } catch (JSONException e) {
+                    e.printStackTrace();
                 }
-            };
+            }
+        });
 
-            /*accessTokenTracker*/
-            Constants.ACCESS_TOKEN_TRACKER.startTracking();
-        }
-
-        Profile profile = Profile.getCurrentProfile();
-
-        if (profile != null) {
-            System.out.println("==================First Name : " + profile.getFirstName() + "==================");
-            System.out.println("==================Last Name : " + profile.getLastName() + "==================");
-            System.out.println("==================Name : " + profile.getName() + "==================");
-            System.out.println("==================Id : " + profile.getId() + "==================");
-            System.out.println("==================Link URI : " + profile.getLinkUri() + "==================");
-            System.out.println("==================Profile Picture URI : " + profile.getProfilePictureUri(300, 300) + "==================");
-
-            Constants.AUTH_TYPE = "facebook";
-
-            Intent customerHomeIntent = new Intent(getApplicationContext(), CustomerHome.class);
-            startActivity(customerHomeIntent);
-        } else {
-            /*profileTracker*/
-            Constants.PROFILE_TRACKER = new ProfileTracker() {
-                @Override
-                protected void onCurrentProfileChanged(Profile oldProfile, Profile currentProfile) {
-                    if (currentProfile != null) {
-                        System.out.println("==================First Name : " + currentProfile.getFirstName() + "==================");
-                        System.out.println("==================Last Name : " + currentProfile.getLastName() + "==================");
-                        System.out.println("==================Name : " + currentProfile.getName() + "==================");
-                        System.out.println("==================Id : " + currentProfile.getId() + "==================");
-                        System.out.println("==================Link URI : " + currentProfile.getLinkUri() + "==================");
-                        System.out.println("==================Profile Picture URI : " + currentProfile.getProfilePictureUri(300, 300) + "==================");
-
-                        Constants.AUTH_TYPE = "facebook";
-
-                        startActivity(new Intent(getApplicationContext(), CustomerHome.class));
-                        finish();
-                    }
-                }
-            };
-
-            /*profileTracker*/
-            Constants.PROFILE_TRACKER.startTracking();
-        }
+        Bundle parameters = new Bundle();
+        parameters.putString("fields", "id,name,email");
+        graphRequest.setParameters(parameters);
+        graphRequest.executeAsync();
     }
 
     @Override
     public void onActivityResult(int requestCode, int resultCode, Intent data) {
         super.onActivityResult(requestCode, resultCode, data);
 
-        /*callbackManager*/
-        Constants.CALLBACK_MANAGER.onActivityResult(requestCode, resultCode, data);
+        callbackManager.onActivityResult(requestCode, resultCode, data);
 
         if (requestCode == REQ_CODE) {
             GoogleSignInResult result = Auth.GoogleSignInApi.getSignInResultFromIntent(data);
@@ -308,8 +183,8 @@ public class RegisterActivity extends AppCompatActivity implements GoogleApiClie
 
     private void handleSignInResult(GoogleSignInResult result) {
         if (result.isSuccess()) {
-            System.out.println("==================Sign In Google Success==================");
             GoogleSignInAccount account = result.getSignInAccount();
+            Log.d(TAG, "Google authentication success");
 
             String displayName, email, id, idToken, serverAuthCode;
             Uri photoUrl;
@@ -321,25 +196,111 @@ public class RegisterActivity extends AppCompatActivity implements GoogleApiClie
                 serverAuthCode = account.getServerAuthCode();
                 photoUrl = account.getPhotoUrl();
 
-                System.out.println("==================Display Name : " + displayName + "==================");
-                System.out.println("==================Email : " + email + "==================");
-                System.out.println("==================Id: " + id + "==================");
-                System.out.println("==================Id Token : " + idToken + "==================");
-                System.out.println("==================Server Auth Code : " + serverAuthCode + "==================");
-                System.out.println("==================Photo Url : " + photoUrl + "==================");
+                Log.d(TAG, "Google account existed");
 
-                Constants.AUTH_TYPE = "google";
+                Login login = new Login();
+                try {
+                    JSONObject alternativeAuth = new JSONObject();
+                    alternativeAuth.put("url", Constants.DOMAIN + "api/alternative-login");
+                    alternativeAuth.put("alternative_auth", true);
+                    alternativeAuth.put("email", email);
+                    alternativeAuth.put("id", id);
+                    alternativeAuth.put("auth_type", "google");
+                    alternativeAuth.put("photo_url", photoUrl == null ? "null" : photoUrl);
 
-                startActivity(new Intent(getApplicationContext(), CustomerHome.class));
-                finish();
+                    JSONObject alternativeAuthChunk = new JSONObject();
+                    alternativeAuthChunk.put("data", alternativeAuth);
+
+                    Log.d(TAG, "The request : " + alternativeAuthChunk.toString());
+                    login.execute(alternativeAuthChunk);
+                    Log.d(TAG, "Login async task executed");
+
+                    login.setOnPostListener(new OnPostListener() {
+                        @Override
+                        public void onPost(JSONObject response) throws JSONException {
+                            Log.d(TAG, response.toString());
+                            if (response.getBoolean("authenticated")) {
+                                Constants.AUTH_TYPE = "google";
+                                Log.d(TAG, "User authenticated with google authentication");
+                                startActivity(new Intent(getApplicationContext(), CustomerHome.class));
+                                finish();
+                            }
+
+                            if (response.getBoolean("email_taken")) {
+                                textView_status.setText(response.getString("message"));
+                                Auth.GoogleSignInApi.signOut(Constants.GOOGLE_API_CLIENT).setResultCallback(new ResultCallback<Status>() {
+                                    @Override
+                                    public void onResult(@NonNull Status status) {
+                                        Log.d(TAG, "Google sign out success");
+                                    }
+                                });
+                            }
+                        }
+                    });
+
+                } catch (JSONException e) {
+                    e.printStackTrace();
+                }
             }
-        } else {
-            System.out.println("==================Sign in Google Failed==================");
         }
     }
 
     @Override
     public void onConnectionFailed(@NonNull ConnectionResult connectionResult) {
+
+    }
+
+    @OnClick(R.id.button_register)
+    void button_register() {
+        Register register = new Register();
+
+        if (!editText_password.getText().toString().equals(editText_confirmPassword.getText().toString())) {
+            Log.d(TAG, "Confirmation password doesn't match");
+            textView_status.setText(R.string.konfirmasi_password);
+        } else {
+            try {
+                JSONObject data = new JSONObject();
+                data.put("url", Constants.DOMAIN + "api/register");
+                data.put("fullName", editText_nama.getText());
+                data.put("phoneNumber", editText_noHp.getText());
+                data.put("email", editText_email.getText());
+                data.put("username", editText_username.getText());
+                data.put("auth_type", "native");
+                data.put("password", editText_password.getText());
+
+                JSONObject dataChunk = new JSONObject();
+                dataChunk.put("data", data);
+
+                register.execute(dataChunk);
+                Log.d(TAG, "Register request : " + dataChunk.toString());
+
+                register.setOnPostListener(new OnPostListener() {
+                    @Override
+                    public void onPost(JSONObject response) throws JSONException {
+                        Log.d(TAG, "Register response received");
+                        textView_status.setText(response.getString("message"));
+                    }
+                });
+
+            } catch (JSONException e) {
+                e.printStackTrace();
+            }
+        }
+    }
+
+    @OnClick(R.id.textView_register_loginDisini)
+    void textView_register_loginDisini() {
+        startActivity(new Intent(getApplicationContext(), LoginActivity.class));
+    }
+
+    @OnClick(R.id.button_register_google)
+    void button_register_google() {
+        startActivityForResult(Auth.GoogleSignInApi.getSignInIntent(Constants.GOOGLE_API_CLIENT), REQ_CODE);
+    }
+
+    @OnClick(R.id.button_register_facebook)
+    void button_register_facebook() {
+        LoginManager.getInstance().logInWithReadPermissions(RegisterActivity.this, Arrays.asList("public_profile", "user_friends"));
 
     }
 }

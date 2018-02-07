@@ -9,6 +9,7 @@ import android.support.v4.widget.DrawerLayout;
 import android.support.v7.app.ActionBarDrawerToggle;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
+import android.util.Log;
 import android.view.Gravity;
 import android.view.MenuItem;
 import android.view.View;
@@ -31,9 +32,13 @@ public class CustomerHome extends AppCompatActivity implements NavigationView.On
     DrawerLayout drawerLayout;
     NavigationView navigationView;
 
+    private String TAG = "CUSTOMER_ACTIVITY";
+
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+        Constants.GOOGLE_API_CLIENT.connect();
+
         setContentView(R.layout.activity_customer_home);
 
         drawerLayout = findViewById(R.id.drawer_layout_customer);
@@ -106,31 +111,29 @@ public class CustomerHome extends AppCompatActivity implements NavigationView.On
                 break;
             }
             case R.id.customer_sidenav_menu_logout: {
-                System.out.println("===============Sidenav Menu Logout Clicked===============");
+                Log.d(TAG, "Side nav menu button clicked");
                 if (Constants.AUTH_TYPE.equals("native")) {
-
+                    Log.d(TAG, "User with native authentication successfully logout");
                     Constants.AUTH_TYPE = "";
 
                     startActivity(new Intent(getApplicationContext(), RegisterActivity.class));
                     finish();
                 } else if (Constants.AUTH_TYPE.equals("google")) {
+                    Log.d(TAG, "User with google authentication successfully logout");
                     Auth.GoogleSignInApi.signOut(Constants.GOOGLE_API_CLIENT).setResultCallback(new ResultCallback<Status>() {
                         @Override
                         public void onResult(@NonNull Status status) {
-                            System.out.println("===============Sign Out Google Success===============");
+
                         }
                     });
-
-                    Constants.GOOGLE_API_CLIENT.disconnect();
                     Constants.AUTH_TYPE = "";
 
                     startActivity(new Intent(getApplicationContext(), RegisterActivity.class));
                     finish();
                 } else if (Constants.AUTH_TYPE.equals("facebook")) {
-                    System.out.println("==================Sign Out Facebook Success==================");
+                    Log.d(TAG, "User with facebook authentication successfully logout");
                     LoginManager.getInstance().logOut();
 
-                    Constants.GOOGLE_API_CLIENT.disconnect();
                     Constants.AUTH_TYPE = "";
 
                     startActivity(new Intent(getApplicationContext(), RegisterActivity.class));
