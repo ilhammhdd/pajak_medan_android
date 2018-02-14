@@ -4,6 +4,10 @@
     tools:showIn="navigation_view">
     <group>
         <item
+            android:id="@+id/customer_sidenav_menu_upload_file"
+            android:title="Upload File" />
+
+        <item
             android:id="@+id/customer_sidenav_menu_basket"
             android:icon="@mipmap/shopping_basket3"
             android:title="@string/keranjang_belanja" />

@@ -37,6 +37,13 @@
     <string name="cari_barang">Find items…</string>
     <string name="logout">Logout</string>
     <string name="konfirmasi_password">Password confirmation must be appropriate</string>
+    <string name="field_tidak_boleh_kosong">Please fill all the field</string>
+    <string-array name="categories">
+        <item>Sayur Mayur</item>
+        <item>Bumbu Masakan</item>
+        <item>Lauk pauk</item>
+        <item>Sembako</item>
+    </string-array>
 
     <!-- TODO: Remove or change this placeholder text -->
     <string name="hello_blank_fragment">Hello blank fragment</string>

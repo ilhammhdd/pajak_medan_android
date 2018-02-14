@@ -6,6 +6,8 @@ import android.net.Uri;
 import android.os.AsyncTask;
 import android.util.Base64;
 
+import com.pajakmedan.pajakmedan.Constants;
+
 import org.json.JSONException;
 import org.json.JSONObject;
 
@@ -34,7 +36,7 @@ public class EncodeImage extends AsyncTask<String, Void, JSONObject> {
         JSONObject request = new JSONObject();
 
         try {
-            URL uploadUrl = new URL("http://192.168.1.11/upload-file");
+            URL uploadUrl = new URL(Constants.DOMAIN + "api/upload-file");
             request.put("encoded_string", encodedString);
 
             HttpURLConnection connection = (HttpURLConnection) uploadUrl.openConnection();

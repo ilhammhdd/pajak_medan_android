@@ -7,7 +7,7 @@ import org.json.JSONObject;
  * Created by milha on 1/27/2018.
  */
 
-public interface OnPostListener {
+public interface OnRequestListener {
 
-    void onPost(JSONObject jsonObject) throws JSONException;
+    void onRequest(JSONObject jsonObject) throws JSONException;
 }

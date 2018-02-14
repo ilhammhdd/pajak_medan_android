@@ -1,11 +1,10 @@
 package com.pajakmedan.pajakmedan.asynctasks;
 
 import android.os.AsyncTask;
-import android.view.View;
 import android.webkit.URLUtil;
 
-import com.pajakmedan.pajakmedan.listeners.OnPostListener;
-import com.pajakmedan.pajakmedan.listeners.SetOnPostListener;
+import com.pajakmedan.pajakmedan.listeners.OnRequestListener;
+import com.pajakmedan.pajakmedan.listeners.SetOnRequestListener;
 
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -24,12 +23,12 @@ import javax.net.ssl.HttpsURLConnection;
  * Created by milha on 1/10/2018.
  */
 
-public class Register extends AsyncTask<JSONObject, Void, JSONObject> implements SetOnPostListener {
+public class Register extends AsyncTask<JSONObject, Void, JSONObject> implements SetOnRequestListener {
 
-    private OnPostListener listener;
+    private OnRequestListener listener;
 
     @Override
-    public void setOnPostListener(com.pajakmedan.pajakmedan.listeners.OnPostListener listener) {
+    public void setOnRequestListener(OnRequestListener listener) {
         this.listener = listener;
     }
 
@@ -44,7 +43,7 @@ public class Register extends AsyncTask<JSONObject, Void, JSONObject> implements
     protected void onPostExecute(JSONObject jsonObject) {
         try {
             if (listener != null) {
-                listener.onPost(jsonObject);
+                listener.onRequest(jsonObject);
             }
         } catch (JSONException e) {
             e.printStackTrace();
