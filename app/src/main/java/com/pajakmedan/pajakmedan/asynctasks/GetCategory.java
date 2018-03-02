@@ -43,16 +43,21 @@ public class GetCategory extends AsyncTask<JSONObject, Void, List<Category>> {
     @Override
     protected List<Category> doInBackground(JSONObject... jsonObjects) {
         try {
-            if (URLUtil.isHttpUrl(jsonObjects[0].getJSONObject("data").getString("url"))) {
-                return httpGetCategories(jsonObjects);
-            } else if (URLUtil.isHttpsUrl(jsonObjects[0].getJSONObject("data").getString("url"))) {
-                return httpsGetCategories(jsonObjects);
+            JSONObject response = RequestPost.sendRequest(jsonObjects[0]);
+            assert response != null;
+            JSONArray arrayResponse = response.getJSONArray("categories");
+
+            List<Category> categories = new ArrayList<>();
+
+            for (int i = 0; i < arrayResponse.length(); i++) {
+                categories.add(new Category(arrayResponse.getJSONObject(i).getInt("id"), arrayResponse.getJSONObject(i).getString("file_path"), arrayResponse.getJSONObject(i).getString("name")));
             }
 
-        } catch (JSONException | IOException e) {
+            return categories;
+        } catch (JSONException e) {
             e.printStackTrace();
+            return null;
         }
-        return null;
     }
 
     @Override
@@ -64,74 +69,5 @@ public class GetCategory extends AsyncTask<JSONObject, Void, List<Category>> {
         } catch (JSONException e) {
             e.printStackTrace();
         }
-    }
-
-    private List<Category> httpGetCategories(JSONObject... jsonObjects) throws JSONException, IOException {
-        URL getCategoriesURL = new URL(jsonObjects[0].getJSONObject("data").getString("url"));
-
-        HttpURLConnection connection = (HttpURLConnection) getCategoriesURL.openConnection();
-        connection.setDoInput(true);
-        connection.setRequestMethod("GET");
-
-//        OutputStream outputStream = connection.getOutputStream();
-//        BufferedOutputStream bufferedStream = new BufferedOutputStream(outputStream);
-//        bufferedStream.write(jsonObjects[0].toString().getBytes());
-//        bufferedStream.flush();
-//        bufferedStream.close();
-
-        String line = "";
-        StringBuilder sbResponse = new StringBuilder();
-
-        BufferedReader bufferedReader = new BufferedReader(new InputStreamReader(connection.getInputStream()));
-        while ((line = bufferedReader.readLine()) != null) {
-            sbResponse.append(line);
-        }
-
-        bufferedReader.close();
-
-        JSONObject response = new JSONObject(sbResponse.toString());
-        JSONArray arrayResponse = response.getJSONArray("categories");
-
-        List<Category> categories = new ArrayList<>();
-
-        for (int i = 0; i < arrayResponse.length(); i++) {
-            categories.add(new Category(arrayResponse.getJSONObject(i).getString("file_path"), arrayResponse.getJSONObject(i).getString("name")));
-        }
-
-        return categories;
-    }
-
-    private List<Category> httpsGetCategories(JSONObject... jsonObjects) throws JSONException, IOException {
-        URL getCategoriesURL = new URL(jsonObjects[0].getJSONObject("data").getString("url"));
-
-        HttpsURLConnection connection = (HttpsURLConnection) getCategoriesURL.openConnection();
-        connection.setDoOutput(true);
-        connection.setRequestMethod("GET");
-
-//        BufferedOutputStream bufferedStream = new BufferedOutputStream(connection.getOutputStream());
-//        bufferedStream.write(jsonObjects[0].toString().getBytes());
-//        bufferedStream.flush();
-//        bufferedStream.close();
-
-        String line = "";
-        StringBuilder sbResponse = new StringBuilder();
-
-        BufferedReader bufferedReader = new BufferedReader(new InputStreamReader(connection.getInputStream()));
-        while ((line = bufferedReader.readLine()) != null) {
-            sbResponse.append(line);
-        }
-
-        bufferedReader.close();
-
-        JSONObject response = new JSONObject(sbResponse.toString());
-        JSONArray arrayResponse = response.getJSONArray("categories");
-
-        List<Category> categories = new ArrayList<>();
-
-        for (int i = 0; i < arrayResponse.length(); i++) {
-            categories.add(new Category(arrayResponse.getJSONObject(i).getString("file_path"), arrayResponse.getJSONObject(i).getString("name")));
-        }
-
-        return categories;
     }
 }

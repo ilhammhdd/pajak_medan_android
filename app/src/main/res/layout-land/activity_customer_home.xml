@@ -93,25 +93,6 @@
 
         </android.support.constraint.ConstraintLayout>
 
-        <com.daimajia.slider.library.SliderLayout
-            android:id="@+id/slider_event"
-            android:layout_width="match_parent"
-            android:layout_height="0dp"
-            android:layout_marginBottom="8dp"
-            android:layout_marginEnd="8dp"
-            android:layout_marginStart="8dp"
-            android:layout_marginTop="8dp"
-            app:auto_cycle="true"
-            app:indicator_visibility="visible"
-            app:layout_constraintBottom_toTopOf="@+id/guideline7"
-            app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintHorizontal_bias="0.0"
-            app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toBottomOf="@id/customer_home_base_layout"
-            app:layout_constraintVertical_chainStyle="spread_inside"
-            app:pager_animation="Accordion"
-            app:pager_animation_span="1100" />
-
         <com.daimajia.slider.library.Indicators.PagerIndicator
             android:id="@+id/custom_indicator"
             android:layout_width="wrap_content"
@@ -147,19 +128,31 @@
             android:layout_marginBottom="8dp"
             android:layout_marginEnd="8dp"
             android:layout_marginStart="8dp"
-            android:layout_marginTop="8dp"
             app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toTopOf="@+id/guideline7"
+            app:layout_constraintHorizontal_bias="0.5"
+            app:layout_constraintStart_toEndOf="@+id/slider_event"
+            app:layout_constraintTop_toTopOf="@+id/slider_event"
+            app:layout_constraintVertical_bias="0.0"
             app:layout_constraintVertical_chainStyle="spread_inside" />
 
-        <android.support.constraint.Guideline
-            android:id="@+id/guideline7"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:orientation="horizontal"
-            app:layout_constraintGuide_percent=".4" />
+        <com.daimajia.slider.library.SliderLayout
+            android:id="@+id/slider_event"
+            android:layout_width="0dp"
+            android:layout_height="0dp"
+            android:layout_marginBottom="8dp"
+            android:layout_marginStart="8dp"
+            android:layout_marginTop="8dp"
+            app:auto_cycle="true"
+            app:indicator_visibility="visible"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintEnd_toStartOf="@+id/recyclerView_category"
+            app:layout_constraintHorizontal_bias="0.5"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@id/customer_home_base_layout"
+            app:layout_constraintVertical_chainStyle="spread_inside"
+            app:pager_animation="Accordion"
+            app:pager_animation_span="1100" />
 
         <!--<ListView-->
         <!--android:id="@+id/listView_category"-->

@@ -4,7 +4,6 @@ import android.content.Intent;
 import android.net.Uri;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
-import android.support.v7.app.AppCompatActivity;
 import android.util.Log;
 import android.widget.EditText;
 import android.widget.TextView;
@@ -28,6 +27,7 @@ import com.google.android.gms.common.api.Status;
 import com.pajakmedan.pajakmedan.asynctasks.Login;
 import com.pajakmedan.pajakmedan.asynctasks.Register;
 import com.pajakmedan.pajakmedan.listeners.OnRequestListener;
+import com.pajakmedan.pajakmedan.models.User;
 
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -35,14 +35,13 @@ import org.json.JSONObject;
 import java.util.Arrays;
 
 import butterknife.BindView;
-import butterknife.ButterKnife;
 import butterknife.OnClick;
 
 /**
  * Created by milha on 1/6/2018.
  */
 
-public class RegisterActivity extends AppCompatActivity implements GoogleApiClient.OnConnectionFailedListener {
+public class RegisterActivity extends BaseAuthenticationActivity {
     @BindView(R.id.editText_register_nama)
     EditText editText_nama;
     @BindView(R.id.editText_register_email)
@@ -55,200 +54,152 @@ public class RegisterActivity extends AppCompatActivity implements GoogleApiClie
     EditText editText_password;
     @BindView(R.id.editText_register_confirmPassword)
     EditText editText_confirmPassword;
-    @BindView(R.id.textView_register_text)
-    TextView textView_status;
+//    @BindView(R.id.textView_register_text)
+//    TextView textView_status;
 
-    GoogleSignInOptions gso;
-    GoogleApiClient gac;
-    CallbackManager callbackManager;
-
-    private static final int REQ_CODE = 9002;
+    //    GoogleSignInOptions gso;
+//    GoogleApiClient gac;
+//    CallbackManager callbackManager;
+//
+//    private static final int REQ_CODE = 9002;
     private final String TAG = "REGISTER_ACTIVITY";
 
     @Override
-    public void onCreate(Bundle savedInstanceState) {
-        super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_register);
-        ButterKnife.bind(this);
+    int getContentId() {
+        return R.layout.activity_register;
+    }
 
-        if (Constants.AUTH_TYPE != null) {
+    @Override
+    void insideOnCreate() {
+        super.insideOnCreate();
+        if (Constants.AUTH_TYPE != -1) {
             Log.d(TAG, "User already authenticated");
-            startActivity(new Intent(RegisterActivity.this, CustomerHome.class));
+            startActivity(new Intent(RegisterActivity.this, CustomerHomeActivity.class));
             finish();
         }
-
-        gso = new GoogleSignInOptions.Builder(GoogleSignInOptions.DEFAULT_SIGN_IN).requestEmail().build();
-        Constants.GOOGLE_API_CLIENT = new GoogleApiClient.Builder(RegisterActivity.this).addApi(Auth.GOOGLE_SIGN_IN_API, gso).build();
-        callbackManager = CallbackManager.Factory.create();
-        Constants.GOOGLE_API_CLIENT.connect();
-
-        LoginManager.getInstance().registerCallback(callbackManager,
-                new FacebookCallback<LoginResult>() {
-                    @Override
-                    public void onSuccess(LoginResult loginResult) {
-                        facebookSignInOnSuccess(loginResult);
-                    }
-
-                    @Override
-                    public void onCancel() {
-                    }
-
-                    @Override
-                    public void onError(FacebookException error) {
-                    }
-                });
-    }
-
-    private void facebookSignInOnSuccess(LoginResult loginResult) {
-        Log.d(TAG, "Facebook sign in success");
-        AccessToken accessToken = loginResult.getAccessToken();
-        final Login login = new Login();
-        Log.d(TAG, "Sending Facebook graph request");
-        GraphRequest graphRequest = GraphRequest.newMeRequest(accessToken, new GraphRequest.GraphJSONObjectCallback() {
-            @Override
-            public void onCompleted(JSONObject object, GraphResponse response) {
-                try {
-                    Log.d(TAG, "Facebook graph request completed");
-
-                    JSONObject alternativeAuth = new JSONObject();
-                    alternativeAuth.put("url", Constants.DOMAIN + "api/alternative-login");
-                    alternativeAuth.put("alternative_auth", true);
-                    alternativeAuth.put("email", object.getString("email"));
-                    alternativeAuth.put("id", object.getString("id"));
-                    alternativeAuth.put("auth_type", "facebook");
-                    alternativeAuth.put("photo_url", "https://graph.facebook.com/" + object.getString("id") + "/picture?type=large");
-
-                    JSONObject alternativeAuthChunk = new JSONObject();
-                    alternativeAuthChunk.put("data", alternativeAuth);
-
-                    Log.d(TAG, alternativeAuthChunk.toString());
-                    login.execute(alternativeAuthChunk);
-
-                    Log.d(TAG, "Login async task executed");
-
-                    login.setOnRequestListener(new OnRequestListener() {
-                        @Override
-                        public void onRequest(JSONObject response) throws JSONException {
-                            Log.d(TAG, "The response : " + response.toString());
-                            if (response.getBoolean("authenticated")) {
-                                Log.d(TAG, "User authenticated with facebook authentication");
-                                Constants.AUTH_TYPE = "facebook";
-                                startActivity(new Intent(RegisterActivity.this, CustomerHome.class));
-                                finish();
-                            }
-
-                            if (response.getBoolean("email_taken")) {
-                                textView_status.setText(response.getString("message"));
-                                LoginManager.getInstance().logOut();
-                                Constants.AUTH_TYPE = null;
-                            }
-                        }
-                    });
-                } catch (JSONException e) {
-                    e.printStackTrace();
-                }
-            }
-        });
-
-        Bundle parameters = new Bundle();
-        parameters.putString("fields", "id,name,email");
-        graphRequest.setParameters(parameters);
-        graphRequest.executeAsync();
+//        gso = new GoogleSignInOptions.Builder(GoogleSignInOptions.DEFAULT_SIGN_IN).requestEmail().build();
+//        Constants.GOOGLE_API_CLIENT = new GoogleApiClient.Builder(RegisterActivity.this).addApi(Auth.GOOGLE_SIGN_IN_API, gso).build();
+//        callbackManager = CallbackManager.Factory.create();
+//        Constants.GOOGLE_API_CLIENT.connect();
+//
+//        LoginManager.getInstance().registerCallback(callbackManager,
+//                new FacebookCallback<LoginResult>() {
+//                    @Override
+//                    public void onSuccess(LoginResult loginResult) {
+//                        facebookSignInOnSuccess(loginResult);
+//                    }
+//
+//                    @Override
+//                    public void onCancel() {
+//                    }
+//
+//                    @Override
+//                    public void onError(FacebookException error) {
+//                    }
+//                });
     }
 
     @Override
-    public void onActivityResult(int requestCode, int resultCode, Intent data) {
-        super.onActivityResult(requestCode, resultCode, data);
-
-        callbackManager.onActivityResult(requestCode, resultCode, data);
-
-        if (requestCode == REQ_CODE) {
-            GoogleSignInResult result = Auth.GoogleSignInApi.getSignInResultFromIntent(data);
-            handleSignInResult(result);
-        }
+    int getViewComponentId() {
+        return R.id.textView_register_text;
     }
 
-    private void handleSignInResult(GoogleSignInResult result) {
-        if (result.isSuccess()) {
-            GoogleSignInAccount account = result.getSignInAccount();
-            Log.d(TAG, "Google authentication success");
+//    @Override
+//    public void onActivityResult(int requestCode, int resultCode, Intent data) {
+//        super.onActivityResult(requestCode, resultCode, data);
+//
+//        callbackManager.onActivityResult(requestCode, resultCode, data);
+//
+//        if (requestCode == REQ_CODE) {
+//            GoogleSignInResult result = Auth.GoogleSignInApi.getSignInResultFromIntent(data);
+//            handleSignInResult(result);
+//        }
+//    }
 
-            String displayName, email, id, idToken, serverAuthCode;
-            Uri photoUrl;
-            if (account != null) {
-                displayName = account.getDisplayName();
-                email = account.getEmail();
-                id = account.getId();
-                idToken = account.getIdToken();
-                serverAuthCode = account.getServerAuthCode();
-                photoUrl = account.getPhotoUrl();
+//    private void handleSignInResult(GoogleSignInResult result) {
+//        if (result.isSuccess()) {
+//            GoogleSignInAccount account = result.getSignInAccount();
+//            Log.d(TAG, "Google authentication success");
+//
+//            String displayName, email, id, idToken, serverAuthCode;
+//            Uri photoUrl;
+//            if (account != null) {
+//                displayName = account.getDisplayName();
+//                email = account.getEmail();
+//                id = account.getId();
+//                idToken = account.getIdToken();
+//                serverAuthCode = account.getServerAuthCode();
+//                photoUrl = account.getPhotoUrl();
+//
+//                Log.d(TAG, "Google account existed");
+//
+//                Login login = new Login();
+//                try {
+//                    JSONObject alternativeAuth = new JSONObject();
+//                    alternativeAuth.put("url", Constants.DOMAIN + "api/alternative-login");
+//                    alternativeAuth.put("alternative_auth", true);
+//                    alternativeAuth.put("email", email);
+//                    alternativeAuth.put("id", id);
+//                    alternativeAuth.put("auth_type", "google");
+//                    alternativeAuth.put("photo_url", photoUrl == null ? "null" : photoUrl);
+//
+//                    JSONObject alternativeAuthChunk = new JSONObject();
+//                    alternativeAuthChunk.put("data", alternativeAuth);
+//
+//                    Log.d(TAG, "The request : " + alternativeAuthChunk.toString());
+//                    login.execute(alternativeAuthChunk);
+//                    Log.d(TAG, "Login async task executed");
+//
+//                    login.setOnRequestListener(new OnRequestListener() {
+//                        @Override
+//                        public void onRequest(JSONObject response) throws JSONException {
+//                            Log.d(TAG, response.toString());
+//                            if (response.getBoolean("authenticated")) {
+//                                Constants.AUTH_TYPE = 1;
+////                                Constants.USER_API_TOKEN = response.getString("api_token");
+////                                User.saveCurrentUser(response.getJSONObject("user"));
+//                                Log.d(TAG, "User authenticated with google authentication");
+//                                startActivity(new Intent(RegisterActivity.this, CustomerHomeActivity.class));
+//                                finish();
+//                                return;
+//                            }
+//
+//                            if (response.getBoolean("email_taken")) {
+//                                textView_status.setText(response.getString("message"));
+//                                Auth.GoogleSignInApi.signOut(Constants.GOOGLE_API_CLIENT).setResultCallback(new ResultCallback<Status>() {
+//                                    @Override
+//                                    public void onResult(@NonNull Status status) {
+//                                        Log.d(TAG, "Google sign out success");
+//                                        Constants.AUTH_TYPE = -1;
+//                                    }
+//                                });
+//                            }
+//                        }
+//                    });
+//
+//                } catch (JSONException e) {
+//                    e.printStackTrace();
+//                }
+//            }
+//        }
+//    }
 
-                Log.d(TAG, "Google account existed");
-
-                Login login = new Login();
-                try {
-                    JSONObject alternativeAuth = new JSONObject();
-                    alternativeAuth.put("url", Constants.DOMAIN + "api/alternative-login");
-                    alternativeAuth.put("alternative_auth", true);
-                    alternativeAuth.put("email", email);
-                    alternativeAuth.put("id", id);
-                    alternativeAuth.put("auth_type", "google");
-                    alternativeAuth.put("photo_url", photoUrl == null ? "null" : photoUrl);
-
-                    JSONObject alternativeAuthChunk = new JSONObject();
-                    alternativeAuthChunk.put("data", alternativeAuth);
-
-                    Log.d(TAG, "The request : " + alternativeAuthChunk.toString());
-                    login.execute(alternativeAuthChunk);
-                    Log.d(TAG, "Login async task executed");
-
-                    login.setOnRequestListener(new OnRequestListener() {
-                        @Override
-                        public void onRequest(JSONObject response) throws JSONException {
-                            Log.d(TAG, response.toString());
-                            if (response.getBoolean("authenticated")) {
-                                Constants.AUTH_TYPE = "google";
-                                Log.d(TAG, "User authenticated with google authentication");
-                                startActivity(new Intent(RegisterActivity.this, CustomerHome.class));
-                                finish();
-                            }
-
-                            if (response.getBoolean("email_taken")) {
-                                textView_status.setText(response.getString("message"));
-                                Auth.GoogleSignInApi.signOut(Constants.GOOGLE_API_CLIENT).setResultCallback(new ResultCallback<Status>() {
-                                    @Override
-                                    public void onResult(@NonNull Status status) {
-                                        Log.d(TAG, "Google sign out success");
-                                        Constants.AUTH_TYPE = null;
-                                    }
-                                });
-                            }
-                        }
-                    });
-
-                } catch (JSONException e) {
-                    e.printStackTrace();
-                }
-            }
-        }
-    }
-
-    @Override
-    public void onConnectionFailed(@NonNull ConnectionResult connectionResult) {
-
-    }
+//    @Override
+//    public void onConnectionFailed(@NonNull ConnectionResult connectionResult) {
+//
+//    }
 
     @OnClick(R.id.button_register)
     void button_register() {
         if (fieldsNotFilled()) {
             Log.d(TAG, "Ada field yang kosong");
-            textView_status.setText(R.string.field_tidak_boleh_kosong);
+            textViewResponseStatus.setText(R.string.field_tidak_boleh_kosong);
         } else {
             Register register = new Register();
 
             if (!editText_password.getText().toString().equals(editText_confirmPassword.getText().toString())) {
                 Log.d(TAG, "Confirmation password doesn't match");
-                textView_status.setText(R.string.konfirmasi_password);
+                textViewResponseStatus.setText(R.string.konfirmasi_password);
             } else {
                 try {
                     JSONObject data = new JSONObject();
@@ -270,7 +221,7 @@ public class RegisterActivity extends AppCompatActivity implements GoogleApiClie
                         @Override
                         public void onRequest(JSONObject response) throws JSONException {
                             Log.d(TAG, "Register response received");
-                            textView_status.setText(response.getString("message"));
+                            textViewResponseStatus.setText(response.getString("message"));
                         }
                     });
 
@@ -295,8 +246,21 @@ public class RegisterActivity extends AppCompatActivity implements GoogleApiClie
 
     @OnClick(R.id.button_register_facebook)
     void button_register_facebook() {
-        LoginManager.getInstance().logInWithReadPermissions(RegisterActivity.this, Arrays.asList("public_profile", "user_friends"));
+        LoginManager.getInstance().logInWithReadPermissions(RegisterActivity.this, Arrays.asList("public_profile", "user_friends", "email", "user_photos"));
+    }
 
+    @OnClick(R.id.textView_hubungiKami)
+    void buttonHubungiKami() {
+        if (Constants.AUTH_TYPE == 2) {
+            Log.d(TAG, "User with facebook authentication successfully logout");
+            AccessToken.setCurrentAccessToken(null);
+            LoginManager.getInstance().logOut();
+
+            Constants.AUTH_TYPE = -1;
+
+            startActivity(new Intent(RegisterActivity.this, RegisterActivity.class));
+            finish();
+        }
     }
 
     private boolean fieldsNotFilled() {
