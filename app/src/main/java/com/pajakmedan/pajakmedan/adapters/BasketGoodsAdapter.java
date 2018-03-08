@@ -1,6 +1,7 @@
 package com.pajakmedan.pajakmedan.adapters;
 
 import android.content.Context;
+import android.media.Image;
 import android.support.constraint.ConstraintLayout;
 import android.support.v7.widget.RecyclerView;
 import android.util.Log;
@@ -47,7 +48,7 @@ public class BasketGoodsAdapter extends RecyclerView.Adapter<BasketGoodsAdapter.
         Glide.with(context).load(goods.goodsImageUrl).into(holder.imageViewImage);
         holder.textViewName.setText(goods.goodsName);
         holder.textViewPricee.setText(String.valueOf(goods.goodsPrice));
-        String totalAndUnit = this.basketGoods.get(position).goodsQuantity + " " + goods.goodsUnit;
+        String totalAndUnit = String.valueOf(this.basketGoods.get(position).goodsQuantity) + " " + String.valueOf(goods.goodsUnit);
         holder.textViewTotalAndUnit.setText(totalAndUnit);
     }
 
@@ -60,6 +61,8 @@ public class BasketGoodsAdapter extends RecyclerView.Adapter<BasketGoodsAdapter.
 
         ConstraintLayout layoutBasketGoods;
         ImageView imageViewImage;
+        ImageView imageViewDelete;
+        ImageView imageViewEdit;
         TextView textViewName;
         TextView textViewPricee;
         TextView textViewTotalAndUnit;
@@ -68,6 +71,8 @@ public class BasketGoodsAdapter extends RecyclerView.Adapter<BasketGoodsAdapter.
             super(itemView);
             itemView.setOnClickListener(this);
             layoutBasketGoods = itemView.findViewById(R.id.layout_basketGoods);
+            imageViewDelete = itemView.findViewById(R.id.imageView_basketGoods_delete);
+            imageViewEdit = itemView.findViewById(R.id.imageView_basketGoods_edit);
             imageViewImage = itemView.findViewById(R.id.imageView_basketGoods_image);
             textViewName = itemView.findViewById(R.id.textView_basketGoods_name);
             textViewPricee = itemView.findViewById(R.id.textView_basketGoods_totalPrice);

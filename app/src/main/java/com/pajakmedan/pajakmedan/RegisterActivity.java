@@ -24,6 +24,7 @@ import com.google.android.gms.common.ConnectionResult;
 import com.google.android.gms.common.api.GoogleApiClient;
 import com.google.android.gms.common.api.ResultCallback;
 import com.google.android.gms.common.api.Status;
+import com.orhanobut.hawk.Hawk;
 import com.pajakmedan.pajakmedan.asynctasks.Login;
 import com.pajakmedan.pajakmedan.asynctasks.Register;
 import com.pajakmedan.pajakmedan.listeners.OnRequestListener;
@@ -72,122 +73,24 @@ public class RegisterActivity extends BaseAuthenticationActivity {
     @Override
     void insideOnCreate() {
         super.insideOnCreate();
-        if (Constants.AUTH_TYPE != -1) {
+
+        if (Hawk.contains(Constants.USER_API_TOKEN_KEY)) {
+            Log.d("TRACKING_API_TOKEN", String.valueOf(Hawk.get(Constants.USER_API_TOKEN_KEY)));
+        } else {
+            Log.d("TRACKING_API_TOKEN", "GAK ADAA");
+        }
+
+        if (Hawk.get(Constants.USER_API_TOKEN_KEY) != null) {
             Log.d(TAG, "User already authenticated");
             startActivity(new Intent(RegisterActivity.this, CustomerHomeActivity.class));
             finish();
         }
-//        gso = new GoogleSignInOptions.Builder(GoogleSignInOptions.DEFAULT_SIGN_IN).requestEmail().build();
-//        Constants.GOOGLE_API_CLIENT = new GoogleApiClient.Builder(RegisterActivity.this).addApi(Auth.GOOGLE_SIGN_IN_API, gso).build();
-//        callbackManager = CallbackManager.Factory.create();
-//        Constants.GOOGLE_API_CLIENT.connect();
-//
-//        LoginManager.getInstance().registerCallback(callbackManager,
-//                new FacebookCallback<LoginResult>() {
-//                    @Override
-//                    public void onSuccess(LoginResult loginResult) {
-//                        facebookSignInOnSuccess(loginResult);
-//                    }
-//
-//                    @Override
-//                    public void onCancel() {
-//                    }
-//
-//                    @Override
-//                    public void onError(FacebookException error) {
-//                    }
-//                });
     }
 
     @Override
     int getViewComponentId() {
         return R.id.textView_register_text;
     }
-
-//    @Override
-//    public void onActivityResult(int requestCode, int resultCode, Intent data) {
-//        super.onActivityResult(requestCode, resultCode, data);
-//
-//        callbackManager.onActivityResult(requestCode, resultCode, data);
-//
-//        if (requestCode == REQ_CODE) {
-//            GoogleSignInResult result = Auth.GoogleSignInApi.getSignInResultFromIntent(data);
-//            handleSignInResult(result);
-//        }
-//    }
-
-//    private void handleSignInResult(GoogleSignInResult result) {
-//        if (result.isSuccess()) {
-//            GoogleSignInAccount account = result.getSignInAccount();
-//            Log.d(TAG, "Google authentication success");
-//
-//            String displayName, email, id, idToken, serverAuthCode;
-//            Uri photoUrl;
-//            if (account != null) {
-//                displayName = account.getDisplayName();
-//                email = account.getEmail();
-//                id = account.getId();
-//                idToken = account.getIdToken();
-//                serverAuthCode = account.getServerAuthCode();
-//                photoUrl = account.getPhotoUrl();
-//
-//                Log.d(TAG, "Google account existed");
-//
-//                Login login = new Login();
-//                try {
-//                    JSONObject alternativeAuth = new JSONObject();
-//                    alternativeAuth.put("url", Constants.DOMAIN + "api/alternative-login");
-//                    alternativeAuth.put("alternative_auth", true);
-//                    alternativeAuth.put("email", email);
-//                    alternativeAuth.put("id", id);
-//                    alternativeAuth.put("auth_type", "google");
-//                    alternativeAuth.put("photo_url", photoUrl == null ? "null" : photoUrl);
-//
-//                    JSONObject alternativeAuthChunk = new JSONObject();
-//                    alternativeAuthChunk.put("data", alternativeAuth);
-//
-//                    Log.d(TAG, "The request : " + alternativeAuthChunk.toString());
-//                    login.execute(alternativeAuthChunk);
-//                    Log.d(TAG, "Login async task executed");
-//
-//                    login.setOnRequestListener(new OnRequestListener() {
-//                        @Override
-//                        public void onRequest(JSONObject response) throws JSONException {
-//                            Log.d(TAG, response.toString());
-//                            if (response.getBoolean("authenticated")) {
-//                                Constants.AUTH_TYPE = 1;
-////                                Constants.USER_API_TOKEN = response.getString("api_token");
-////                                User.saveCurrentUser(response.getJSONObject("user"));
-//                                Log.d(TAG, "User authenticated with google authentication");
-//                                startActivity(new Intent(RegisterActivity.this, CustomerHomeActivity.class));
-//                                finish();
-//                                return;
-//                            }
-//
-//                            if (response.getBoolean("email_taken")) {
-//                                textView_status.setText(response.getString("message"));
-//                                Auth.GoogleSignInApi.signOut(Constants.GOOGLE_API_CLIENT).setResultCallback(new ResultCallback<Status>() {
-//                                    @Override
-//                                    public void onResult(@NonNull Status status) {
-//                                        Log.d(TAG, "Google sign out success");
-//                                        Constants.AUTH_TYPE = -1;
-//                                    }
-//                                });
-//                            }
-//                        }
-//                    });
-//
-//                } catch (JSONException e) {
-//                    e.printStackTrace();
-//                }
-//            }
-//        }
-//    }
-
-//    @Override
-//    public void onConnectionFailed(@NonNull ConnectionResult connectionResult) {
-//
-//    }
 
     @OnClick(R.id.button_register)
     void button_register() {

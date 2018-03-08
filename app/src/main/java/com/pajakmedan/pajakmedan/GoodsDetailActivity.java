@@ -1,5 +1,6 @@
 package com.pajakmedan.pajakmedan;
 
+import android.content.Intent;
 import android.widget.ImageView;
 import android.widget.TextView;
 
@@ -70,7 +71,7 @@ public class GoodsDetailActivity extends BaseActivity {
         Glide.with(getApplicationContext()).load(goods.goodsImageUrl).into(imageViewGoods);
         imageViewStar.setImageLevel(0);
         textViewGoodsName.setText(goods.goodsName);
-        textViewGoodsPrice.setText(goods.goodsPrice);
+        textViewGoodsPrice.setText(String.valueOf(goods.goodsPrice));
         textViewAvailibility.setText(tersedia);
         textViewGoodsSatuan.setText(goods.goodsUnit);
         textViewGoodsMinPemesanan.setText(minPemesanan);
@@ -87,5 +88,10 @@ public class GoodsDetailActivity extends BaseActivity {
     @OnClick(R.id.imageView_goods_back1)
     void back() {
         finish();
+    }
+
+    @OnClick(R.id.imageView_detailGoods_basket)
+    void basket() {
+        startActivity(new Intent(GoodsDetailActivity.this, BasketActivity.class));
     }
 }

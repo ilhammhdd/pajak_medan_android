@@ -58,7 +58,7 @@ public class GoodsAdapter extends RecyclerView.Adapter<GoodsAdapter.GoodsViewHol
         }
         holder.textView_goodsName.setText(goods.goodsName);
         holder.textView_goodsUnit.setText(goods.goodsUnit);
-        holder.textView_goodsPrice.setText(goods.goodsPrice);
+        holder.textView_goodsPrice.setText(String.valueOf(goods.goodsPrice));
     }
 
     @Override

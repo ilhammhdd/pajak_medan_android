@@ -50,4 +50,16 @@
     <string name="title_activity_test">TestActivity</string>
     <string name="keranjang_belanjaan">Keranjang Belanjaan</string>
     <string name="lanjut_pembayaran">Lanjutkan Pembayaran</string>
+    <string name="ingin_keluar">Anda yakin ingin keluar?</string>
+    <string name="pembayaran">Pembayaran</string>
+    <string name="nomor_rekening">Nomor Rekening :</string>
+    <string name="cek_transfer">Klik tombol dibawah setelah anda melakukan transfer</string>
+    <string name="periksa_transfer">Periksa transfer</string>
+    <string name="ya">Ya</string>
+    <string name="tidak">Tidak</string>
+    <string name="pilih_pembayaran">Anda memilih pembayaran menggunakan</string>
+    <string name="lanjutkan">Lanjutkan?</string>
+    <string name="alamat_tujuan">Alamat tujuan pengiriman</string>
+    <string name="gunakan_alamat_lain">Gunakan alamat lain</string>
+    <string name="buat_alamat_baru">Buat alamat baru</string>
 </resources>

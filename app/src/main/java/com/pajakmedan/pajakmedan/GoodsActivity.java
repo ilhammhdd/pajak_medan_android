@@ -84,7 +84,12 @@ public class GoodsActivity extends BaseActivity implements GoodsAdapter.ClickLis
     }
 
     @OnClick(R.id.imageView_goods_back)
-    void back(){
+    void back() {
         finish();
+    }
+
+    @OnClick(R.id.imageView_goods_basket)
+    void basket() {
+        startActivity(new Intent(GoodsActivity.this, BasketActivity.class));
     }
 }

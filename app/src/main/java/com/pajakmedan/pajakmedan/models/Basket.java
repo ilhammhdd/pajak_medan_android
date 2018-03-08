@@ -17,9 +17,9 @@ public class Basket {
     public int customerId;
     public int total;
     public String description;
-    public boolean status;
+    public String status;
 
-    public Basket(int basketId, int customerId, int total, String description, boolean status) {
+    public Basket(int basketId, int customerId, int total, String description, String status) {
         this.basketId = basketId;
         this.customerId = customerId;
         this.total = total;
@@ -38,7 +38,7 @@ public class Basket {
                     object.getInt("customer_id"),
                     object.getInt("total"),
                     hasDescription ? object.getString("description") : "",
-                    object.getInt("status") == 1
+                    object.getString("status_name")
             );
 
             Hawk.put(Constants.BASKET_KEY, basket);

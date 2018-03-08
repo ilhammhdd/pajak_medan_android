@@ -58,7 +58,7 @@ public class GetBasketGoods extends AsyncTask<JSONObject, Void, List<BasketGoods
                                         basketGoods.getJSONObject(i).getInt("baskets_customer_id"),
                                         basketGoods.getJSONObject(i).getInt("baskets_total"),
                                         basketGoods.getJSONObject(i).getString("baskets_description"),
-                                        basketGoods.getJSONObject(i).getInt("baskets_status") == 1
+                                        basketGoods.getJSONObject(i).getString("basket_status_name")
                                 ),
                                 basketGoods.getJSONObject(i).getInt("baskets_goods_quantity"),
                                 basketGoods.getJSONObject(i).getInt("baskets_goods_total_price")

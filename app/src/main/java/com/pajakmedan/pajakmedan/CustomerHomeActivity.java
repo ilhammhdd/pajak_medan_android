@@ -1,10 +1,16 @@
 package com.pajakmedan.pajakmedan;
 
+import android.content.BroadcastReceiver;
+import android.content.Context;
+import android.content.DialogInterface;
 import android.content.Intent;
+import android.content.IntentFilter;
 import android.os.Bundle;
+import android.os.PersistableBundle;
 import android.support.annotation.NonNull;
 import android.support.design.widget.NavigationView;
 import android.support.v4.widget.DrawerLayout;
+import android.support.v7.app.AlertDialog;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.util.Log;
@@ -31,6 +37,8 @@ import com.pajakmedan.pajakmedan.asynctasks.GetCategory;
 import com.pajakmedan.pajakmedan.asynctasks.GetEvent;
 import com.pajakmedan.pajakmedan.models.Basket;
 import com.pajakmedan.pajakmedan.models.Category;
+import com.pajakmedan.pajakmedan.models.Payment;
+import com.pajakmedan.pajakmedan.service.BroadcastService;
 
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -91,24 +99,27 @@ public class CustomerHomeActivity extends BaseActivity implements NavigationView
     @Override
     protected void onStart() {
         super.onStart();
-
         Constants.GOOGLE_API_CLIENT.connect();
     }
 
     @Override
-    protected void onResume() {
-        super.onResume();
+    public void onBackPressed() {
+        new AlertDialog.Builder(this)
+                .setMessage(R.string.ingin_keluar)
+                .setCancelable(false)
+                .setPositiveButton("Yes", new DialogInterface.OnClickListener() {
+                    public void onClick(DialogInterface dialog, int id) {
+                        CustomerHomeActivity.this.finish();
+                    }
+                })
+                .setNegativeButton("No", null)
+                .show();
     }
 
     @Override
     protected void onStop() {
-        sliderLayout_event.stopAutoCycle();
         super.onStop();
-    }
-
-    @Override
-    protected void onDestroy() {
-        super.onDestroy();
+        sliderLayout_event.stopAutoCycle();
     }
 
     @Override
@@ -124,6 +135,12 @@ public class CustomerHomeActivity extends BaseActivity implements NavigationView
             }
 
             case R.id.customer_sidenav_menu_basket: {
+                Payment payment = Hawk.get(Constants.CURRENT_PAYMENT_KEY);
+                if (payment != null) {
+                    startActivity(new Intent(CustomerHomeActivity.this, PaymentIssuedActivity.class));
+                    break;
+                }
+
                 Basket basket = Hawk.get(Constants.BASKET_KEY);
                 if (basket != null) {
                     startActivity(new Intent(CustomerHomeActivity.this, BasketActivity.class));
@@ -146,35 +163,7 @@ public class CustomerHomeActivity extends BaseActivity implements NavigationView
                 break;
             }
             case R.id.customer_sidenav_menu_logout: {
-                Log.d(TAG, "Side nav menu button clicked");
-                if (Constants.AUTH_TYPE == 0) {
-                    Log.d(TAG, "User with native authentication successfully logout");
-                    Constants.AUTH_TYPE = -1;
-
-                    startActivity(new Intent(CustomerHomeActivity.this, RegisterActivity.class));
-                    finish();
-                } else if (Constants.AUTH_TYPE == 1) {
-                    Log.d(TAG, "User with google authentication successfully logout");
-                    Auth.GoogleSignInApi.signOut(Constants.GOOGLE_API_CLIENT).setResultCallback(new ResultCallback<Status>() {
-                        @Override
-                        public void onResult(@NonNull Status status) {
-
-                        }
-                    });
-                    Constants.AUTH_TYPE = -1;
-
-                    startActivity(new Intent(CustomerHomeActivity.this, RegisterActivity.class));
-                    finish();
-                } else if (Constants.AUTH_TYPE == 2) {
-                    Log.d(TAG, "User with facebook authentication successfully logout");
-                    AccessToken.setCurrentAccessToken(null);
-                    LoginManager.getInstance().logOut();
-
-                    Constants.AUTH_TYPE = -1;
-
-                    startActivity(new Intent(CustomerHomeActivity.this, RegisterActivity.class));
-                    finish();
-                }
+                logout(CustomerHomeActivity.this);
                 break;
             }
         }
@@ -195,7 +184,6 @@ public class CustomerHomeActivity extends BaseActivity implements NavigationView
 
     @Override
     public void onPageSelected(int position) {
-        Log.d("Slider Demo", "Page Changed: " + position);
     }
 
     @Override
@@ -241,13 +229,13 @@ public class CustomerHomeActivity extends BaseActivity implements NavigationView
             JSONObject request = new JSONObject();
             request.put("url", Constants.DOMAIN + "api/get-events");
             request.put("api_token", Hawk.get(Constants.USER_API_TOKEN_KEY));
+            Log.d("TRACKING_GET_EVENTS", "API TOKEN :" + Hawk.get(Constants.USER_API_TOKEN_KEY));
 
             JSONObject requestChunk = new JSONObject();
             requestChunk.put("data", request);
 
             GetEvent getEvent = new GetEvent();
             getEvent.execute(requestChunk);
-            Log.d(TAG, "Event request sent");
             getEvent.setOnRequestListener(new GetEvent.OnRequestListener() {
                 @Override
                 public void onRequest(HashMap<String, String> events) throws JSONException {

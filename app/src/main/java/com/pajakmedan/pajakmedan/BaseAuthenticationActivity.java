@@ -1,5 +1,6 @@
 package com.pajakmedan.pajakmedan;
 
+import android.content.Context;
 import android.content.Intent;
 import android.net.Uri;
 import android.os.Bundle;
@@ -50,6 +51,8 @@ public abstract class BaseAuthenticationActivity extends BaseActivity implements
 
     TextView textViewResponseStatus;
 
+    public static BaseAuthenticationActivity baseAuthenticationActivity;
+
     @Override
     int getContentId() {
         return 0;
@@ -57,6 +60,7 @@ public abstract class BaseAuthenticationActivity extends BaseActivity implements
 
     @Override
     void insideOnCreate() {
+        baseAuthenticationActivity = this;
         googleSignInOptions = new GoogleSignInOptions.Builder(GoogleSignInOptions.DEFAULT_SIGN_IN).requestEmail().build();
         Constants.GOOGLE_API_CLIENT = new GoogleApiClient.Builder(getApplicationContext()).addApi(Auth.GOOGLE_SIGN_IN_API, googleSignInOptions).build();
         Constants.GOOGLE_API_CLIENT.connect();
@@ -79,7 +83,6 @@ public abstract class BaseAuthenticationActivity extends BaseActivity implements
                 });
 
         textViewResponseStatus = findViewById(getViewComponentId());
-        Hawk.deleteAll();
     }
 
     abstract int getViewComponentId();
@@ -89,18 +92,12 @@ public abstract class BaseAuthenticationActivity extends BaseActivity implements
     }
 
     void facebookSignInOnSuccess(LoginResult loginResult) {
-        Log.d(TAG, "Facebook sign in success");
         AccessToken accessToken = loginResult.getAccessToken();
-        Log.d(TAG, "Login Result : " + accessToken.getToken());
-        Log.d(TAG, "Sending Facebook graph request");
         GraphRequest graphRequest = GraphRequest.newMeRequest(accessToken, new GraphRequest.GraphJSONObjectCallback() {
             @Override
             public void onCompleted(JSONObject object, GraphResponse response) {
                 try {
                     Login login = new Login();
-                    Log.d(TAG, "Facebook graph request completed");
-                    Log.d(TAG, "json object : " + object.toString());
-                    Log.d(TAG, "graph response : " + response);
 
                     JSONObject alternativeAuth = new JSONObject();
                     alternativeAuth.put("url", Constants.DOMAIN + "api/alternative-login");
@@ -114,15 +111,11 @@ public abstract class BaseAuthenticationActivity extends BaseActivity implements
                     JSONObject alternativeAuthChunk = new JSONObject();
                     alternativeAuthChunk.put("data", alternativeAuth);
 
-                    Log.d(TAG, alternativeAuthChunk.toString());
                     login.execute(alternativeAuthChunk);
-
-                    Log.d(TAG, "Login async task executed");
 
                     login.setOnRequestListener(new OnRequestListener() {
                         @Override
                         public void onRequest(JSONObject response) throws JSONException {
-                            Log.d(TAG, "The response : " + response.getJSONObject("customer").toString());
                             if (response.getBoolean("authenticated")) {
                                 Constants.AUTH_TYPE = 2;
                                 User newUser = User.saveCurrentUser(response.getJSONObject("user"), response.has("file_id"));
@@ -132,7 +125,6 @@ public abstract class BaseAuthenticationActivity extends BaseActivity implements
                                 Hawk.put(Constants.USER_API_TOKEN_KEY, newUser.apiToken);
                                 getBasket();
 
-                                Log.d(TAG, "User authenticated with facebook authentication");
                                 startActivity(new Intent(getApplicationContext(), CustomerHomeActivity.class));
                                 finish();
                             } else if (response.getBoolean("email_taken")) {
@@ -169,18 +161,10 @@ public abstract class BaseAuthenticationActivity extends BaseActivity implements
     void handleSignInResult(GoogleSignInResult result) {
         if (result.isSuccess()) {
             GoogleSignInAccount account = result.getSignInAccount();
-            Log.d(TAG, "Google authentication success");
 
             Uri photoUrl;
             if (account != null) {
-//                displayName = account.getDisplayName();
-//                email = account.getEmail();
-//                id = account.getId();
-//                idToken = account.getIdToken();
-//                serverAuthCode = account.getServerAuthCode();
                 photoUrl = account.getPhotoUrl();
-
-                Log.d(TAG, "Google account existed");
 
                 Login login = new Login();
                 try {
@@ -196,14 +180,11 @@ public abstract class BaseAuthenticationActivity extends BaseActivity implements
                     JSONObject alternativeAuthChunk = new JSONObject();
                     alternativeAuthChunk.put("data", alternativeAuth);
 
-                    Log.d(TAG, "The request : " + alternativeAuthChunk.toString());
                     login.execute(alternativeAuthChunk);
-                    Log.d(TAG, "Login async task executed");
 
                     login.setOnRequestListener(new OnRequestListener() {
                         @Override
                         public void onRequest(JSONObject response) throws JSONException {
-                            Log.d(TAG, "The Response : " + response.toString());
                             if (response.getBoolean("authenticated")) {
                                 Constants.AUTH_TYPE = 1;
                                 User newUser = User.saveCurrentUser(response.getJSONObject("user"), response.has("file_id"));
@@ -213,7 +194,6 @@ public abstract class BaseAuthenticationActivity extends BaseActivity implements
                                 Hawk.put(Constants.USER_API_TOKEN_KEY, newUser.apiToken);
                                 getBasket();
 
-                                Log.d(TAG, "User authenticated with google authentication");
                                 startActivity(new Intent(getApplicationContext(), CustomerHomeActivity.class));
                                 finish();
                                 return;
@@ -224,7 +204,6 @@ public abstract class BaseAuthenticationActivity extends BaseActivity implements
                                 Auth.GoogleSignInApi.signOut(Constants.GOOGLE_API_CLIENT).setResultCallback(new ResultCallback<Status>() {
                                     @Override
                                     public void onResult(@NonNull Status status) {
-                                        Log.d(TAG, "Google sign out success");
                                         Constants.AUTH_TYPE = -1;
                                     }
                                 });
@@ -253,14 +232,11 @@ public abstract class BaseAuthenticationActivity extends BaseActivity implements
             Login login = new Login();
 
             login.execute(dataChunk);
-            Log.d(TAG, "Login async task executed");
 
             login.setOnRequestListener(new OnRequestListener() {
                 @Override
                 public void onRequest(JSONObject response) throws JSONException {
                     if (response.getBoolean("authenticated")) {
-                        Log.d(TAG, "User Authenticated with native authentication");
-                        Log.d(TAG, "Response : " + response.toString());
                         Constants.AUTH_TYPE = 0;
                         User newUser = User.saveCurrentUser(response.getJSONObject("user"), response.has("file_id"));
                         Profile.saveCurrentProfile(response.getJSONObject("profile"));
@@ -284,8 +260,6 @@ public abstract class BaseAuthenticationActivity extends BaseActivity implements
 
     private void getBasket() {
         Customer customer = Hawk.get(Constants.CUSTOMER_KEY);
-        Log.d("TOOOOL", "" + customer.customerId);
-        Log.d("TOOOOL", "" + Hawk.get(Constants.USER_API_TOKEN_KEY));
         try {
             JSONObject request = new JSONObject();
             request.put("url", Constants.DOMAIN + "api/get-basket");
@@ -302,12 +276,10 @@ public abstract class BaseAuthenticationActivity extends BaseActivity implements
                 @Override
                 public void onRequest(JSONObject jsonObject) throws JSONException {
                     if (jsonObject.has("basket")) {
-                        Log.d("BASKET_ADA", jsonObject.getJSONArray("basket").getJSONObject(0).toString());
                         JSONObject basket = jsonObject.getJSONArray("basket").getJSONObject(0);
                         Basket.saveBasket(basket, basket.getString("description") != null);
                         return;
                     }
-                    Log.d("BASKET_GAK_ADA", jsonObject.toString());
                     Basket.saveEmptyBasket();
                 }
             });

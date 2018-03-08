@@ -61,6 +61,11 @@
             android:label="@string/title_activity_test" />
         <!--android:theme="@style/AppTheme.NoActionBar" />-->
         <activity android:name=".BasketActivity" />
+        <activity android:name=".PaymentActivity" />
+        <activity android:name=".PaymentIssuedActivity" />
+        <activity android:name=".OrderHistoryActivity" />
+
+        <service android:name=".service.BroadcastService" />
     </application>
 
 </manifest>

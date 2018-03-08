@@ -1,6 +1,7 @@
 package com.pajakmedan.pajakmedan.adapters;
 
 import android.content.Context;
+import android.support.constraint.ConstraintLayout;
 import android.support.v7.widget.RecyclerView;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -39,7 +40,7 @@ public class CategoryAdapter extends RecyclerView.Adapter<CategoryAdapter.Catego
     public void onBindViewHolder(CategoryViewHolder holder, int position) {
         Category currentCategory = categories.get(position);
         holder.textView_categoryName.setText(currentCategory.categoryName);
-        holder.imageView_category.getLayoutParams().height = Constants.DEVICE_HEIGHT / 9;
+        holder.layoutCategory.getLayoutParams().height = Constants.DEVICE_HEIGHT / 7;
         if (categories.get(position).categoryImageUrl != null) {
             Glide.with(context).load(categories.get(position).categoryImageUrl).into(holder.imageView_category);
         }
@@ -54,12 +55,14 @@ public class CategoryAdapter extends RecyclerView.Adapter<CategoryAdapter.Catego
 
         TextView textView_categoryName;
         ImageView imageView_category;
+        ConstraintLayout layoutCategory;
 
         CategoryViewHolder(View itemView) {
             super(itemView);
             itemView.setOnClickListener(this);
             textView_categoryName = itemView.findViewById(R.id.category_name);
             imageView_category = itemView.findViewById(R.id.category_image);
+            layoutCategory = itemView.findViewById(R.id.layout_category_item);
         }
 
         @Override
