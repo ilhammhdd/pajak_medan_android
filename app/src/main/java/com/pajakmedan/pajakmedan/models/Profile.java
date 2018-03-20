@@ -15,14 +15,12 @@ public class Profile {
     public String fullName;
     public String phoneNumber;
     public String email;
-    public String address;
 
-    public Profile(int profileId, String fullName, String phoneNumber, String email, String address) {
+    public Profile(int profileId, String fullName, String phoneNumber, String email) {
         this.profileId = profileId;
         this.fullName = fullName;
         this.phoneNumber = phoneNumber;
         this.email = email;
-        this.address = address;
     }
 
     public static Profile saveCurrentProfile(JSONObject object) {
@@ -31,8 +29,7 @@ public class Profile {
                     object.getInt("id"),
                     object.getString("full_name"),
                     object.getString("phone_number"),
-                    object.getString("email"),
-                    object.getString("address")
+                    object.getString("email")
             );
 
             Hawk.put(Constants.PROFILE_KEY, profile);

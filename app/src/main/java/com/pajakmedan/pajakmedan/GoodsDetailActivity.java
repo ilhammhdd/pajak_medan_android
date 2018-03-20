@@ -1,13 +1,23 @@
 package com.pajakmedan.pajakmedan;
 
 import android.content.Intent;
+import android.util.Log;
 import android.widget.ImageView;
 import android.widget.TextView;
 
 import com.bumptech.glide.Glide;
 import com.orhanobut.hawk.Hawk;
+import com.pajakmedan.pajakmedan.asynctasks.GetCurrentBasketGoodQuantity;
+import com.pajakmedan.pajakmedan.dialogs.GoodsQuantityDialog;
+import com.pajakmedan.pajakmedan.listeners.OnRequestListener;
+import com.pajakmedan.pajakmedan.models.Basket;
+import com.pajakmedan.pajakmedan.models.BasketGoods;
 import com.pajakmedan.pajakmedan.models.Category;
+import com.pajakmedan.pajakmedan.models.Customer;
 import com.pajakmedan.pajakmedan.models.Goods;
+
+import org.json.JSONException;
+import org.json.JSONObject;
 
 import butterknife.BindView;
 import butterknife.OnClick;
@@ -92,6 +102,12 @@ public class GoodsDetailActivity extends BaseActivity {
 
     @OnClick(R.id.imageView_detailGoods_basket)
     void basket() {
-        startActivity(new Intent(GoodsDetailActivity.this, BasketActivity.class));
+        openBasket(GoodsDetailActivity.this);
+    }
+
+    @OnClick(R.id.button_detailGoods_buy)
+    void buy() {
+        GoodsQuantityDialog dialog = new GoodsQuantityDialog(GoodsDetailActivity.this);
+        dialog.show();
     }
 }

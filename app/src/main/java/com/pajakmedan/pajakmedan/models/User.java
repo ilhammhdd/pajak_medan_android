@@ -40,10 +40,10 @@ public class User {
                     jsonObject.getString("username"),
                     jsonObject.getString("api_token")
             );
-
             Hawk.put(Constants.USER_KEY, user);
 
             return user;
+
         } catch (JSONException e) {
             e.printStackTrace();
             return null;

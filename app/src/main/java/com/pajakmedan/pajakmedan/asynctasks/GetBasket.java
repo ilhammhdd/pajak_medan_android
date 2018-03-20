@@ -3,6 +3,7 @@ package com.pajakmedan.pajakmedan.asynctasks;
 import android.os.AsyncTask;
 import android.util.Log;
 
+import com.pajakmedan.pajakmedan.Constants;
 import com.pajakmedan.pajakmedan.listeners.OnRequestListener;
 import com.pajakmedan.pajakmedan.listeners.SetOnRequestListener;
 
@@ -15,7 +16,7 @@ import org.json.JSONObject;
 
 public class GetBasket extends AsyncTask<JSONObject, Void, JSONObject> implements SetOnRequestListener {
 
-    public com.pajakmedan.pajakmedan.listeners.OnRequestListener onRequestListener;
+    public OnRequestListener onRequestListener;
 
     @Override
     public void setOnRequestListener(OnRequestListener listener) {
@@ -31,7 +32,7 @@ public class GetBasket extends AsyncTask<JSONObject, Void, JSONObject> implement
     protected void onPostExecute(JSONObject jsonObject) {
         try {
             if (jsonObject != null) {
-                onRequestListener.onRequest(jsonObject);
+                onRequestListener.onRequest(jsonObject, "response_data");
             }
         } catch (JSONException e) {
             e.printStackTrace();

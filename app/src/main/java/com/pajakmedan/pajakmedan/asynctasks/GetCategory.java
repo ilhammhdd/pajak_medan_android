@@ -1,9 +1,8 @@
 package com.pajakmedan.pajakmedan.asynctasks;
 
 import android.os.AsyncTask;
-import android.util.Log;
-import android.webkit.URLUtil;
 
+import com.pajakmedan.pajakmedan.Constants;
 import com.pajakmedan.pajakmedan.listeners.OnRequestListener;
 import com.pajakmedan.pajakmedan.listeners.SetOnRequestListener;
 import com.pajakmedan.pajakmedan.models.Category;
@@ -12,31 +11,18 @@ import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
-import java.io.BufferedOutputStream;
-import java.io.BufferedReader;
-import java.io.IOException;
-import java.io.InputStreamReader;
-import java.io.OutputStream;
-import java.net.HttpURLConnection;
-import java.net.URL;
 import java.util.ArrayList;
 import java.util.List;
-
-import javax.net.ssl.HttpsURLConnection;
 
 /**
  * Created by milha on 2/13/2018.
  */
 
-public class GetCategory extends AsyncTask<JSONObject, Void, List<Category>> {
+public class GetCategory extends AsyncTask<JSONObject, Void, List<Category>> implements SetOnRequestListener {
 
-    public interface OnRequestListener {
-        void onRequest(List<Category> categories) throws JSONException;
-    }
+    public OnRequestListener listener;
 
-    public GetCategory.OnRequestListener listener;
-
-    public void setOnRequestListener(GetCategory.OnRequestListener listener) {
+    public void setOnRequestListener(OnRequestListener listener) {
         this.listener = listener;
     }
 
@@ -45,7 +31,8 @@ public class GetCategory extends AsyncTask<JSONObject, Void, List<Category>> {
         try {
             JSONObject response = RequestPost.sendRequest(jsonObjects[0]);
             assert response != null;
-            JSONArray arrayResponse = response.getJSONArray("categories");
+            JSONObject responseData = response.getJSONObject(Constants.RESPONSE_DATA_KEY);
+            JSONArray arrayResponse = responseData.getJSONArray("categories");
 
             List<Category> categories = new ArrayList<>();
 
@@ -64,7 +51,7 @@ public class GetCategory extends AsyncTask<JSONObject, Void, List<Category>> {
     protected void onPostExecute(List<Category> categories) {
         try {
             if (categories != null) {
-                listener.onRequest(categories);
+                listener.onRequest(categories, Constants.RESPONSE_DATA_KEY);
             }
         } catch (JSONException e) {
             e.printStackTrace();

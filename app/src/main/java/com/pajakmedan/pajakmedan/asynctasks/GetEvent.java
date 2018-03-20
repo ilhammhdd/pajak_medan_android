@@ -2,38 +2,26 @@ package com.pajakmedan.pajakmedan.asynctasks;
 
 import android.os.AsyncTask;
 import android.util.Log;
-import android.webkit.URLUtil;
 
-import com.pajakmedan.pajakmedan.models.Event;
+import com.pajakmedan.pajakmedan.Constants;
+import com.pajakmedan.pajakmedan.listeners.OnRequestListener;
+import com.pajakmedan.pajakmedan.listeners.SetOnRequestListener;
 
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
-import java.io.BufferedReader;
-import java.io.IOException;
-import java.io.InputStreamReader;
-import java.net.HttpURLConnection;
-import java.net.URL;
-import java.nio.Buffer;
 import java.util.HashMap;
-import java.util.List;
-
-import javax.net.ssl.HttpsURLConnection;
 
 /**
  * Created by milha on 2/15/2018.
  */
 
-public class GetEvent extends AsyncTask<JSONObject, Void, HashMap<String, String>> {
+public class GetEvent extends AsyncTask<JSONObject, Void, HashMap<String, String>> implements SetOnRequestListener {
 
     public OnRequestListener onRequestListener;
 
-    public interface OnRequestListener {
-        void onRequest(HashMap<String, String> events) throws JSONException;
-    }
-
-    public void setOnRequestListener(GetEvent.OnRequestListener onRequestListener) {
+    public void setOnRequestListener(OnRequestListener onRequestListener) {
         this.onRequestListener = onRequestListener;
     }
 
@@ -42,7 +30,8 @@ public class GetEvent extends AsyncTask<JSONObject, Void, HashMap<String, String
         try {
             JSONObject response = RequestPost.sendRequest(jsonObjects[0]);
             assert response != null;
-            JSONArray eventsJSON = response.getJSONArray("events");
+            JSONObject responseData = response.getJSONObject(Constants.RESPONSE_DATA_KEY);
+            JSONArray eventsJSON = responseData.getJSONArray("events");
 
             HashMap<String, String> events = new HashMap<>();
 
@@ -61,7 +50,7 @@ public class GetEvent extends AsyncTask<JSONObject, Void, HashMap<String, String
     protected void onPostExecute(HashMap<String, String> events) {
         if (events != null) {
             try {
-                onRequestListener.onRequest(events);
+                onRequestListener.onRequest(events, Constants.RESPONSE_DATA_KEY);
             } catch (JSONException e) {
                 e.printStackTrace();
             }

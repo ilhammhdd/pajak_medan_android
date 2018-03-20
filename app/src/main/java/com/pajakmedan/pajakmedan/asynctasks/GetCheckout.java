@@ -17,16 +17,6 @@ import java.util.List;
 
 public class GetCheckout extends AsyncTask<JSONObject, Void, List<Checkout>> {
 
-    public OnRequestListener requestListener;
-
-    public interface OnRequestListener {
-        public void onRequest(List<Checkout> checkoutList);
-    }
-
-    public void setOnRequestListener(OnRequestListener listener) {
-        this.requestListener = listener;
-    }
-
     @Override
     protected List<Checkout> doInBackground(JSONObject... jsonObjects) {
         try {

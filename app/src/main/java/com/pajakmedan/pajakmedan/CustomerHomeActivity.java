@@ -1,13 +1,10 @@
 package com.pajakmedan.pajakmedan;
 
-import android.content.BroadcastReceiver;
-import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
-import android.content.IntentFilter;
 import android.os.Bundle;
-import android.os.PersistableBundle;
 import android.support.annotation.NonNull;
+import android.support.constraint.ConstraintLayout;
 import android.support.design.widget.NavigationView;
 import android.support.v4.widget.DrawerLayout;
 import android.support.v7.app.AlertDialog;
@@ -18,27 +15,29 @@ import android.view.Gravity;
 import android.view.MenuItem;
 import android.view.View;
 import android.widget.ImageButton;
+import android.widget.ImageView;
+import android.widget.TextView;
 import android.widget.Toast;
 
+import com.bumptech.glide.Glide;
+import com.bumptech.glide.request.RequestOptions;
 import com.daimajia.slider.library.Animations.DescriptionAnimation;
 import com.daimajia.slider.library.SliderLayout;
 import com.daimajia.slider.library.SliderTypes.BaseSliderView;
 import com.daimajia.slider.library.SliderTypes.TextSliderView;
 import com.daimajia.slider.library.Tricks.ViewPagerEx;
-import com.facebook.AccessToken;
-import com.facebook.login.LoginManager;
-import com.google.android.gms.auth.api.Auth;
-import com.google.android.gms.common.api.ResultCallback;
-import com.google.android.gms.common.api.Status;
 import com.orhanobut.hawk.Hawk;
 import com.pajakmedan.pajakmedan.adapters.CategoryAdapter;
 import com.pajakmedan.pajakmedan.adapters.CategoryAdapter.ClickListener;
 import com.pajakmedan.pajakmedan.asynctasks.GetCategory;
 import com.pajakmedan.pajakmedan.asynctasks.GetEvent;
+import com.pajakmedan.pajakmedan.asynctasks.RequestPost;
+import com.pajakmedan.pajakmedan.listeners.OnRequestListener;
 import com.pajakmedan.pajakmedan.models.Basket;
 import com.pajakmedan.pajakmedan.models.Category;
 import com.pajakmedan.pajakmedan.models.Payment;
-import com.pajakmedan.pajakmedan.service.BroadcastService;
+import com.pajakmedan.pajakmedan.models.Profile;
+import com.pajakmedan.pajakmedan.models.User;
 
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -48,7 +47,7 @@ import java.util.List;
 
 import butterknife.BindView;
 
-public class CustomerHomeActivity extends BaseActivity implements NavigationView.OnNavigationItemSelectedListener, ClickListener, BaseSliderView.OnSliderClickListener, ViewPagerEx.OnPageChangeListener {
+public class CustomerHomeActivity extends BaseActivity implements NavigationView.OnNavigationItemSelectedListener, ClickListener, BaseSliderView.OnSliderClickListener, ViewPagerEx.OnPageChangeListener, View.OnClickListener {
 
     @BindView(R.id.recyclerView_category)
     RecyclerView recyclerView_category;
@@ -62,6 +61,10 @@ public class CustomerHomeActivity extends BaseActivity implements NavigationView
     ImageButton button_search_customer;
     @BindView(R.id.slider_event)
     SliderLayout sliderLayout_event;
+
+    ImageView navHeaderImageViewProfilePhoto;
+    TextView navHeaderTextViewProfileName;
+    TextView navHeaderTextViewProfileEmail;
 
     private String TAG = "CUSTOMER_ACTIVITY";
 
@@ -79,6 +82,7 @@ public class CustomerHomeActivity extends BaseActivity implements NavigationView
 
         navigationView.bringToFront();
         navigationView.setNavigationItemSelectedListener(this);
+        setNavigationValues();
 
         toggle_drawer_customer.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -94,6 +98,40 @@ public class CustomerHomeActivity extends BaseActivity implements NavigationView
                 startActivity(intent);
             }
         });
+    }
+
+    private void setNavigationValues() {
+        View headerView = navigationView.getHeaderView(0);
+        navHeaderImageViewProfilePhoto = headerView.findViewById(R.id.circleImageView_navHeader_photo);
+        navHeaderTextViewProfileName = headerView.findViewById(R.id.textView_navHeader_name);
+        navHeaderTextViewProfileEmail = headerView.findViewById(R.id.textView_navHeader_email);
+
+        Profile profile = Hawk.get(Constants.PROFILE_KEY);
+        Glide.with(getApplicationContext()).load(String.valueOf(Hawk.get(Constants.PROFILE_PHOTO))).apply(RequestOptions.circleCropTransform()).into(navHeaderImageViewProfilePhoto);
+        navHeaderTextViewProfileName.setText(profile.fullName);
+        navHeaderTextViewProfileEmail.setText(profile.email);
+
+        navHeaderImageViewProfilePhoto.setOnClickListener(this);
+        navHeaderTextViewProfileName.setOnClickListener(this);
+        navHeaderTextViewProfileEmail.setOnClickListener(this);
+    }
+
+    @Override
+    public void onClick(View view) {
+        switch (view.getId()) {
+            case R.id.circleImageView_navHeader_photo: {
+                startActivity(new Intent(CustomerHomeActivity.this, ProfileActivity.class));
+                break;
+            }
+            case R.id.textView_navHeader_name: {
+                startActivity(new Intent(CustomerHomeActivity.this, ProfileActivity.class));
+                break;
+            }
+            case R.id.textView_navHeader_email: {
+                startActivity(new Intent(CustomerHomeActivity.this, ProfileActivity.class));
+                break;
+            }
+        }
     }
 
     @Override
@@ -135,19 +173,7 @@ public class CustomerHomeActivity extends BaseActivity implements NavigationView
             }
 
             case R.id.customer_sidenav_menu_basket: {
-                Payment payment = Hawk.get(Constants.CURRENT_PAYMENT_KEY);
-                if (payment != null) {
-                    startActivity(new Intent(CustomerHomeActivity.this, PaymentIssuedActivity.class));
-                    break;
-                }
-
-                Basket basket = Hawk.get(Constants.BASKET_KEY);
-                if (basket != null) {
-                    startActivity(new Intent(CustomerHomeActivity.this, BasketActivity.class));
-                    break;
-                }
-
-                startActivity(new Intent(CustomerHomeActivity.this, UploadFileActivity.class));
+                openBasket(CustomerHomeActivity.this);
                 break;
             }
             case R.id.customer_sidenav_menu_wishlist: {
@@ -193,6 +219,7 @@ public class CustomerHomeActivity extends BaseActivity implements NavigationView
 
     public void showCategories() {
         try {
+            Log.d("MY_USER_API_TOKEN", String.valueOf(Hawk.get(Constants.USER_API_TOKEN_KEY)));
             JSONObject request = new JSONObject();
             request.put("url", Constants.DOMAIN + "api/get-categories");
             request.put("api_token", Hawk.get(Constants.USER_API_TOKEN_KEY));
@@ -202,10 +229,10 @@ public class CustomerHomeActivity extends BaseActivity implements NavigationView
 
             GetCategory getCategory = new GetCategory();
             getCategory.execute(requestChunk);
-            getCategory.setOnRequestListener(new GetCategory.OnRequestListener() {
+            getCategory.setOnRequestListener(new OnRequestListener() {
                 @Override
-                public void onRequest(List<Category> categories) throws JSONException {
-                    CategoryAdapter categoryAdapter = new CategoryAdapter(CustomerHomeActivity.this, categories);
+                public <T> void onRequest(T categories, String key) throws JSONException {
+                    CategoryAdapter categoryAdapter = new CategoryAdapter(CustomerHomeActivity.this, (List<Category>) categories);
                     categoryAdapter.setClickListener(CustomerHomeActivity.this);
                     recyclerView_category.setAdapter(categoryAdapter);
                     recyclerView_category.setLayoutManager(new LinearLayoutManager(CustomerHomeActivity.this, LinearLayoutManager.VERTICAL, false));
@@ -236,9 +263,10 @@ public class CustomerHomeActivity extends BaseActivity implements NavigationView
 
             GetEvent getEvent = new GetEvent();
             getEvent.execute(requestChunk);
-            getEvent.setOnRequestListener(new GetEvent.OnRequestListener() {
+            getEvent.setOnRequestListener(new OnRequestListener() {
                 @Override
-                public void onRequest(HashMap<String, String> events) throws JSONException {
+                public <T> void onRequest(T eventsGeneric, String key) throws JSONException {
+                    HashMap<String, String> events = (HashMap<String, String>) eventsGeneric;
                     for (String name : events.keySet()) {
                         TextSliderView textSliderView = new TextSliderView(CustomerHomeActivity.this);
 
@@ -259,6 +287,4 @@ public class CustomerHomeActivity extends BaseActivity implements NavigationView
             e.printStackTrace();
         }
     }
-
-
 }

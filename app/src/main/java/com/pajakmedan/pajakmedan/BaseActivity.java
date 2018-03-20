@@ -17,8 +17,11 @@ import com.google.android.gms.auth.api.Auth;
 import com.google.android.gms.common.api.ResultCallback;
 import com.google.android.gms.common.api.Status;
 import com.orhanobut.hawk.Hawk;
+import com.pajakmedan.pajakmedan.models.Basket;
 import com.pajakmedan.pajakmedan.models.Customer;
+import com.pajakmedan.pajakmedan.models.Payment;
 
+import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
@@ -56,30 +59,23 @@ public abstract class BaseActivity extends AppCompatActivity {
     }
 
     public void logout(Context context) {
-        switch (Constants.AUTH_TYPE) {
+        switch ((int)Hawk.get(Constants.AUTH_TYPE_KEY)) {
             case 1: {
                 Auth.GoogleSignInApi.signOut(Constants.GOOGLE_API_CLIENT).setResultCallback(new ResultCallback<Status>() {
                     @Override
                     public void onResult(@NonNull Status status) {
                     }
                 });
-
-                deleteAllAndRedirect(context);
             }
             case 2: {
                 AccessToken.setCurrentAccessToken(null);
                 LoginManager.getInstance().logOut();
-
-                deleteAllAndRedirect(context);
-            }
-            default: {
-                deleteAllAndRedirect(context);
             }
         }
+        deleteAllAndRedirect(context);
     }
 
-    private void deleteAllAndRedirect(Context context) {
-        Constants.AUTH_TYPE = -1;
+    public void deleteAllAndRedirect(Context context) {
         Hawk.deleteAll();
 
         startActivity(new Intent(context, RegisterActivity.class));
@@ -99,5 +95,21 @@ public abstract class BaseActivity extends AppCompatActivity {
         } catch (JSONException e) {
             e.printStackTrace();
         }
+    }
+
+    public void openBasket(Context context) {
+        Payment payment = Hawk.get(Constants.CURRENT_PAYMENT_KEY);
+        if (payment != null) {
+            startActivity(new Intent(context, PaymentIssuedActivity.class));
+            return;
+        }
+
+        Basket basket = Hawk.get(Constants.BASKET_KEY);
+        if (basket.total != 0) {
+            startActivity(new Intent(context, BasketActivity.class));
+            return;
+        }
+
+        startActivity(new Intent(context, UploadFileActivity.class));
     }
 }

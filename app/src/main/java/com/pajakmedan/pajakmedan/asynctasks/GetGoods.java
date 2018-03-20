@@ -1,8 +1,10 @@
 package com.pajakmedan.pajakmedan.asynctasks;
 
 import android.os.AsyncTask;
-import android.util.Log;
 
+import com.pajakmedan.pajakmedan.Constants;
+import com.pajakmedan.pajakmedan.listeners.OnRequestListener;
+import com.pajakmedan.pajakmedan.listeners.SetOnRequestListener;
 import com.pajakmedan.pajakmedan.models.Goods;
 
 import org.json.JSONArray;
@@ -16,15 +18,12 @@ import java.util.List;
  * Created by milha on 2/19/2018.
  */
 
-public class GetGoods extends AsyncTask<JSONObject, Void, List<Goods>> {
+public class GetGoods extends AsyncTask<JSONObject, Void, List<Goods>> implements SetOnRequestListener {
 
     OnRequestListener listener;
 
-    public interface OnRequestListener {
-        void onRequest(List<Goods> goodsList) throws JSONException;
-    }
-
-    public void setOnRequestListener(GetGoods.OnRequestListener listener) {
+    @Override
+    public void setOnRequestListener(OnRequestListener listener) {
         this.listener = listener;
     }
 
@@ -34,7 +33,8 @@ public class GetGoods extends AsyncTask<JSONObject, Void, List<Goods>> {
             List<Goods> goodsList = new ArrayList<>();
             JSONObject response = RequestPost.sendRequest(jsonObjects[0]);
             if (response != null) {
-                JSONArray jsonArrayGoods = response.getJSONArray("goods");
+                JSONObject responseData = response.getJSONObject(Constants.RESPONSE_DATA_KEY);
+                JSONArray jsonArrayGoods = responseData.getJSONArray("goods");
                 boolean available;
                 for (int n = 0; n < jsonArrayGoods.length(); n++) {
                     available = jsonArrayGoods.getJSONObject(n).getInt("available") == 1;
@@ -64,7 +64,7 @@ public class GetGoods extends AsyncTask<JSONObject, Void, List<Goods>> {
     protected void onPostExecute(List<Goods> goodsList) {
         if (goodsList != null) {
             try {
-                listener.onRequest(goodsList);
+                listener.onRequest(goodsList, Constants.RESPONSE_DATA_KEY);
             } catch (JSONException e) {
                 e.printStackTrace();
             }

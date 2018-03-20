@@ -9,6 +9,7 @@ import android.widget.TextView;
 import com.orhanobut.hawk.Hawk;
 import com.pajakmedan.pajakmedan.adapters.GoodsAdapter;
 import com.pajakmedan.pajakmedan.asynctasks.GetGoods;
+import com.pajakmedan.pajakmedan.listeners.OnRequestListener;
 import com.pajakmedan.pajakmedan.models.Category;
 import com.pajakmedan.pajakmedan.models.Goods;
 
@@ -24,7 +25,7 @@ import butterknife.OnClick;
  * Created by milha on 2/19/2018.
  */
 
-public class GoodsActivity extends BaseActivity implements GoodsAdapter.ClickListener {
+public class GoodsActivity extends BaseActivity {
 
     @BindView(R.id.recyclerView_goods)
     RecyclerView recyclerView_goods;
@@ -60,14 +61,20 @@ public class GoodsActivity extends BaseActivity implements GoodsAdapter.ClickLis
 
             JSONObject requestChunk = new JSONObject();
             requestChunk.put("data", request);
-
+//List<Goods>
             GetGoods getGoods = new GetGoods();
             getGoods.execute(requestChunk);
-            getGoods.setOnRequestListener(new GetGoods.OnRequestListener() {
+            getGoods.setOnRequestListener(new OnRequestListener() {
                 @Override
-                public void onRequest(List<Goods> goodsList) throws JSONException {
-                    GoodsAdapter goodsAdapter = new GoodsAdapter(GoodsActivity.this, goodsList);
-                    goodsAdapter.setClickListener(GoodsActivity.this);
+                public <T> void onRequest(T goodsList, String key) throws JSONException {
+                    GoodsAdapter goodsAdapter = new GoodsAdapter(GoodsActivity.this, (List<Goods>) goodsList);
+                    goodsAdapter.setClickListener(new GoodsAdapter.ClickListener() {
+                        @Override
+                        public void clickItem(View view, int position, Goods goods) {
+                            Hawk.put(Constants.CURRENT_GOODS_KEY, goods);
+                            startActivity(new Intent(GoodsActivity.this, GoodsDetailActivity.class));
+                        }
+                    });
                     recyclerView_goods.setLayoutManager(new GridLayoutManager(GoodsActivity.this, 2));
                     recyclerView_goods.setAdapter(goodsAdapter);
                 }
@@ -77,12 +84,6 @@ public class GoodsActivity extends BaseActivity implements GoodsAdapter.ClickLis
         }
     }
 
-    @Override
-    public void clickItem(View view, int position, Goods goods) {
-        Hawk.put(Constants.CURRENT_GOODS_KEY, goods);
-        startActivity(new Intent(GoodsActivity.this, GoodsDetailActivity.class));
-    }
-
     @OnClick(R.id.imageView_goods_back)
     void back() {
         finish();
@@ -90,6 +91,6 @@ public class GoodsActivity extends BaseActivity implements GoodsAdapter.ClickLis
 
     @OnClick(R.id.imageView_goods_basket)
     void basket() {
-        startActivity(new Intent(GoodsActivity.this, BasketActivity.class));
+        openBasket(GoodsActivity.this);
     }
 }

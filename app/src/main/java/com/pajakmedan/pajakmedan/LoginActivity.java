@@ -24,6 +24,7 @@ import com.google.android.gms.common.ConnectionResult;
 import com.google.android.gms.common.api.GoogleApiClient;
 import com.google.android.gms.common.api.ResultCallback;
 import com.google.android.gms.common.api.Status;
+import com.orhanobut.hawk.Hawk;
 import com.pajakmedan.pajakmedan.asynctasks.Login;
 import com.pajakmedan.pajakmedan.listeners.OnRequestListener;
 
@@ -62,6 +63,7 @@ public class LoginActivity extends BaseAuthenticationActivity {
         if (fieldsNotFilled()) {
             textViewResponseStatus.setText(R.string.field_tidak_boleh_kosong);
         } else {
+            Hawk.put(Constants.AUTH_TYPE_KEY, 2);
             nativeLogin(editText_username.getText().toString(), editText_password.getText().toString());
         }
     }
@@ -74,11 +76,13 @@ public class LoginActivity extends BaseAuthenticationActivity {
 
     @OnClick(R.id.button_login_google)
     void button_login_google() {
+        Hawk.put(Constants.AUTH_TYPE_KEY, 1);
         startActivityForResult(Auth.GoogleSignInApi.getSignInIntent(Constants.GOOGLE_API_CLIENT), REQ_CODE);
     }
 
     @OnClick(R.id.button_login_facebook)
     void button_login_facebook() {
+        Hawk.put(Constants.AUTH_TYPE_KEY, 2);
         LoginManager.getInstance().logInWithReadPermissions(LoginActivity.this, Arrays.asList("public_profile", "user_friends", "email"));
     }
 

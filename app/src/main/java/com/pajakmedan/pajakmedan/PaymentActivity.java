@@ -12,6 +12,7 @@ import android.widget.Toast;
 import com.orhanobut.hawk.Hawk;
 import com.pajakmedan.pajakmedan.adapters.PaymentAdapter;
 import com.pajakmedan.pajakmedan.asynctasks.GetPayment;
+import com.pajakmedan.pajakmedan.listeners.OnRequestListener;
 import com.pajakmedan.pajakmedan.models.Basket;
 import com.pajakmedan.pajakmedan.models.Payment;
 import com.pajakmedan.pajakmedan.service.BroadcastService;
@@ -53,10 +54,11 @@ public class PaymentActivity extends BaseActivity {
                                             .put("api_token", Hawk.get(Constants.USER_API_TOKEN_KEY))
                             )
             );
-            getPayment.setOnRequestListener(new GetPayment.OnRequestListener() {
+//            List<Payment>
+            getPayment.setOnRequestListener(new OnRequestListener() {
                 @Override
-                public void onRequest(List<Payment> paymentList) {
-                    PaymentAdapter paymentAdapter = new PaymentAdapter(PaymentActivity.this, paymentList);
+                public <T> void onRequest(T paymentList, String key) {
+                    PaymentAdapter paymentAdapter = new PaymentAdapter(PaymentActivity.this, (List<Payment>) paymentList);
                     paymentAdapter.setClickListener(new PaymentAdapter.ClickListener() {
                         @Override
                         public void clickItem(View view, final Payment payment) {

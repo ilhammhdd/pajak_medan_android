@@ -7,6 +7,7 @@ import android.support.annotation.NonNull;
 import android.util.Log;
 import android.widget.EditText;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import com.facebook.AccessToken;
 import com.facebook.CallbackManager;
@@ -37,6 +38,7 @@ import java.util.Arrays;
 
 import butterknife.BindView;
 import butterknife.OnClick;
+import es.dmoral.toasty.Toasty;
 
 /**
  * Created by milha on 1/6/2018.
@@ -73,12 +75,6 @@ public class RegisterActivity extends BaseAuthenticationActivity {
     @Override
     void insideOnCreate() {
         super.insideOnCreate();
-
-        if (Hawk.contains(Constants.USER_API_TOKEN_KEY)) {
-            Log.d("TRACKING_API_TOKEN", String.valueOf(Hawk.get(Constants.USER_API_TOKEN_KEY)));
-        } else {
-            Log.d("TRACKING_API_TOKEN", "GAK ADAA");
-        }
 
         if (Hawk.get(Constants.USER_API_TOKEN_KEY) != null) {
             Log.d(TAG, "User already authenticated");
@@ -122,9 +118,24 @@ public class RegisterActivity extends BaseAuthenticationActivity {
 
                     register.setOnRequestListener(new OnRequestListener() {
                         @Override
-                        public void onRequest(JSONObject response) throws JSONException {
-                            Log.d(TAG, "Register response received");
-                            textViewResponseStatus.setText(response.getString("message"));
+                        public <T> void onRequest(T responseGeneric, String key) throws JSONException {
+                            JSONObject response = (JSONObject) responseGeneric;
+                            JSONObject responseData = response.getJSONObject("response_data");
+                            Log.d("RESPONSE_DATA_REGISTER", responseData.toString());
+                            switch (responseData.getInt("message")) {
+                                case 1: {
+                                    Toasty.success(RegisterActivity.this, getResources().getString(R.string.registrasi_berhasil), Toast.LENGTH_SHORT, true).show();
+                                    break;
+                                }
+                                case -1: {
+                                    Toasty.error(RegisterActivity.this, getResources().getString(R.string.registrasi_username_atau_email_terpakai), Toast.LENGTH_SHORT, true).show();
+                                    break;
+                                }
+                                case -2: {
+                                    Toasty.error(RegisterActivity.this, getResources().getString(R.string.registrasi_gagal), Toast.LENGTH_SHORT, true).show();
+                                    break;
+                                }
+                            }
                         }
                     });
 
@@ -144,26 +155,19 @@ public class RegisterActivity extends BaseAuthenticationActivity {
 
     @OnClick(R.id.button_register_google)
     void button_register_google() {
+        Hawk.put(Constants.AUTH_TYPE_KEY, 1);
         startActivityForResult(Auth.GoogleSignInApi.getSignInIntent(Constants.GOOGLE_API_CLIENT), REQ_CODE);
     }
 
     @OnClick(R.id.button_register_facebook)
     void button_register_facebook() {
+        Hawk.put(Constants.AUTH_TYPE_KEY, 2);
         LoginManager.getInstance().logInWithReadPermissions(RegisterActivity.this, Arrays.asList("public_profile", "user_friends", "email", "user_photos"));
     }
 
     @OnClick(R.id.textView_hubungiKami)
     void buttonHubungiKami() {
-        if (Constants.AUTH_TYPE == 2) {
-            Log.d(TAG, "User with facebook authentication successfully logout");
-            AccessToken.setCurrentAccessToken(null);
-            LoginManager.getInstance().logOut();
 
-            Constants.AUTH_TYPE = -1;
-
-            startActivity(new Intent(RegisterActivity.this, RegisterActivity.class));
-            finish();
-        }
     }
 
     private boolean fieldsNotFilled() {

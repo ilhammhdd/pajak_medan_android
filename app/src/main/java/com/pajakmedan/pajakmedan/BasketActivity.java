@@ -1,7 +1,9 @@
 package com.pajakmedan.pajakmedan;
 
 import android.content.Intent;
+import android.media.Image;
 import android.support.constraint.ConstraintLayout;
+import android.support.constraint.Guideline;
 import android.support.v7.widget.CardView;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
@@ -9,11 +11,15 @@ import android.support.v7.widget.Toolbar;
 import android.util.Log;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.Button;
+import android.widget.ImageView;
+import android.widget.TextView;
 import android.widget.Toast;
 
 import com.orhanobut.hawk.Hawk;
 import com.pajakmedan.pajakmedan.adapters.BasketGoodsAdapter;
 import com.pajakmedan.pajakmedan.asynctasks.GetBasketGoods;
+import com.pajakmedan.pajakmedan.listeners.OnRequestListener;
 import com.pajakmedan.pajakmedan.models.Basket;
 import com.pajakmedan.pajakmedan.models.BasketGoods;
 
@@ -33,7 +39,19 @@ public class BasketActivity extends BaseActivity implements BasketGoodsAdapter.C
     @BindView(R.id.recyclerView_basket_basketGoods)
     RecyclerView recyclerViewBasketGoods;
     @BindView(R.id.cardView_basket_basketGoods)
-    CardView cardViewTest;
+    CardView cardViewBasketGoods;
+    @BindView(R.id.cardView_basket_totalPrice)
+    CardView cardViewTotalPrice;
+    @BindView(R.id.cardView_basket_address)
+    CardView cardViewAddress;
+    @BindView(R.id.cardView_basket_receiverData)
+    CardView cardViewReceiverData;
+    @BindView(R.id.imageView_basket_expand)
+    ImageView imageViewExpand;
+    @BindView(R.id.button_basket_lanjutkanPembayaran)
+    Button buttonContinuePayment;
+    @BindView(R.id.toolbar5)
+    Toolbar toolbarBasket5;
 
     private List<BasketGoods> basketGoodsList;
     static BasketActivity basketActivity;
@@ -48,11 +66,21 @@ public class BasketActivity extends BaseActivity implements BasketGoodsAdapter.C
     void insideOnCreate() {
         basketActivity = this;
         showBasketGoods();
+        imageViewExpand.setImageLevel(1);
+        setSizes();
+    }
+
+    private void setSizes() {
+        cardViewBasketGoods.getLayoutParams().height = (int) (getDeviceHeight() * 0.5d);
+        cardViewReceiverData.getLayoutParams().height = (int) (getDeviceHeight() * 0.25d);
+        cardViewAddress.getLayoutParams().height = (int) (getDeviceHeight() * 0.25d);
+//        cardViewTotalPrice.getLayoutParams().height = (int) (getDeviceHeight() * 0.2d);
     }
 
     private void showBasketGoods() {
         try {
             Basket basket = Hawk.get(Constants.BASKET_KEY);
+
             GetBasketGoods getBasketGoods = new GetBasketGoods();
             getBasketGoods.execute(new JSONObject()
                     .put("data", new JSONObject()
@@ -61,11 +89,11 @@ public class BasketActivity extends BaseActivity implements BasketGoodsAdapter.C
                             .put("basket_id", basket.basketId)
                     ));
 
-            getBasketGoods.setOnRequestListener(new GetBasketGoods.OnRequestListener() {
+            getBasketGoods.setOnRequestListener(new OnRequestListener() {
                 @Override
-                public void onRequest(List<BasketGoods> basketGoods) throws JSONException {
-                    basketGoodsList = basketGoods;
-                    BasketGoodsAdapter basketGoodsAdapter = new BasketGoodsAdapter(BasketActivity.this, basketGoods);
+                public <T> void onRequest(T basketGoods, String key) throws JSONException {
+                    basketGoodsList = (List<BasketGoods>) basketGoods;
+                    BasketGoodsAdapter basketGoodsAdapter = new BasketGoodsAdapter(BasketActivity.this, basketGoodsList);
                     basketGoodsAdapter.setClickListener(BasketActivity.this);
                     recyclerViewBasketGoods.setLayoutManager(new LinearLayoutManager(BasketActivity.this, LinearLayoutManager.VERTICAL, false));
                     recyclerViewBasketGoods.setAdapter(basketGoodsAdapter);
@@ -92,19 +120,24 @@ public class BasketActivity extends BaseActivity implements BasketGoodsAdapter.C
         startActivity(new Intent(BasketActivity.this, PaymentActivity.class));
     }
 
-    @OnClick(R.id.textView_expand)
+    @OnClick(R.id.imageView_basket_expand)
     void expand() {
-//        Log.d("GET_THIS", "dapatnyaaa");
-        Log.d("GET_THIS", "Layout params height : " + cardViewTest.getLayoutParams().height);
-        Log.d("GET_THIS", "Layout params width : " + cardViewTest.getLayoutParams().width);
-        Log.d("GET_THIS", "Device height : " + getDeviceHeight());
-        Log.d("GET_THIS", "Device width : " + getDeviceWidth());
         if (!clicked) {
-            cardViewTest.setLayoutParams(new ConstraintLayout.LayoutParams(getDeviceWidth(), getDeviceHeight() - getDeviceHeight() / 8));
+            cardViewBasketGoods.getLayoutParams().height = getDeviceHeight() - (int) (toolbarBasket5.getLayoutParams().height * 1.45);
+            cardViewAddress.setVisibility(View.GONE);
+            cardViewTotalPrice.setVisibility(View.GONE);
+            cardViewReceiverData.setVisibility(View.GONE);
+            buttonContinuePayment.setVisibility(View.GONE);
+            imageViewExpand.setImageLevel(0);
             clicked = true;
             return;
         }
-        cardViewTest.setLayoutParams(new ConstraintLayout.LayoutParams(getDeviceWidth(), (int) (getDeviceHeight() / 2.5d)));
+        cardViewBasketGoods.getLayoutParams().height = (int) (getDeviceHeight() * 0.5d);
+        cardViewAddress.setVisibility(View.VISIBLE);
+        cardViewTotalPrice.setVisibility(View.VISIBLE);
+        cardViewReceiverData.setVisibility(View.VISIBLE);
+        buttonContinuePayment.setVisibility(View.VISIBLE);
+        imageViewExpand.setImageLevel(1);
         clicked = false;
     }
 }

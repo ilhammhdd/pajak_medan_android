@@ -3,6 +3,7 @@ package com.pajakmedan.pajakmedan.asynctasks;
 import android.os.AsyncTask;
 import android.webkit.URLUtil;
 
+import com.pajakmedan.pajakmedan.Constants;
 import com.pajakmedan.pajakmedan.listeners.OnRequestListener;
 import com.pajakmedan.pajakmedan.listeners.SetOnRequestListener;
 
@@ -41,7 +42,7 @@ public class Register extends AsyncTask<JSONObject, Void, JSONObject> implements
     protected void onPostExecute(JSONObject jsonObject) {
         try {
             if (listener != null) {
-                listener.onRequest(jsonObject);
+                listener.onRequest(jsonObject, Constants.RESPONSE_DATA_KEY);
             }
         } catch (JSONException e) {
             e.printStackTrace();

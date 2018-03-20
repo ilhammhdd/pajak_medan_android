@@ -3,6 +3,9 @@ package com.pajakmedan.pajakmedan.asynctasks;
 import android.os.AsyncTask;
 import android.util.Log;
 
+import com.pajakmedan.pajakmedan.Constants;
+import com.pajakmedan.pajakmedan.listeners.OnRequestListener;
+import com.pajakmedan.pajakmedan.listeners.SetOnRequestListener;
 import com.pajakmedan.pajakmedan.models.Basket;
 import com.pajakmedan.pajakmedan.models.BasketGoods;
 import com.pajakmedan.pajakmedan.models.Goods;
@@ -12,23 +15,19 @@ import org.json.JSONException;
 import org.json.JSONObject;
 
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.List;
 
 /**
  * Created by milha on 3/1/2018.
  */
 
-public class GetBasketGoods extends AsyncTask<JSONObject, Void, List<BasketGoods>> {
+public class GetBasketGoods extends AsyncTask<JSONObject, Void, List<BasketGoods>> implements SetOnRequestListener {
 
-    private GetBasketGoods.OnRequestListener onRequestListener;
+    private OnRequestListener onRequestListener;
 
-    public interface OnRequestListener {
-        void onRequest(List<BasketGoods> basketGoods) throws JSONException;
-    }
-
-    public void setOnRequestListener(GetBasketGoods.OnRequestListener listener) {
-        onRequestListener = listener;
+    @Override
+    public void setOnRequestListener(OnRequestListener listener) {
+        this.onRequestListener = listener;
     }
 
     @Override
@@ -37,9 +36,9 @@ public class GetBasketGoods extends AsyncTask<JSONObject, Void, List<BasketGoods
         JSONObject response = RequestPost.sendRequest(jsonObjects[0]);
         assert response != null;
         try {
-            JSONArray basketGoods = response.getJSONArray("basket_goods");
+            JSONObject responseData = response.getJSONObject(Constants.RESPONSE_DATA_KEY);
+            JSONArray basketGoods = responseData.getJSONArray("basket_goods");
             for (int i = 0; i < basketGoods.length(); i++) {
-                Log.d("GET_BASKET_GOODS", response.getJSONArray("basket_goods").getJSONObject(i).toString());
                 basketGoodsList.add(
                         new BasketGoods(
                                 basketGoods.getJSONObject(i).getInt("basket_goods_id"),
@@ -76,7 +75,7 @@ public class GetBasketGoods extends AsyncTask<JSONObject, Void, List<BasketGoods
     protected void onPostExecute(List<BasketGoods> goods) {
         try {
             if (goods != null) {
-                onRequestListener.onRequest(goods);
+                onRequestListener.onRequest(goods, Constants.RESPONSE_DATA_KEY);
             }
         } catch (JSONException j) {
             j.printStackTrace();

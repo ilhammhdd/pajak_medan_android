@@ -8,6 +8,7 @@ import android.support.annotation.NonNull;
 import android.util.Log;
 
 import android.widget.TextView;
+import android.widget.Toast;
 
 import com.facebook.AccessToken;
 import com.facebook.CallbackManager;
@@ -27,8 +28,10 @@ import com.google.android.gms.common.api.ResultCallback;
 import com.google.android.gms.common.api.Status;
 import com.orhanobut.hawk.Hawk;
 import com.pajakmedan.pajakmedan.asynctasks.GetBasket;
+import com.pajakmedan.pajakmedan.asynctasks.GetMainAddress;
 import com.pajakmedan.pajakmedan.asynctasks.Login;
 import com.pajakmedan.pajakmedan.listeners.OnRequestListener;
+import com.pajakmedan.pajakmedan.models.Address;
 import com.pajakmedan.pajakmedan.models.Basket;
 import com.pajakmedan.pajakmedan.models.Customer;
 import com.pajakmedan.pajakmedan.models.Profile;
@@ -36,6 +39,8 @@ import com.pajakmedan.pajakmedan.models.User;
 
 import org.json.JSONException;
 import org.json.JSONObject;
+
+import es.dmoral.toasty.Toasty;
 
 /**
  * Created by milha on 2/28/2018.
@@ -115,23 +120,9 @@ public abstract class BaseAuthenticationActivity extends BaseActivity implements
 
                     login.setOnRequestListener(new OnRequestListener() {
                         @Override
-                        public void onRequest(JSONObject response) throws JSONException {
-                            if (response.getBoolean("authenticated")) {
-                                Constants.AUTH_TYPE = 2;
-                                User newUser = User.saveCurrentUser(response.getJSONObject("user"), response.has("file_id"));
-                                Profile.saveCurrentProfile(response.getJSONObject("profile"));
-                                Customer.saveCustomer(response.getJSONObject("customer"));
-                                assert newUser != null;
-                                Hawk.put(Constants.USER_API_TOKEN_KEY, newUser.apiToken);
-                                getBasket();
-
-                                startActivity(new Intent(getApplicationContext(), CustomerHomeActivity.class));
-                                finish();
-                            } else if (response.getBoolean("email_taken")) {
-                                textViewResponseStatus.setText(response.getString("message"));
-                                LoginManager.getInstance().logOut();
-                                Constants.AUTH_TYPE = -1;
-                            }
+                        public <T> void onRequest(T responseGeneric, String key) throws JSONException {
+                            JSONObject response = (JSONObject) responseGeneric;
+                            authenticationResponse(response);
                         }
                     });
                 } catch (JSONException e) {
@@ -184,30 +175,9 @@ public abstract class BaseAuthenticationActivity extends BaseActivity implements
 
                     login.setOnRequestListener(new OnRequestListener() {
                         @Override
-                        public void onRequest(JSONObject response) throws JSONException {
-                            if (response.getBoolean("authenticated")) {
-                                Constants.AUTH_TYPE = 1;
-                                User newUser = User.saveCurrentUser(response.getJSONObject("user"), response.has("file_id"));
-                                Profile.saveCurrentProfile(response.getJSONObject("profile"));
-                                Customer.saveCustomer(response.getJSONObject("customer"));
-                                assert newUser != null;
-                                Hawk.put(Constants.USER_API_TOKEN_KEY, newUser.apiToken);
-                                getBasket();
-
-                                startActivity(new Intent(getApplicationContext(), CustomerHomeActivity.class));
-                                finish();
-                                return;
-                            }
-
-                            if (response.getBoolean("email_taken")) {
-                                textViewResponseStatus.setText(response.getString("message"));
-                                Auth.GoogleSignInApi.signOut(Constants.GOOGLE_API_CLIENT).setResultCallback(new ResultCallback<Status>() {
-                                    @Override
-                                    public void onResult(@NonNull Status status) {
-                                        Constants.AUTH_TYPE = -1;
-                                    }
-                                });
-                            }
+                        public <T> void onRequest(T responseGeneric, String key) throws JSONException {
+                            JSONObject response = (JSONObject) responseGeneric;
+                            authenticationResponse(response);
                         }
                     });
 
@@ -235,22 +205,9 @@ public abstract class BaseAuthenticationActivity extends BaseActivity implements
 
             login.setOnRequestListener(new OnRequestListener() {
                 @Override
-                public void onRequest(JSONObject response) throws JSONException {
-                    if (response.getBoolean("authenticated")) {
-                        Constants.AUTH_TYPE = 0;
-                        User newUser = User.saveCurrentUser(response.getJSONObject("user"), response.has("file_id"));
-                        Profile.saveCurrentProfile(response.getJSONObject("profile"));
-                        Customer.saveCustomer(response.getJSONObject("customer"));
-                        assert newUser != null;
-                        Hawk.put(Constants.USER_API_TOKEN_KEY, newUser.apiToken);
-                        getBasket();
-
-                        startActivity(new Intent(getApplicationContext(), CustomerHomeActivity.class));
-                        finish();
-                    } else {
-                        textViewResponseStatus.setText(response.getString("message"));
-                        System.out.println(response.toString());
-                    }
+                public <T> void onRequest(T responseGeneric, String key) throws JSONException {
+                    JSONObject response = (JSONObject) responseGeneric;
+                    authenticationResponse(response);
                 }
             });
         } catch (JSONException e) {
@@ -274,13 +231,70 @@ public abstract class BaseAuthenticationActivity extends BaseActivity implements
 
             getBasket.setOnRequestListener(new OnRequestListener() {
                 @Override
-                public void onRequest(JSONObject jsonObject) throws JSONException {
-                    if (jsonObject.has("basket")) {
-                        JSONObject basket = jsonObject.getJSONArray("basket").getJSONObject(0);
+                public <T> void onRequest(T responseGeneric, String key) throws JSONException {
+                    JSONObject response = (JSONObject) responseGeneric;
+                    Log.d("MY_LOGGING_GET_BASKET", response.toString());
+                    JSONObject responseData = response.getJSONObject("response_data");
+                    if (responseData.has("basket")) {
+                        JSONObject basket = responseData.getJSONObject("basket");
+                        Log.d("RESPONSE_BASKET", basket.toString());
                         Basket.saveBasket(basket, basket.getString("description") != null);
                         return;
                     }
                     Basket.saveEmptyBasket();
+                }
+            });
+        } catch (JSONException e) {
+            e.printStackTrace();
+        }
+    }
+
+    private void authenticationResponse(JSONObject response) {
+        try {
+            JSONObject responseData = response.getJSONObject("response_data");
+            Log.d("MY_LOGGING_RD_LOGIN", responseData.toString());
+            if (responseData.getBoolean("authenticated")) {
+                User newUser = User.saveCurrentUser(responseData.getJSONObject("user"), responseData.has("file_id"));
+                Profile.saveCurrentProfile(responseData.getJSONObject("profile"));
+                Customer.saveCustomer(responseData.getJSONObject("customer"));
+                assert newUser != null;
+                Hawk.put(Constants.USER_API_TOKEN_KEY, newUser.apiToken);
+                Hawk.put(Constants.PROFILE_PHOTO, responseData.getString("photo"));
+                getBasket();
+                getMainAddress();
+                startActivity(new Intent(getApplicationContext(), CustomerHomeActivity.class));
+                finish();
+            } else {
+                Toasty.error(getApplicationContext(), getResources().getString(R.string.login_gagal), Toast.LENGTH_SHORT, true).show();
+                logout(getApplicationContext());
+            }
+        } catch (JSONException e) {
+            e.printStackTrace();
+        }
+    }
+
+    private void getMainAddress() {
+        GetMainAddress getMainAddress = new GetMainAddress();
+        Customer customer = Hawk.get(Constants.CUSTOMER_KEY);
+        try {
+            getMainAddress.execute(new JSONObject()
+                    .put("data", new JSONObject()
+                            .put("url", Constants.DOMAIN + "api/get-main-address")
+                            .put("api_token", Hawk.get(Constants.USER_API_TOKEN_KEY))
+                            .put("customer_id", customer.customerId)
+                    ));
+            getMainAddress.setOnRequestListener(new OnRequestListener() {
+                @Override
+                public <T> void onRequest(T responseGeneric, String key) throws JSONException {
+//                    Address.saveAddress((JSONObject) responseGeneric);
+                    if (responseGeneric == null) {
+                        Log.d("RESPONSE_MAIN_ADDRESS", "NULL");
+                        Address.saveEmptyAddress();
+                        return;
+                    }
+
+                    Log.d("RESPONSE_MAIN_ADDRESS", responseGeneric.toString());
+                    Address.saveAddress((JSONObject) responseGeneric);
                 }
             });
         } catch (JSONException e) {
