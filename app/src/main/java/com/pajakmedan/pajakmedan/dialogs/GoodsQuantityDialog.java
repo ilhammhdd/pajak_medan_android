@@ -90,7 +90,7 @@ public class GoodsQuantityDialog extends BaseDialog {
                                     .put("data",
                                             new JSONObject()
                                                     .put("url", Constants.DOMAIN + "api/buy-goods")
-                                                    .put("api_token", Hawk.get(Constants.USER_API_TOKEN_KEY))
+                                                    .put("api_token", String.valueOf(Hawk.get(Constants.USER_API_TOKEN_KEY)))
                                                     .put("customer_id", customer.customerId)
                                                     .put("good_id", goods.goodsId)
                                                     .put("good_quantity", Integer.parseInt(textViewQuantity.getText().toString()))
@@ -101,9 +101,9 @@ public class GoodsQuantityDialog extends BaseDialog {
                     postBuyGoods.setOnRequestListener(new OnRequestListener() {
                         @Override
                         public <T> void onRequest(T responseGeneric, String key) throws JSONException {
-                            Basket basket = Hawk.get(Constants.BASKET_KEY);
                             JSONObject responseData = getResponseData(responseGeneric);
                             Log.d("RESPONSE_DATA_BUY_GOODS", responseData.toString());
+                            Basket basket = Hawk.get(Constants.BASKET_KEY);
                             basket.total = responseData.getInt("basket_total");
                             Hawk.put(Constants.BASKET_KEY, basket);
                         }

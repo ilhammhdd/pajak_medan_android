@@ -1,0 +1,57 @@
+<?xml version="1.0" encoding="utf-8"?>
+<android.support.v7.widget.CardView xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:id="@+id/cardView_basket_address"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    app:layout_constraintEnd_toEndOf="parent"
+    app:layout_constraintStart_toStartOf="parent"
+    app:layout_constraintTop_toBottomOf="@id/cardView_basket_receiverData">
+
+    <android.support.constraint.ConstraintLayout
+        android:layout_width="match_parent"
+        android:layout_height="match_parent">
+
+        <TextView
+            android:id="@+id/textView_basket_forAddressCard"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="8dp"
+            android:layout_marginTop="8dp"
+            android:text="@string/alamat"
+            android:textSize="18sp"
+            app:layout_constraintBottom_toTopOf="@id/textView_basket_address"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toTopOf="parent" />
+
+        <TextView
+            android:id="@+id/textView_basket_address"
+            android:layout_width="0dp"
+            android:layout_height="80dp"
+            android:layout_margin="4dp"
+            android:background="@color/colorGrey"
+            android:gravity="start"
+            android:lines="3"
+            android:maxLines="3"
+            android:text="Lorem ipsum dolor sit amet, consectetur adipiscing elit. Suspendisse volutpat velit ut nisi fringilla malesuada. Aliquam hendrerit dolor eget eros sagittis, vel mollis eros mollis. Aliquam molestie nunc at leo semper fermentum. Ut nec consequat nulla. Mauris nec neque eget justo faucibus sagittis. Cras gravida, lectus nec auctor consequat, tortor mauris cursus est, vitae sagittis risus nibh sit amet elit. Vestibulum neque nisi, sagittis quis purus dictum, pulvinar vulputate lorem."
+            app:layout_constraintBottom_toTopOf="@id/button_basket_addAddress"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@id/textView_basket_forAddressCard" />
+
+        <Button
+            android:id="@+id/button_basket_addAddress"
+            android:layout_width="wrap_content"
+            android:layout_height="35dp"
+            android:layout_marginBottom="4dp"
+            android:background="@color/colorButton"
+            android:paddingEnd="2dp"
+            android:paddingStart="2dp"
+            android:text="@string/gunakan_alamat_lain"
+            android:textColor="@color/colorWhite"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent" />
+
+    </android.support.constraint.ConstraintLayout>
+</android.support.v7.widget.CardView>

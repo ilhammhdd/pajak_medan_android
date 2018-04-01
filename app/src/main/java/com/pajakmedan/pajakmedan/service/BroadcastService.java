@@ -28,7 +28,7 @@ public class BroadcastService extends Service {
             @Override
             public void onTick(long millisUntilFinished) {
 
-                Log.i(TAG, "Countdown seconds remaining: " + millisUntilFinished / 1000);
+//                Log.i(TAG, "Countdown seconds remaining: " + millisUntilFinished / 1000);
                 bi.putExtra("countdown", millisUntilFinished);
                 sendBroadcast(bi);
             }

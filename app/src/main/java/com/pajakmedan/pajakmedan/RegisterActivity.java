@@ -75,7 +75,7 @@ public class RegisterActivity extends BaseAuthenticationActivity {
     @Override
     void insideOnCreate() {
         super.insideOnCreate();
-
+        
         if (Hawk.get(Constants.USER_API_TOKEN_KEY) != null) {
             Log.d(TAG, "User already authenticated");
             startActivity(new Intent(RegisterActivity.this, CustomerHomeActivity.class));

@@ -65,6 +65,7 @@
         <activity android:name=".PaymentIssuedActivity" />
         <activity android:name=".OrderHistoryActivity" />
         <activity android:name=".ProfileActivity" />
+        <activity android:name=".AddressesActivity" />
 
         <service android:name=".service.BroadcastService" />
     </application>

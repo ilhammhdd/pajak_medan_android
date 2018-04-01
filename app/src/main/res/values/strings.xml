@@ -84,4 +84,12 @@
     <string name="tambah_alamat">Tambah alamat</string>
     <string name="selesai">Selesai</string>
     <string name="lengkapi_profile">Lengkapi profile</string>
+    <string name="utama">Utama</string>
+    <string name="yakin_ingin_hapus">Yakin ingin hapus?</string>
+    <string name="berhasil_diedit">Edit berhasil</string>
+    <string name="gagal_diedit">Edit gagal</string>
+    <string name="berhasil_hapus">Berhasil dihapus</string>
+    <string name="gagal_hapus">Gagal dihapus</string>
+    <string name="berhasil_ditambah">Berhasil ditambahkan</string>
+    <string name="gagal_ditambah">Gagal ditambahkan</string>
 </resources>

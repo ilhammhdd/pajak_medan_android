@@ -2,8 +2,8 @@
 <android.support.constraint.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
-    android:layout_width="300dp"
-    android:layout_height="match_parent">
+    android:layout_width="400dp"
+    android:layout_height="300dp">
 
     <TextView
         android:id="@+id/textView_completingProfile_forName"
@@ -12,19 +12,21 @@
         android:layout_margin="4dp"
         android:text="@string/edtTxt_nama"
         app:layout_constraintBottom_toBottomOf="@id/editText_completingProfile_fullName"
+        app:layout_constraintEnd_toStartOf="@id/editText_completingProfile_fullName"
+        app:layout_constraintHorizontal_chainStyle="spread_inside"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="@id/editText_completingProfile_fullName" />
 
     <EditText
         android:id="@+id/editText_completingProfile_fullName"
-        android:layout_width="0dp"
+        android:layout_width="250dp"
         android:layout_height="wrap_content"
-        android:layout_marginEnd="16dp"
+        android:layout_marginEnd="8dp"
         android:layout_marginStart="8dp"
         android:textSize="14sp"
         app:layout_constraintBottom_toTopOf="@id/editText_completingProfile_phoneNumber"
         app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toEndOf="@id/guideline99"
+        app:layout_constraintStart_toEndOf="@+id/textView_completingProfile_forName"
         app:layout_constraintTop_toTopOf="parent" />
 
     <TextView
@@ -41,12 +43,10 @@
         android:id="@+id/editText_completingProfile_phoneNumber"
         android:layout_width="0dp"
         android:layout_height="wrap_content"
-        android:layout_marginEnd="16dp"
-        android:layout_marginStart="8dp"
         android:textSize="14sp"
         app:layout_constraintBottom_toTopOf="@id/editText_completingProfile_email"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toEndOf="@id/guideline99"
+        app:layout_constraintEnd_toEndOf="@+id/editText_completingProfile_fullName"
+        app:layout_constraintStart_toStartOf="@+id/editText_completingProfile_fullName"
         app:layout_constraintTop_toBottomOf="@id/editText_completingProfile_fullName" />
 
     <TextView
@@ -63,12 +63,10 @@
         android:id="@+id/editText_completingProfile_email"
         android:layout_width="0dp"
         android:layout_height="wrap_content"
-        android:layout_marginEnd="16dp"
-        android:layout_marginStart="8dp"
         android:textSize="14sp"
         app:layout_constraintBottom_toTopOf="@id/button_completingProfile_done"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toStartOf="@+id/guideline99"
+        app:layout_constraintEnd_toEndOf="@+id/editText_completingProfile_fullName"
+        app:layout_constraintStart_toStartOf="@+id/editText_completingProfile_fullName"
         app:layout_constraintTop_toBottomOf="@id/editText_completingProfile_phoneNumber" />
 
     <android.support.constraint.Guideline

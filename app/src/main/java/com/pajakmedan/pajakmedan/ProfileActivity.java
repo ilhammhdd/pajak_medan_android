@@ -1,5 +1,6 @@
 package com.pajakmedan.pajakmedan;
 
+import android.content.Intent;
 import android.content.res.Resources;
 import android.text.method.ScrollingMovementMethod;
 import android.util.Log;
@@ -59,6 +60,19 @@ public class ProfileActivity extends BaseActivity {
                 profileDialog.show();
             }
         });
+
+        buttonManipulateAddress.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                startActivity(new Intent(ProfileActivity.this, AddressesActivity.class));
+            }
+        });
+    }
+
+    @Override
+    protected void onResume() {
+        super.onResume();
+        setAddressValues();
     }
 
     private void setProfileValues() {

@@ -17,6 +17,9 @@ import com.google.android.gms.auth.api.Auth;
 import com.google.android.gms.common.api.ResultCallback;
 import com.google.android.gms.common.api.Status;
 import com.orhanobut.hawk.Hawk;
+import com.pajakmedan.pajakmedan.asynctasks.GetMainAddress;
+import com.pajakmedan.pajakmedan.listeners.OnRequestListener;
+import com.pajakmedan.pajakmedan.models.Address;
 import com.pajakmedan.pajakmedan.models.Basket;
 import com.pajakmedan.pajakmedan.models.Customer;
 import com.pajakmedan.pajakmedan.models.Payment;
@@ -100,16 +103,47 @@ public abstract class BaseActivity extends AppCompatActivity {
     public void openBasket(Context context) {
         Payment payment = Hawk.get(Constants.CURRENT_PAYMENT_KEY);
         if (payment != null) {
+            Log.d("LOGGING_CURRENT_PAYMENT","payment still exists");
             startActivity(new Intent(context, PaymentIssuedActivity.class));
             return;
         }
 
-        Basket basket = Hawk.get(Constants.BASKET_KEY);
-        if (basket.total != 0) {
-            startActivity(new Intent(context, BasketActivity.class));
-            return;
-        }
+        Log.d("LOGGING_CURRENT_PAYMENT","payment doesn't exists");
 
-        startActivity(new Intent(context, UploadFileActivity.class));
+        Basket basket = Hawk.get(Constants.BASKET_KEY);
+//        if (basket.total != 0) {
+            startActivity(new Intent(context, BasketActivity.class));
+//            return;
+//        }
+
+//        startActivity(new Intent(context, UploadFileActivity.class));
+    }
+    public void getMainAddress() {
+        Customer customer = Hawk.get(Constants.CUSTOMER_KEY);
+        GetMainAddress getMainAddress = new GetMainAddress();
+        try {
+            getMainAddress.execute(new JSONObject()
+                    .put("data", new JSONObject()
+                            .put("url", Constants.DOMAIN + "api/get-main-address")
+                            .put("api_token", Hawk.get(Constants.USER_API_TOKEN_KEY))
+                            .put("customer_id", customer.customerId)
+                    ));
+            getMainAddress.setOnRequestListener(new OnRequestListener() {
+                @Override
+                public <T> void onRequest(T responseGeneric, String key) throws JSONException {
+//                    Address.saveAddress((JSONObject) responseGeneric);
+                    if (responseGeneric == null) {
+                        Log.d("RESPONSE_MAIN_ADDRESS", "NULL");
+                        Address.saveEmptyMainAddress();
+                        return;
+                    }
+
+                    Log.d("RESPONSE_MAIN_ADDRESS", responseGeneric.toString());
+                    Address.saveMainAddress((JSONObject) responseGeneric);
+                }
+            });
+        } catch (JSONException e) {
+            e.printStackTrace();
+        }
     }
 }

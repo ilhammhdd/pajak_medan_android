@@ -3,7 +3,9 @@ package com.pajakmedan.pajakmedan.dialogs;
 import android.app.Activity;
 import android.content.Context;
 import android.text.Editable;
+import android.util.Log;
 import android.view.View;
+import android.widget.Button;
 import android.widget.EditText;
 import android.widget.TextView;
 
@@ -26,6 +28,7 @@ public class CompletingProfileDialog extends BaseDialog {
     EditText editTextPhone;
     TextView textViewForEmail;
     EditText editTextEmail;
+    Button buttonDone;
 
     public CompletingProfileDialog(Activity context) {
         super(context);
@@ -46,31 +49,37 @@ public class CompletingProfileDialog extends BaseDialog {
         editTextFullName = findViewById(R.id.editText_completingProfile_fullName);
         editTextPhone = findViewById(R.id.editText_completingProfile_phoneNumber);
         editTextEmail = findViewById(R.id.editText_completingProfile_email);
+        buttonDone = findViewById(R.id.button_completingProfile_done);
+    }
+
+    @Override
+    public void insideOnCreate() {
+        buttonDone.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+
+            }
+        });
     }
 
     private void setValues() {
-        /*textViewForName.setVisibility(View.GONE);
-        textViewForPhone.setVisibility(View.GONE);
-        textViewForEmail.setVisibility(View.GONE);
-        editTextEmail.setVisibility(View.GONE);
-        editTextFullName.setVisibility(View.GONE);
-        editTextPhone.setVisibility(View.GONE);*/
-
         Profile profile = Hawk.get(Constants.PROFILE_KEY);
         if (!profile.fullName.equals("")) {
             editTextFullName.setText(profile.fullName);
-            editTextFullName.setFocusable(false);
-            editTextFullName.setClickable(false);
+//            editTextFullName.setFocusable(false);
+//            editTextFullName.setClickable(false);
         }
+
         if (!profile.phoneNumber.equals("")) {
             editTextPhone.setText(profile.phoneNumber);
-            editTextPhone.setFocusable(false);
-            editTextPhone.setClickable(false);
+//            editTextPhone.setFocusable(false);
+//            editTextPhone.setClickable(false);
         }
+
         if (!profile.email.equals("")) {
             editTextEmail.setText(profile.email);
-            editTextEmail.setFocusable(false);
-            editTextEmail.setClickable(false);
+//            editTextEmail.setFocusable(false);
+//            editTextEmail.setClickable(false);
         }
     }
 }

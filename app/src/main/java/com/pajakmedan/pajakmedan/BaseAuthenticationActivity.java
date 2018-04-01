@@ -5,8 +5,10 @@ import android.content.Intent;
 import android.net.Uri;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
+import android.support.v7.widget.LinearLayoutManager;
 import android.util.Log;
 
+import android.view.View;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -27,9 +29,14 @@ import com.google.android.gms.common.api.GoogleApiClient;
 import com.google.android.gms.common.api.ResultCallback;
 import com.google.android.gms.common.api.Status;
 import com.orhanobut.hawk.Hawk;
+import com.pajakmedan.pajakmedan.adapters.AddressesAdapter;
+import com.pajakmedan.pajakmedan.asynctasks.GetAllAddresses;
 import com.pajakmedan.pajakmedan.asynctasks.GetBasket;
 import com.pajakmedan.pajakmedan.asynctasks.GetMainAddress;
 import com.pajakmedan.pajakmedan.asynctasks.Login;
+import com.pajakmedan.pajakmedan.dialogs.DeleteAddressDialog;
+import com.pajakmedan.pajakmedan.dialogs.ManipulateAddressDialog;
+import com.pajakmedan.pajakmedan.listeners.OnRecyclerViewItemClickListener;
 import com.pajakmedan.pajakmedan.listeners.OnRequestListener;
 import com.pajakmedan.pajakmedan.models.Address;
 import com.pajakmedan.pajakmedan.models.Basket;
@@ -39,6 +46,8 @@ import com.pajakmedan.pajakmedan.models.User;
 
 import org.json.JSONException;
 import org.json.JSONObject;
+
+import java.util.List;
 
 import es.dmoral.toasty.Toasty;
 
@@ -192,7 +201,7 @@ public abstract class BaseAuthenticationActivity extends BaseActivity implements
         try {
             JSONObject data = new JSONObject();
 
-            data.put("url", Constants.DOMAIN + "/api/login");
+            data.put("url", Constants.DOMAIN + "api/login");
             data.put("username", username);
             data.put("password", password);
 
@@ -254,6 +263,7 @@ public abstract class BaseAuthenticationActivity extends BaseActivity implements
             JSONObject responseData = response.getJSONObject("response_data");
             Log.d("MY_LOGGING_RD_LOGIN", responseData.toString());
             if (responseData.getBoolean("authenticated")) {
+                Log.d("ADOOOOOOH", responseData.toString());
                 User newUser = User.saveCurrentUser(responseData.getJSONObject("user"), responseData.has("file_id"));
                 Profile.saveCurrentProfile(responseData.getJSONObject("profile"));
                 Customer.saveCustomer(responseData.getJSONObject("customer"));
@@ -261,42 +271,13 @@ public abstract class BaseAuthenticationActivity extends BaseActivity implements
                 Hawk.put(Constants.USER_API_TOKEN_KEY, newUser.apiToken);
                 Hawk.put(Constants.PROFILE_PHOTO, responseData.getString("photo"));
                 getBasket();
-                getMainAddress();
+//                getMainAddress();
                 startActivity(new Intent(getApplicationContext(), CustomerHomeActivity.class));
                 finish();
             } else {
                 Toasty.error(getApplicationContext(), getResources().getString(R.string.login_gagal), Toast.LENGTH_SHORT, true).show();
                 logout(getApplicationContext());
             }
-        } catch (JSONException e) {
-            e.printStackTrace();
-        }
-    }
-
-    private void getMainAddress() {
-        GetMainAddress getMainAddress = new GetMainAddress();
-        Customer customer = Hawk.get(Constants.CUSTOMER_KEY);
-        try {
-            getMainAddress.execute(new JSONObject()
-                    .put("data", new JSONObject()
-                            .put("url", Constants.DOMAIN + "api/get-main-address")
-                            .put("api_token", Hawk.get(Constants.USER_API_TOKEN_KEY))
-                            .put("customer_id", customer.customerId)
-                    ));
-            getMainAddress.setOnRequestListener(new OnRequestListener() {
-                @Override
-                public <T> void onRequest(T responseGeneric, String key) throws JSONException {
-//                    Address.saveAddress((JSONObject) responseGeneric);
-                    if (responseGeneric == null) {
-                        Log.d("RESPONSE_MAIN_ADDRESS", "NULL");
-                        Address.saveEmptyAddress();
-                        return;
-                    }
-
-                    Log.d("RESPONSE_MAIN_ADDRESS", responseGeneric.toString());
-                    Address.saveAddress((JSONObject) responseGeneric);
-                }
-            });
         } catch (JSONException e) {
             e.printStackTrace();
         }

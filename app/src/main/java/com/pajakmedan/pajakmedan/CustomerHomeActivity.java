@@ -79,11 +79,10 @@ public class CustomerHomeActivity extends BaseActivity implements NavigationView
 
         showEvents();
         showCategories();
-
+        Log.d("DEVICE_HEIGHT_CUSTHOME", String.valueOf(getDeviceHeight()));
         navigationView.bringToFront();
         navigationView.setNavigationItemSelectedListener(this);
         setNavigationValues();
-
         toggle_drawer_customer.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
