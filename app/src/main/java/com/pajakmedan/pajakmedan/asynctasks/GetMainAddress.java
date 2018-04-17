@@ -6,6 +6,7 @@ import android.util.Log;
 import com.pajakmedan.pajakmedan.Constants;
 import com.pajakmedan.pajakmedan.listeners.OnRequestListener;
 import com.pajakmedan.pajakmedan.listeners.SetOnRequestListener;
+import com.pajakmedan.pajakmedan.models.Address;
 
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -21,8 +22,9 @@ public class GetMainAddress extends AsyncTask<JSONObject, Double, JSONObject> im
     @Override
     protected JSONObject doInBackground(JSONObject... jsonObjects) {
         try {
+            Log.d("LOGGING_MAIN_ADDRESS", "REQUEST : "+String.valueOf(jsonObjects[0]));
             JSONObject response = RequestPost.sendRequest(jsonObjects[0]);
-            assert response!=null;
+            assert response != null;
             if (response.getJSONObject(Constants.RESPONSE_DATA_KEY).has("main_address")) {
                 return response.getJSONObject(Constants.RESPONSE_DATA_KEY).getJSONObject("main_address");
             }

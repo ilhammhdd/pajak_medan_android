@@ -13,13 +13,15 @@ public class Checkout {
     public int basketId;
     public String status;
     public String expired;
+    public String issued;
 
-    public Checkout(int checkoutId, int paymentId, int basketId, String status, String expired) {
+    public Checkout(int checkoutId, int paymentId, int basketId, String status, String expired, String issued) {
         this.checkoutId = checkoutId;
         this.paymentId = paymentId;
         this.basketId = basketId;
         this.status = status;
         this.expired = expired;
+        this.issued = issued;
     }
 
     public static Checkout saveCheckout(JSONObject checkout) {
@@ -29,7 +31,8 @@ public class Checkout {
                     checkout.getInt("payment_id"),
                     checkout.getInt("basket_id"),
                     checkout.getString("status"),
-                    checkout.getString("expired")
+                    checkout.getString("expired"),
+                    checkout.getString("issued")
             );
         } catch (JSONException e) {
             e.printStackTrace();

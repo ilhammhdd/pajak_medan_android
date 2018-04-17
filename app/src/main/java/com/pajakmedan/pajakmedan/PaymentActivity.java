@@ -79,8 +79,8 @@ public class PaymentActivity extends BaseActivity {
                                     .setPositiveButton(R.string.ya, new DialogInterface.OnClickListener() {
                                         public void onClick(DialogInterface dialog, int id) {
                                             Hawk.put(Constants.CURRENT_PAYMENT_KEY, payment);
-//                                            startActivity(new Intent(PaymentActivity.this, PaymentIssuedActivity.class));
-//                                            startService(new Intent(PaymentActivity.this, BroadcastService.class));
+                                            startActivity(new Intent(PaymentActivity.this, PaymentIssuedActivity.class));
+                                            startService(new Intent(PaymentActivity.this, BroadcastService.class));
 
                                             postPaymentIssued();
 
@@ -109,11 +109,12 @@ public class PaymentActivity extends BaseActivity {
     private void postPaymentIssued() {
         Customer customer = Hawk.get(Constants.CUSTOMER_KEY);
         Payment payment = Hawk.get(Constants.CURRENT_PAYMENT_KEY);
-        Basket basket = Hawk.get(Constants.BASKET_KEY);
 
-        Calendar calendar = Calendar.getInstance();
-        calendar.add(Calendar.HOUR, 2);
-        String expiredDateTime = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss", new Locale("en")).format(calendar.getTime());
+        Calendar calendarExpired = Calendar.getInstance();
+        Calendar calendarIssued = Calendar.getInstance();
+        calendarExpired.add(Calendar.HOUR, 2);
+        String expiredDateTime = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss", new Locale("en")).format(calendarExpired.getTime());
+        String issuedDateTime = new SimpleDateFormat("yyy-MM-dd HH:mm:ss", new Locale("en")).format(calendarIssued.getTime());
 
         PostIssueCheckout postIssueCheckout = new PostIssueCheckout();
         try {
@@ -123,16 +124,15 @@ public class PaymentActivity extends BaseActivity {
                             .put("customer_id", customer.customerId)
                             .put("api_token", Hawk.get(Constants.USER_API_TOKEN_KEY))
                             .put("payment_id", payment.paymentId)
-                            .put("basket_id", basket.basketId)
                             .put("status_id", 2)
                             .put("expired", expiredDateTime)
+                            .put("issued", issuedDateTime)
                     )
             );
-
-            Hawk.delete(Constants.CURRENT_PAYMENT_KEY);
-            Hawk.delete(Constants.BASKET_KEY);
         } catch (JSONException e) {
             e.printStackTrace();
         }
+
+        getBasket();
     }
 }

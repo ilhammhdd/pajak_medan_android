@@ -31,6 +31,7 @@ public class Address {
     }
 
     public static Address saveMainAddress(JSONObject jsonAddress) {
+        Log.d("LOGGING_MAIN_ADDRESS", "SAVE_TO_HAWK : " + String.valueOf(jsonAddress));
         try {
             Address address = new Address(
                     jsonAddress.getInt("id"),

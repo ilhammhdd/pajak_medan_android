@@ -224,40 +224,6 @@ public abstract class BaseAuthenticationActivity extends BaseActivity implements
         }
     }
 
-    private void getBasket() {
-        Customer customer = Hawk.get(Constants.CUSTOMER_KEY);
-        try {
-            JSONObject request = new JSONObject();
-            request.put("url", Constants.DOMAIN + "api/get-basket");
-            request.put("api_token", Hawk.get(Constants.USER_API_TOKEN_KEY));
-            request.put("customer_id", customer.customerId);
-
-            JSONObject dataChunk = new JSONObject();
-            dataChunk.put("data", request);
-
-            GetBasket getBasket = new GetBasket();
-            getBasket.execute(dataChunk);
-
-            getBasket.setOnRequestListener(new OnRequestListener() {
-                @Override
-                public <T> void onRequest(T responseGeneric, String key) throws JSONException {
-                    JSONObject response = (JSONObject) responseGeneric;
-                    Log.d("MY_LOGGING_GET_BASKET", response.toString());
-                    JSONObject responseData = response.getJSONObject("response_data");
-                    if (responseData.has("basket")) {
-                        JSONObject basket = responseData.getJSONObject("basket");
-                        Log.d("RESPONSE_BASKET", basket.toString());
-                        Basket.saveBasket(basket, basket.getString("description") != null);
-                        return;
-                    }
-                    Basket.saveEmptyBasket();
-                }
-            });
-        } catch (JSONException e) {
-            e.printStackTrace();
-        }
-    }
-
     private void authenticationResponse(JSONObject response) {
         try {
             JSONObject responseData = response.getJSONObject("response_data");
@@ -271,7 +237,7 @@ public abstract class BaseAuthenticationActivity extends BaseActivity implements
                 Hawk.put(Constants.USER_API_TOKEN_KEY, newUser.apiToken);
                 Hawk.put(Constants.PROFILE_PHOTO, responseData.getString("photo"));
                 getBasket();
-//                getMainAddress();
+                getMainAddress();
                 startActivity(new Intent(getApplicationContext(), CustomerHomeActivity.class));
                 finish();
             } else {

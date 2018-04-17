@@ -1,7 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <android.support.design.widget.CoordinatorLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
-    android:id="@+id/constraintLayout_orderHistory"
     android:layout_width="match_parent"
     android:layout_height="match_parent">
 
@@ -27,7 +26,7 @@
                     android:layout_height="match_parent">
 
                     <ImageView
-                        android:id="@+id/imageView_orderHistory_back"
+                        android:id="@+id/imageView_orderGoods_back"
                         android:layout_width="wrap_content"
                         android:layout_height="0dp"
                         android:layout_marginBottom="8dp"
@@ -38,7 +37,7 @@
                         app:srcCompat="@drawable/ic_left_arrow" />
 
                     <TextView
-                        android:id="@+id/textView_orderHistory"
+                        android:id="@+id/textView17"
                         android:layout_width="wrap_content"
                         android:layout_height="0dp"
                         android:layout_marginBottom="8dp"
@@ -46,14 +45,14 @@
                         android:layout_marginStart="8dp"
                         android:layout_marginTop="8dp"
                         android:gravity="center_vertical|start"
-                        android:text="@string/riwayat_pemesanan"
+                        android:text="@string/barang_pesanan"
                         android:textColor="@color/colorWhite"
                         android:textSize="19sp"
                         android:textStyle="bold"
                         app:layout_constraintBottom_toBottomOf="parent"
                         app:layout_constraintEnd_toEndOf="parent"
                         app:layout_constraintHorizontal_bias=".06"
-                        app:layout_constraintStart_toEndOf="@id/imageView_orderHistory_back"
+                        app:layout_constraintStart_toEndOf="@+id/imageView_orderGoods_back"
                         app:layout_constraintTop_toTopOf="parent" />
                 </android.support.constraint.ConstraintLayout>
             </android.support.v7.widget.Toolbar>
@@ -62,23 +61,23 @@
 
     <android.support.v4.widget.NestedScrollView
         android:layout_width="match_parent"
-        android:layout_height="match_parent"
+        android:layout_height="wrap_content"
         android:fillViewport="true"
         app:layout_behavior="android.support.design.widget.AppBarLayout$ScrollingViewBehavior">
 
         <android.support.constraint.ConstraintLayout
-            android:id="@+id/constraintLayout_orderHistory_content"
             android:layout_width="match_parent"
-            android:layout_height="match_parent">
+            android:layout_height="wrap_content">
 
             <android.support.v7.widget.RecyclerView
-                android:id="@+id/recyclerView_orderHistory"
+                android:id="@+id/recyclerView_orderGoods"
                 android:layout_width="match_parent"
-                android:layout_height="match_parent"
+                android:layout_height="wrap_content"
                 app:layout_constraintBottom_toBottomOf="parent"
                 app:layout_constraintEnd_toEndOf="parent"
                 app:layout_constraintStart_toStartOf="parent"
-                app:layout_constraintTop_toTopOf="parent" />
+                app:layout_constraintTop_toTopOf="parent"
+                app:layout_constraintVertical_bias="0" />
         </android.support.constraint.ConstraintLayout>
     </android.support.v4.widget.NestedScrollView>
 </android.support.design.widget.CoordinatorLayout>

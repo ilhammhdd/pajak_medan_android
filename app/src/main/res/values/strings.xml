@@ -92,4 +92,12 @@
     <string name="gagal_hapus">Gagal dihapus</string>
     <string name="berhasil_ditambah">Berhasil ditambahkan</string>
     <string name="gagal_ditambah">Gagal ditambahkan</string>
+    <string name="mulai_belanja">Mulai Belanja</string>
+    <string name="barang">barang</string>
+    <string name="lihat_barang">Lihat barang</string>
+    <string name="barang_pesanan">Barang pesanan</string>
+    <string name="kadaluarsa">Kadaluarsa</string>
+    <string name="menunggu">Menunggu</string>
+    <string name="gagal">Gagal</string>
+    <string name="berhasil">Berhasil</string>
 </resources>

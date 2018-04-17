@@ -3,11 +3,15 @@ package com.pajakmedan.pajakmedan.service;
 /**
  * Created by milha on 3/4/2018.
  */
+
 import android.app.Service;
 import android.content.Intent;
 import android.os.CountDownTimer;
 import android.os.IBinder;
 import android.util.Log;
+
+import com.orhanobut.hawk.Hawk;
+import com.pajakmedan.pajakmedan.Constants;
 
 public class BroadcastService extends Service {
 
@@ -24,18 +28,15 @@ public class BroadcastService extends Service {
 
         Log.i(TAG, "Starting timer...");
 
-        cdt = new CountDownTimer(7200000, 250) {
+        cdt = new CountDownTimer((long) Hawk.get(Constants.CURRENT_CHECKOUT_EXPIRATION), 250) {
             @Override
             public void onTick(long millisUntilFinished) {
-
-//                Log.i(TAG, "Countdown seconds remaining: " + millisUntilFinished / 1000);
                 bi.putExtra("countdown", millisUntilFinished);
                 sendBroadcast(bi);
             }
 
             @Override
             public void onFinish() {
-
                 Log.i(TAG, "Timer finished");
             }
         };

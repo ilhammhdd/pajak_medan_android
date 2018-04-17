@@ -17,6 +17,7 @@ import com.google.android.gms.auth.api.Auth;
 import com.google.android.gms.common.api.ResultCallback;
 import com.google.android.gms.common.api.Status;
 import com.orhanobut.hawk.Hawk;
+import com.pajakmedan.pajakmedan.asynctasks.GetBasket;
 import com.pajakmedan.pajakmedan.asynctasks.GetMainAddress;
 import com.pajakmedan.pajakmedan.listeners.OnRequestListener;
 import com.pajakmedan.pajakmedan.models.Address;
@@ -62,7 +63,7 @@ public abstract class BaseActivity extends AppCompatActivity {
     }
 
     public void logout(Context context) {
-        switch ((int)Hawk.get(Constants.AUTH_TYPE_KEY)) {
+        switch ((int) Hawk.get(Constants.AUTH_TYPE_KEY)) {
             case 1: {
                 Auth.GoogleSignInApi.signOut(Constants.GOOGLE_API_CLIENT).setResultCallback(new ResultCallback<Status>() {
                     @Override
@@ -101,23 +102,18 @@ public abstract class BaseActivity extends AppCompatActivity {
     }
 
     public void openBasket(Context context) {
-        Payment payment = Hawk.get(Constants.CURRENT_PAYMENT_KEY);
-        if (payment != null) {
-            Log.d("LOGGING_CURRENT_PAYMENT","payment still exists");
-            startActivity(new Intent(context, PaymentIssuedActivity.class));
-            return;
-        }
-
-        Log.d("LOGGING_CURRENT_PAYMENT","payment doesn't exists");
-
-        Basket basket = Hawk.get(Constants.BASKET_KEY);
-//        if (basket.total != 0) {
-            startActivity(new Intent(context, BasketActivity.class));
+//        Payment payment = Hawk.get(Constants.CURRENT_PAYMENT_KEY);
+//        if (payment != null) {
+//            Log.d("LOGGING_CURRENT_PAYMENT", "payment still exists");
+//            startActivity(new Intent(context, PaymentIssuedActivity.class));
 //            return;
 //        }
+//
+//        Log.d("LOGGING_CURRENT_PAYMENT", "payment doesn't exists");
 
-//        startActivity(new Intent(context, UploadFileActivity.class));
+        startActivity(new Intent(context, BasketActivity.class));
     }
+
     public void getMainAddress() {
         Customer customer = Hawk.get(Constants.CUSTOMER_KEY);
         GetMainAddress getMainAddress = new GetMainAddress();
@@ -133,13 +129,47 @@ public abstract class BaseActivity extends AppCompatActivity {
                 public <T> void onRequest(T responseGeneric, String key) throws JSONException {
 //                    Address.saveAddress((JSONObject) responseGeneric);
                     if (responseGeneric == null) {
-                        Log.d("RESPONSE_MAIN_ADDRESS", "NULL");
+                        Log.d("LOGGING_MAIN_ADDRESS", "RESPONSE : NULL");
                         Address.saveEmptyMainAddress();
                         return;
                     }
 
-                    Log.d("RESPONSE_MAIN_ADDRESS", responseGeneric.toString());
+                    Log.d("LOGGING_MAIN_ADDRESS", "RESPONSE : " + responseGeneric.toString());
                     Address.saveMainAddress((JSONObject) responseGeneric);
+                }
+            });
+        } catch (JSONException e) {
+            e.printStackTrace();
+        }
+    }
+
+    void getBasket() {
+        Customer customer = Hawk.get(Constants.CUSTOMER_KEY);
+        try {
+            JSONObject request = new JSONObject();
+            request.put("url", Constants.DOMAIN + "api/get-basket");
+            request.put("api_token", Hawk.get(Constants.USER_API_TOKEN_KEY));
+            request.put("customer_id", customer.customerId);
+
+            JSONObject dataChunk = new JSONObject();
+            dataChunk.put("data", request);
+
+            GetBasket getBasket = new GetBasket();
+            getBasket.execute(dataChunk);
+
+            getBasket.setOnRequestListener(new OnRequestListener() {
+                @Override
+                public <T> void onRequest(T responseGeneric, String key) throws JSONException {
+                    JSONObject response = (JSONObject) responseGeneric;
+                    Log.d("MY_LOGGING_GET_BASKET", response.toString());
+                    JSONObject responseData = response.getJSONObject("response_data");
+                    if (responseData.has("basket")) {
+                        JSONObject basket = responseData.getJSONObject("basket");
+                        Log.d("RESPONSE_BASKET", basket.toString());
+                        Basket.saveBasket(basket, basket.getString("description") != null);
+                        return;
+                    }
+                    Basket.saveEmptyBasket();
                 }
             });
         } catch (JSONException e) {

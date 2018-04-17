@@ -66,6 +66,7 @@
         <activity android:name=".OrderHistoryActivity" />
         <activity android:name=".ProfileActivity" />
         <activity android:name=".AddressesActivity" />
+        <activity android:name=".OrderGoodsActivity" />
 
         <service android:name=".service.BroadcastService" />
     </application>

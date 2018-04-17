@@ -53,5 +53,6 @@ dependencies {
     compile 'com.daimajia.slider:library:1.1.5@aar'
     compile 'com.orhanobut:hawk:2.0.1'
     compile 'com.github.GrenderG:Toasty:1.2.8'
+    compile 'com.shehabic.droppy:Droppy:0.6.0@aar'
 }
 apply plugin: 'com.google.gms.google-services'

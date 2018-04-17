@@ -184,7 +184,7 @@ public class CustomerHomeActivity extends BaseActivity implements NavigationView
                 break;
             }
             case R.id.customer_sidenav_menu_order_history: {
-
+                startActivity(new Intent(CustomerHomeActivity.this, OrderHistoryActivity.class));
                 break;
             }
             case R.id.customer_sidenav_menu_logout: {

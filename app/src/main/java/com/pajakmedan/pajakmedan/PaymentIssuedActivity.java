@@ -42,22 +42,6 @@ public class PaymentIssuedActivity extends BaseActivity {
         Payment payment = Hawk.get(Constants.CURRENT_PAYMENT_KEY);
         Glide.with(PaymentIssuedActivity.this).load(payment.paymentImageUrl).into(imageViewImage);
         textViewRekening.setText(String.valueOf(payment.paymentDetail));
-//        new CountDownTimer(7200000, 1000) { // adjust the milli seconds here
-//
-//            public void onTick(long millisUntilFinished) {
-//                Constants.PAYMENT_COUNTDOWN = millisUntilFinished;
-//                textViewCountDown.setText("" + String.format("%d jam %d menit %d detik",
-//                        TimeUnit.MILLISECONDS.toHours(millisUntilFinished),
-//                        TimeUnit.MILLISECONDS.toMinutes(millisUntilFinished) -
-//                                TimeUnit.HOURS.toMinutes(TimeUnit.MILLISECONDS.toHours(millisUntilFinished)),
-//                        TimeUnit.MILLISECONDS.toSeconds(millisUntilFinished) -
-//                                TimeUnit.MINUTES.toSeconds(TimeUnit.MILLISECONDS.toMinutes(millisUntilFinished))));
-//            }
-//
-//            public void onFinish() {
-//                textViewCountDown.setText("done!");
-//            }
-//        }.start();
     }
 
     private BroadcastReceiver broadcastReceiver = new BroadcastReceiver() {

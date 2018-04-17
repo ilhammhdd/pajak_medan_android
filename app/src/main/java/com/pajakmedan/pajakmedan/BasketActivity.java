@@ -46,20 +46,23 @@ import butterknife.OnClick;
  */
 
 public class BasketActivity extends BaseActivity {
-    //    @BindView(R.id.cardView_basket_totalPrice)
-    //    CardView cardViewTotalPrice;
-    //    @BindView(R.id.cardView_basket_address)
-    //    CardView cardViewAddress;
-    //    @BindView(R.id.cardView_basket_receiverData)
-    //    CardView cardViewReceiverData;
+    @BindView(R.id.constraintLayout_basket)
+    ConstraintLayout constraintLayoutBasket;
     @BindView(R.id.button_basket_lanjutkanPembayaran)
     Button buttonContinuePayment;
     @BindView(R.id.toolbar5)
     Toolbar toolbarBasket5;
+    @BindView(R.id.imageView_basket_basketEmpty)
+    ImageView imageViewBasketEmpty;
 
     FragmentManager fragmentManager;
     static BasketActivity basketActivity;
     double frameLayoutBasketGoodsHeight;
+
+    BasketGoodsFragment basketGoodsFragment;
+    AddressFragment addressFragment;
+    ReceiverDataFragment receiverDataFragment;
+    TotalPriceFragment totalPriceFragment;
 
     @Override
     int getContentId() {
@@ -69,19 +72,16 @@ public class BasketActivity extends BaseActivity {
     @Override
     void insideOnCreate() {
         basketActivity = this;
-        setSizes();
         fragmentManager = getFragmentManager();
+        if (basketIsEmpty()) {
+            imageViewBasketEmpty.setImageResource(R.drawable.ic_shopping_basket_grey);
+            buttonContinuePayment.setText(getResources().getString(R.string.mulai_belanja));
+            return;
+        }
         setFragments();
         eachFragmentsListener();
         frameLayoutBasketGoodsHeight = frameLayoutBasketGoods.getLayoutParams().height;
-        Log.d("LOGGING_HEIGHT", String.valueOf(frameLayoutBasketGoodsHeight));
-        Log.d("LOGGING_DEVICE_HEIGHT", String.valueOf(getDeviceHeight()));
     }
-
-    BasketGoodsFragment basketGoodsFragment;
-    AddressFragment addressFragment;
-    ReceiverDataFragment receiverDataFragment;
-    TotalPriceFragment totalPriceFragment;
 
     private void setFragments() {
         basketGoodsFragment = new BasketGoodsFragment();
@@ -118,10 +118,6 @@ public class BasketActivity extends BaseActivity {
                     frameLayoutReceiverData.setVisibility(View.GONE);
                     frameLayoutTotalPrice.setVisibility(View.GONE);
                     Log.d("LOGGING_DEVICE_HEIGHT", String.valueOf(getDeviceHeight()));
-//                    basketGoodsFragment.cardViewBasketGoods.getLayoutParams().height = getDeviceHeight();
-//                    addressFragment.cardViewAddress.setVisibility(View.GONE);
-//                    receiverDataFragment.cardViewReceiverData.setVisibility(View.GONE);
-//                    totalPriceFragment.cardViewTotalPrice.setVisibility(View.GONE);
                     return;
                 }
                 imageViewExpandIcon.setImageLevel(1);
@@ -131,18 +127,8 @@ public class BasketActivity extends BaseActivity {
                 frameLayoutAddress.setVisibility(View.VISIBLE);
                 frameLayoutReceiverData.setVisibility(View.VISIBLE);
                 frameLayoutTotalPrice.setVisibility(View.VISIBLE);
-//                basketGoodsFragment.cardViewBasketGoods.getLayoutParams().height = 500;
-//                addressFragment.cardViewAddress.setVisibility(View.VISIBLE);
-//                receiverDataFragment.cardViewReceiverData.setVisibility(View.VISIBLE);
-//                totalPriceFragment.cardViewTotalPrice.setVisibility(View.VISIBLE);
             }
         });
-    }
-
-    private void setSizes() {
-//        cardViewReceiverData.getLayoutParams().height = (int) (getDeviceHeight() * 0.25d);
-//        cardViewAddress.getLayoutParams().height = (int) (getDeviceHeight() * 0.25d);
-//        cardViewTotalPrice.getLayoutParams().height = (int) (getDeviceHeight() * 0.2d);
     }
 
     @OnClick(R.id.imageView_basket_back)
@@ -152,6 +138,15 @@ public class BasketActivity extends BaseActivity {
 
     @OnClick(R.id.button_basket_lanjutkanPembayaran)
     void lanjutPembayaran() {
+        if (basketIsEmpty()) {
+            startActivity(new Intent(BasketActivity.this, CustomerHomeActivity.class));
+            return;
+        }
         startActivity(new Intent(BasketActivity.this, PaymentActivity.class));
+    }
+
+    boolean basketIsEmpty() {
+        Basket basket = Hawk.get(Constants.BASKET_KEY);
+        return basket.total == 0;
     }
 }
