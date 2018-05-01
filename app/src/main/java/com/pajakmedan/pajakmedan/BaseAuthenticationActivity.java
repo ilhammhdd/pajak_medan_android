@@ -111,10 +111,9 @@ public abstract class BaseAuthenticationActivity extends BaseActivity implements
             @Override
             public void onCompleted(JSONObject object, GraphResponse response) {
                 try {
-                    Login login = new Login();
+                    Login login = new Login(true);
 
                     JSONObject alternativeAuth = new JSONObject();
-                    alternativeAuth.put("url", Constants.DOMAIN + "api/alternative-login");
                     alternativeAuth.put("alternative_auth", true);
                     alternativeAuth.put("email", object.getString("email"));
                     alternativeAuth.put("id", object.getString("id"));
@@ -122,10 +121,7 @@ public abstract class BaseAuthenticationActivity extends BaseActivity implements
                     alternativeAuth.put("auth_type", "facebook");
                     alternativeAuth.put("photo_url", "https://graph.facebook.com/" + object.getString("id") + "/picture?type=large");
 
-                    JSONObject alternativeAuthChunk = new JSONObject();
-                    alternativeAuthChunk.put("data", alternativeAuth);
-
-                    login.execute(alternativeAuthChunk);
+                    login.execute(alternativeAuth);
 
                     login.setOnRequestListener(new OnRequestListener() {
                         @Override
@@ -166,10 +162,9 @@ public abstract class BaseAuthenticationActivity extends BaseActivity implements
             if (account != null) {
                 photoUrl = account.getPhotoUrl();
 
-                Login login = new Login();
+                Login login = new Login(true);
                 try {
                     JSONObject alternativeAuth = new JSONObject();
-                    alternativeAuth.put("url", Constants.DOMAIN + "api/alternative-login");
                     alternativeAuth.put("alternative_auth", true);
                     alternativeAuth.put("email", account.getEmail());
                     alternativeAuth.put("id", account.getId());
@@ -177,10 +172,7 @@ public abstract class BaseAuthenticationActivity extends BaseActivity implements
                     alternativeAuth.put("auth_type", "google");
                     alternativeAuth.put("photo_url", photoUrl == null ? "null" : photoUrl);
 
-                    JSONObject alternativeAuthChunk = new JSONObject();
-                    alternativeAuthChunk.put("data", alternativeAuth);
-
-                    login.execute(alternativeAuthChunk);
+                    login.execute(alternativeAuth);
 
                     login.setOnRequestListener(new OnRequestListener() {
                         @Override
@@ -201,16 +193,12 @@ public abstract class BaseAuthenticationActivity extends BaseActivity implements
         try {
             JSONObject data = new JSONObject();
 
-            data.put("url", Constants.DOMAIN + "api/login");
             data.put("username", username);
             data.put("password", password);
 
-            JSONObject dataChunk = new JSONObject();
-            dataChunk.put("data", data);
+            Login login = new Login(false);
 
-            Login login = new Login();
-
-            login.execute(dataChunk);
+            login.execute(data);
 
             login.setOnRequestListener(new OnRequestListener() {
                 @Override
@@ -226,22 +214,25 @@ public abstract class BaseAuthenticationActivity extends BaseActivity implements
 
     private void authenticationResponse(JSONObject response) {
         try {
-            JSONObject responseData = response.getJSONObject("response_data");
-            Log.d("MY_LOGGING_RD_LOGIN", responseData.toString());
-            if (responseData.getBoolean("authenticated")) {
-                Log.d("ADOOOOOOH", responseData.toString());
-                User newUser = User.saveCurrentUser(responseData.getJSONObject("user"), responseData.has("file_id"));
+            if (response.getBoolean("success")) {
+                JSONObject responseData = response.getJSONObject("response_data");
+
+                User newUser = User.saveCurrentUser(responseData.getJSONObject("user"));
                 Profile.saveCurrentProfile(responseData.getJSONObject("profile"));
                 Customer.saveCustomer(responseData.getJSONObject("customer"));
+
                 assert newUser != null;
+
                 Hawk.put(Constants.USER_API_TOKEN_KEY, newUser.apiToken);
                 Hawk.put(Constants.PROFILE_PHOTO, responseData.getString("photo"));
+
                 getBasket();
                 getMainAddress();
+
                 startActivity(new Intent(getApplicationContext(), CustomerHomeActivity.class));
                 finish();
             } else {
-                Toasty.error(getApplicationContext(), getResources().getString(R.string.login_gagal), Toast.LENGTH_SHORT, true).show();
+                Toasty.error(getApplicationContext(), getResources().getString(R.string.password_salah), Toast.LENGTH_SHORT, true).show();
                 logout(getApplicationContext());
             }
         } catch (JSONException e) {

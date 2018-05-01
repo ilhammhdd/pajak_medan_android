@@ -144,36 +144,27 @@ public abstract class BaseActivity extends AppCompatActivity {
     }
 
     void getBasket() {
-        Customer customer = Hawk.get(Constants.CUSTOMER_KEY);
-        try {
-            JSONObject request = new JSONObject();
-            request.put("url", Constants.DOMAIN + "api/get-basket");
-            request.put("api_token", Hawk.get(Constants.USER_API_TOKEN_KEY));
-            request.put("customer_id", customer.customerId);
+        GetBasket getBasket = new GetBasket(String.valueOf(Hawk.get(Constants.USER_API_TOKEN_KEY)));
+        getBasket.execute();
 
-            JSONObject dataChunk = new JSONObject();
-            dataChunk.put("data", request);
-
-            GetBasket getBasket = new GetBasket();
-            getBasket.execute(dataChunk);
-
-            getBasket.setOnRequestListener(new OnRequestListener() {
-                @Override
-                public <T> void onRequest(T responseGeneric, String key) throws JSONException {
-                    JSONObject response = (JSONObject) responseGeneric;
-                    Log.d("MY_LOGGING_GET_BASKET", response.toString());
-                    JSONObject responseData = response.getJSONObject("response_data");
-                    if (responseData.has("basket")) {
-                        JSONObject basket = responseData.getJSONObject("basket");
-                        Log.d("RESPONSE_BASKET", basket.toString());
-                        Basket.saveBasket(basket, basket.getString("description") != null);
-                        return;
-                    }
-                    Basket.saveEmptyBasket();
+        getBasket.setOnRequestListener(new OnRequestListener() {
+            @Override
+            public <T> void onRequest(T responseGeneric, String key) throws JSONException {
+                JSONObject response = (JSONObject) responseGeneric;
+                Log.d("MY_LOGGING_GET_BASKET", response.toString());
+                JSONObject responseData = response.getJSONObject("response_data");
+                if (responseData.has("basket")) {
+                    JSONObject basket = responseData.getJSONObject("basket");
+                    Log.d("RESPONSE_BASKET", basket.toString());
+                    Basket.saveBasket(basket, basket.getString("description") != null);
+                    return;
                 }
-            });
-        } catch (JSONException e) {
-            e.printStackTrace();
-        }
+                Basket.saveEmptyBasket();
+            }
+        });
+    }
+
+    protected String errorMessageWithAttribute(String rule, String attribute) {
+        return String.valueOf(rule.replace(":attribute", attribute));
     }
 }

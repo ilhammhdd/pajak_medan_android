@@ -28,6 +28,7 @@ import java.util.Locale;
 
 import butterknife.BindView;
 import butterknife.OnClick;
+import es.dmoral.toasty.Toasty;
 
 /**
  * Created by milha on 3/3/2018.
@@ -107,7 +108,6 @@ public class PaymentActivity extends BaseActivity {
     }
 
     private void postPaymentIssued() {
-        Customer customer = Hawk.get(Constants.CUSTOMER_KEY);
         Payment payment = Hawk.get(Constants.CURRENT_PAYMENT_KEY);
 
         Calendar calendarExpired = Calendar.getInstance();
@@ -116,22 +116,27 @@ public class PaymentActivity extends BaseActivity {
         String expiredDateTime = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss", new Locale("en")).format(calendarExpired.getTime());
         String issuedDateTime = new SimpleDateFormat("yyy-MM-dd HH:mm:ss", new Locale("en")).format(calendarIssued.getTime());
 
-        PostIssueCheckout postIssueCheckout = new PostIssueCheckout();
+        PostIssueCheckout postIssueCheckout = new PostIssueCheckout(String.valueOf(Hawk.get(Constants.USER_API_TOKEN_KEY)));
         try {
             postIssueCheckout.execute(new JSONObject()
-                    .put("data", new JSONObject()
-                            .put("url", Constants.DOMAIN + "api/post-issue-checkout")
-                            .put("customer_id", customer.customerId)
-                            .put("api_token", Hawk.get(Constants.USER_API_TOKEN_KEY))
-                            .put("payment_id", payment.paymentId)
-                            .put("status_id", 2)
-                            .put("expired", expiredDateTime)
-                            .put("issued", issuedDateTime)
-                    )
+                    .put("payment_id", payment.paymentId)
+                    .put("expired", expiredDateTime)
+                    .put("issued", issuedDateTime)
             );
         } catch (JSONException e) {
             e.printStackTrace();
         }
+        postIssueCheckout.setOnRequestListener(new OnRequestListener() {
+            @Override
+            public <T> void onRequest(T responseGeneric, String key) throws JSONException {
+                JSONObject responseJson = (JSONObject) responseGeneric;
+                if (responseJson.getBoolean("success")) {
+                    Toasty.success(getApplicationContext(), getResources().getString(R.string.berhasil_checkout)).show();
+                    return;
+                }
+                Toasty.error(getApplicationContext(), getResources().getString(R.string.gagal_checkout)).show();
+            }
+        });
 
         getBasket();
     }

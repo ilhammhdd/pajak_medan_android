@@ -15,11 +15,18 @@ import org.json.JSONObject;
  */
 
 public class PostBuyGoods extends AsyncTask<JSONObject, Void, JSONObject> implements SetOnRequestListener {
+
     private OnRequestListener onRequestListener;
+    private String url = Constants.DOMAIN + "api/buy-goods";
+    private String token;
+
+    public PostBuyGoods(String token) {
+        this.token = token;
+    }
 
     @Override
     protected JSONObject doInBackground(JSONObject... jsonObjects) {
-        return RequestPost.sendRequest(jsonObjects[0]);
+        return RequestPost.sendRequest(this.url, jsonObjects[0], Constants.CONTENT_TYPE, this.token);
     }
 
     @Override

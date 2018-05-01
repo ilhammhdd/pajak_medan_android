@@ -31,6 +31,7 @@ import com.pajakmedan.pajakmedan.asynctasks.Register;
 import com.pajakmedan.pajakmedan.listeners.OnRequestListener;
 import com.pajakmedan.pajakmedan.models.User;
 
+import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
@@ -75,7 +76,7 @@ public class RegisterActivity extends BaseAuthenticationActivity {
     @Override
     void insideOnCreate() {
         super.insideOnCreate();
-        
+
         if (Hawk.get(Constants.USER_API_TOKEN_KEY) != null) {
             Log.d(TAG, "User already authenticated");
             startActivity(new Intent(RegisterActivity.this, CustomerHomeActivity.class));
@@ -91,49 +92,57 @@ public class RegisterActivity extends BaseAuthenticationActivity {
     @OnClick(R.id.button_register)
     void button_register() {
         if (fieldsNotFilled()) {
-            Log.d(TAG, "Ada field yang kosong");
             textViewResponseStatus.setText(R.string.field_tidak_boleh_kosong);
         } else {
             Register register = new Register();
 
             if (!editText_password.getText().toString().equals(editText_confirmPassword.getText().toString())) {
-                Log.d(TAG, "Confirmation password doesn't match");
                 textViewResponseStatus.setText(R.string.konfirmasi_password);
             } else {
                 try {
                     JSONObject data = new JSONObject();
-                    data.put("url", Constants.DOMAIN + "api/register");
-                    data.put("fullName", editText_nama.getText());
-                    data.put("phoneNumber", editText_noHp.getText());
+                    data.put("full_name", editText_nama.getText());
+                    data.put("phone_number", editText_noHp.getText());
                     data.put("email", editText_email.getText());
                     data.put("username", editText_username.getText());
                     data.put("auth_type", "native");
                     data.put("password", editText_password.getText());
 
-                    JSONObject dataChunk = new JSONObject();
-                    dataChunk.put("data", data);
-
-                    register.execute(dataChunk);
-                    Log.d(TAG, "Register request : " + dataChunk.toString());
+                    register.execute(data);
 
                     register.setOnRequestListener(new OnRequestListener() {
                         @Override
                         public <T> void onRequest(T responseGeneric, String key) throws JSONException {
                             JSONObject response = (JSONObject) responseGeneric;
-                            JSONObject responseData = response.getJSONObject("response_data");
-                            Log.d("RESPONSE_DATA_REGISTER", responseData.toString());
-                            switch (responseData.getInt("message")) {
-                                case 1: {
-                                    Toasty.success(RegisterActivity.this, getResources().getString(R.string.registrasi_berhasil), Toast.LENGTH_SHORT, true).show();
-                                    break;
-                                }
-                                case -1: {
-                                    Toasty.error(RegisterActivity.this, getResources().getString(R.string.registrasi_username_atau_email_terpakai), Toast.LENGTH_SHORT, true).show();
-                                    break;
-                                }
-                                case -2: {
-                                    Toasty.error(RegisterActivity.this, getResources().getString(R.string.registrasi_gagal), Toast.LENGTH_SHORT, true).show();
-                                    break;
+                            if (response.getBoolean("success")) {
+                                Toasty.success(RegisterActivity.this, getResources().getString(R.string.registrasi_berhasil), Toast.LENGTH_SHORT, true).show();
+                            } else {
+                                JSONArray messages = response.getJSONArray("message");
+                                for (int i = 0; i < messages.length(); i++) {
+                                    if (messages.getString(i).equals(errorMessageWithAttribute(Constants.ERROR_MESSAGE_EXISTS, "auth_type"))) {
+                                        Toasty.error(RegisterActivity.this, getResources().getString(R.string.tipe_otentikasi_tidak_boleh), Toast.LENGTH_SHORT, true).show();
+
+                                    } else if (messages.getString(i).equals(errorMessageWithAttribute(Constants.ERROR_MESSAGE_UNIQUE, "email"))) {
+                                        Toasty.error(RegisterActivity.this, getResources().getString(R.string.registrasi_username_atau_email_terpakai), Toast.LENGTH_SHORT, true).show();
+
+                                    } else if (messages.getString(i).equals(errorMessageWithAttribute(Constants.ERROR_MESSAGE_UNIQUE, "username"))) {
+                                        Toasty.error(RegisterActivity.this, getResources().getString(R.string.registrasi_username_atau_email_terpakai), Toast.LENGTH_SHORT, true).show();
+
+                                    }
+//                                    switch (messages.getString(i)) {
+//                                        case ("The selected auth_type is invalid."): {
+//                                            Toasty.error(RegisterActivity.this, getResources().getString(R.string.tipe_otentikasi_tidak_boleh), Toast.LENGTH_SHORT, true).show();
+//                                            break;
+//                                        }
+//                                        case ("The email has already been taken."): {
+//                                            Toasty.error(RegisterActivity.this, getResources().getString(R.string.registrasi_username_atau_email_terpakai), Toast.LENGTH_SHORT, true).show();
+//                                            break;
+//                                        }
+//                                        case ("The username has already been taken."): {
+//                                            Toasty.error(RegisterActivity.this, getResources().getString(R.string.registrasi_username_atau_email_terpakai), Toast.LENGTH_SHORT, true).show();
+//                                            break;
+//                                        }
+//                                    }
                                 }
                             }
                         }

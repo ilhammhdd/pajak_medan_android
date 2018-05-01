@@ -81,28 +81,20 @@ public class GoodsQuantityDialog extends BaseDialog {
         buttonBuy.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                Customer customer = Hawk.get(Constants.CUSTOMER_KEY);
                 Goods goods = Hawk.get(Constants.CURRENT_GOODS_KEY);
                 try {
-                    PostBuyGoods postBuyGoods = new PostBuyGoods();
+                    PostBuyGoods postBuyGoods = new PostBuyGoods(String.valueOf(Hawk.get(Constants.USER_API_TOKEN_KEY)));
                     postBuyGoods.execute(
                             new JSONObject()
-                                    .put("data",
-                                            new JSONObject()
-                                                    .put("url", Constants.DOMAIN + "api/buy-goods")
-                                                    .put("api_token", String.valueOf(Hawk.get(Constants.USER_API_TOKEN_KEY)))
-                                                    .put("customer_id", customer.customerId)
-                                                    .put("good_id", goods.goodsId)
-                                                    .put("good_quantity", Integer.parseInt(textViewQuantity.getText().toString()))
-                                                    .put("good_price", goods.goodsPrice)
-                                    )
+                                    .put("good_id", goods.goodsId)
+                                    .put("good_quantity", Integer.parseInt(textViewQuantity.getText().toString()))
+                                    .put("good_price", goods.goodsPrice)
                     );
 
                     postBuyGoods.setOnRequestListener(new OnRequestListener() {
                         @Override
                         public <T> void onRequest(T responseGeneric, String key) throws JSONException {
                             JSONObject responseData = getResponseData(responseGeneric);
-                            Log.d("RESPONSE_DATA_BUY_GOODS", responseData.toString());
                             Basket basket = Hawk.get(Constants.BASKET_KEY);
                             basket.total = responseData.getInt("basket_total");
                             Hawk.put(Constants.BASKET_KEY, basket);

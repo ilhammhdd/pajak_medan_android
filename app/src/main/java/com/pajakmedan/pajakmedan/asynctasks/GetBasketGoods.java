@@ -24,6 +24,12 @@ import java.util.List;
 public class GetBasketGoods extends AsyncTask<JSONObject, Void, List<BasketGoods>> implements SetOnRequestListener {
 
     private OnRequestListener onRequestListener;
+    private String url = Constants.DOMAIN + "api/get-basket-goods";
+    private String token;
+
+    public GetBasketGoods(String token) {
+        this.token = token;
+    }
 
     @Override
     public void setOnRequestListener(OnRequestListener listener) {
@@ -33,7 +39,7 @@ public class GetBasketGoods extends AsyncTask<JSONObject, Void, List<BasketGoods
     @Override
     protected List<BasketGoods> doInBackground(JSONObject... jsonObjects) {
         List<BasketGoods> basketGoodsList = new ArrayList<>();
-        JSONObject response = RequestPost.sendRequest(jsonObjects[0]);
+        JSONObject response = RequestPost.sendRequest(this.url, jsonObjects[0], Constants.CONTENT_TYPE, this.token);
         assert response != null;
         try {
             JSONObject responseData = response.getJSONObject(Constants.RESPONSE_DATA_KEY);

@@ -1,6 +1,5 @@
 package com.pajakmedan.pajakmedan.asynctasks;
 
-import android.util.Log;
 import android.webkit.URLUtil;
 
 import org.json.JSONException;
@@ -22,32 +21,28 @@ import javax.net.ssl.HttpsURLConnection;
 
 public class RequestPost {
 
-    private static String TAG = "REQUEST_POST";
-
-    public static JSONObject sendRequest(JSONObject dataChunk) {
-        try {
-            if (URLUtil.isHttpUrl(dataChunk.getJSONObject("data").getString("url"))) {
-                return sendHttpRequest(dataChunk);
-            } else if (URLUtil.isHttpsUrl(dataChunk.getString("url"))) {
-                return sendHttpsRequest(dataChunk);
-            }
-        } catch (JSONException e) {
-            e.printStackTrace();
+    public static JSONObject sendRequest(String stringUrl, JSONObject data, String contentType, String token) {
+        if (URLUtil.isHttpUrl(stringUrl)) {
+            return sendHttpRequest(stringUrl, data, contentType, token);
+        } else if (URLUtil.isHttpsUrl(stringUrl)) {
+            return sendHttpsRequest(stringUrl, data, contentType, token);
         }
 
         return null;
     }
 
-    private static JSONObject sendHttpRequest(JSONObject dataChunk) {
+    private static JSONObject sendHttpRequest(String stringUrl, JSONObject data, String contentType, String token) {
         try {
-            URL url = new URL(dataChunk.getJSONObject("data").getString("url"));
+            URL url = new URL(stringUrl);
             HttpURLConnection httpURLConnection = (HttpURLConnection) url.openConnection();
+            httpURLConnection.setRequestProperty("Content-Type", contentType);
+            httpURLConnection.setRequestProperty("X-PajaMedan-Token", token);
             httpURLConnection.setRequestMethod("POST");
             httpURLConnection.setDoOutput(true);
 
             OutputStream outputStream = httpURLConnection.getOutputStream();
             BufferedOutputStream bufferedOutputStream = new BufferedOutputStream(outputStream);
-            bufferedOutputStream.write(dataChunk.toString().getBytes());
+            bufferedOutputStream.write(data.toString().getBytes());
             bufferedOutputStream.flush();
             bufferedOutputStream.close();
 
@@ -55,13 +50,11 @@ public class RequestPost {
 
             String line;
             StringBuilder sb = new StringBuilder();
-            Log.d(TAG + "HTTP", sb.toString());
             while ((line = bufferedReader.readLine()) != null) {
                 sb.append(line);
             }
 
             bufferedReader.close();
-            Log.d(TAG, sb.toString());
             return new JSONObject(sb.toString());
         } catch (JSONException | IOException e) {
             e.printStackTrace();
@@ -69,16 +62,18 @@ public class RequestPost {
         return null;
     }
 
-    private static JSONObject sendHttpsRequest(JSONObject dataChunk) {
+    private static JSONObject sendHttpsRequest(String stringUrl, JSONObject data, String contentType, String token) {
         try {
-            URL url = new URL(dataChunk.getJSONObject("data").getString("url"));
+            URL url = new URL(stringUrl);
             HttpsURLConnection connection = (HttpsURLConnection) url.openConnection();
+            connection.setRequestProperty("Content-Type", contentType);
+            connection.setRequestProperty("X-PajakMedan-Token", token);
             connection.setRequestMethod("POST");
             connection.setDoOutput(true);
 
             OutputStream outputStream = connection.getOutputStream();
             BufferedOutputStream bufferedOutputStream = new BufferedOutputStream(outputStream);
-            bufferedOutputStream.write(dataChunk.toString().getBytes());
+            bufferedOutputStream.write(data.toString().getBytes());
             bufferedOutputStream.flush();
             bufferedOutputStream.close();
 
@@ -86,13 +81,11 @@ public class RequestPost {
 
             String line;
             StringBuilder sb = new StringBuilder();
-            Log.d(TAG + "HTTPS", sb.toString());
             while ((line = bufferedReader.readLine()) != null) {
                 sb.append(line);
             }
 
             bufferedReader.close();
-            Log.d(TAG, sb.toString());
             return new JSONObject(sb.toString());
         } catch (JSONException | IOException e) {
             e.printStackTrace();

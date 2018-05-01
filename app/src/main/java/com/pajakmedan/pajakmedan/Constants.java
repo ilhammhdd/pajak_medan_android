@@ -6,7 +6,9 @@ import org.json.JSONException;
 import org.json.JSONObject;
 
 public class Constants {
-    public static final String DOMAIN = "http://10.108.1.186/";
+    public static final String DOMAIN = "http://192.168.1.19/";
+    public static final String CONTENT_TYPE = "application/json";
+
     public static GoogleApiClient GOOGLE_API_CLIENT;
     public static int DEVICE_WIDTH = BaseActivity.getDeviceWidth();
     public static int DEVICE_HEIGHT = BaseActivity.getDeviceHeight();
@@ -29,6 +31,10 @@ public class Constants {
     public static String CURRENT_CHECKOUT_EXPIRATION = "d41d8cd98f00b204e9800998ecf8427e";
     public static int GOODS_QUANTITY = 0;
     public static boolean PROFILE_COMPLETE = false;
+
+    public static String ERROR_MESSAGE_EXISTS = "The selected :attribute is invalid.";
+    public static String ERROR_MESSAGE_UNIQUE = "The :attribute has already been taken.";
+    public static String ERROR_MESSAGE_REQUIRED = "The :attribute field is required.";
 
     public static <T> Object getResponseDataGeneric(T responseGeneric, String key) throws JSONException {
         JSONObject responseAll = (JSONObject) responseGeneric;

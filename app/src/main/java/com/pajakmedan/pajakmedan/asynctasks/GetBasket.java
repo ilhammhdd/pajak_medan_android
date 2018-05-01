@@ -17,6 +17,12 @@ import org.json.JSONObject;
 public class GetBasket extends AsyncTask<JSONObject, Void, JSONObject> implements SetOnRequestListener {
 
     public OnRequestListener onRequestListener;
+    private String url = Constants.DOMAIN + "api/get-basket";
+    private String token;
+
+    public GetBasket(String token) {
+        this.token = token;
+    }
 
     @Override
     public void setOnRequestListener(OnRequestListener listener) {
@@ -25,7 +31,7 @@ public class GetBasket extends AsyncTask<JSONObject, Void, JSONObject> implement
 
     @Override
     protected JSONObject doInBackground(JSONObject... jsonObjects) {
-        return RequestPost.sendRequest(jsonObjects[0]);
+        return RequestGet.sendRequest(this.url, Constants.CONTENT_TYPE, this.token);
     }
 
     @Override

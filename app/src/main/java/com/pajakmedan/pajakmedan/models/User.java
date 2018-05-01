@@ -29,16 +29,16 @@ public class User {
         this.apiToken = apiToken;
     }
 
-    public static User saveCurrentUser(JSONObject jsonObject, boolean hasFile) {
+    public static User saveCurrentUser(JSONObject jsonObject) {
         try {
             User user = new User(
                     jsonObject.getInt("id"),
                     jsonObject.getInt("role_id"),
                     jsonObject.getInt("login_type_id"),
-                    hasFile ? jsonObject.getInt("file_id") : 0,
+                    jsonObject.has("file_id") ? jsonObject.getInt("file_id") : 0,
                     jsonObject.getString("email"),
                     jsonObject.getString("username"),
-                    jsonObject.getString("api_token")
+                    jsonObject.getString("token")
             );
             Hawk.put(Constants.USER_KEY, user);
 

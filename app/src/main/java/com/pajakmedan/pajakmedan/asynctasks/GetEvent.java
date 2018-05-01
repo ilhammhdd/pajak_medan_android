@@ -20,6 +20,12 @@ import java.util.HashMap;
 public class GetEvent extends AsyncTask<JSONObject, Void, HashMap<String, String>> implements SetOnRequestListener {
 
     public OnRequestListener onRequestListener;
+    private String url = Constants.DOMAIN + "api/get-events";
+    private String token;
+
+    public GetEvent(String token) {
+        this.token = token;
+    }
 
     public void setOnRequestListener(OnRequestListener onRequestListener) {
         this.onRequestListener = onRequestListener;
@@ -28,7 +34,7 @@ public class GetEvent extends AsyncTask<JSONObject, Void, HashMap<String, String
     @Override
     protected HashMap<String, String> doInBackground(JSONObject... jsonObjects) {
         try {
-            JSONObject response = RequestPost.sendRequest(jsonObjects[0]);
+            JSONObject response = RequestPost.sendRequest(this.url, jsonObjects[0], Constants.CONTENT_TYPE, this.token);
             assert response != null;
             JSONObject responseData = response.getJSONObject(Constants.RESPONSE_DATA_KEY);
             JSONArray eventsJSON = responseData.getJSONArray("events");

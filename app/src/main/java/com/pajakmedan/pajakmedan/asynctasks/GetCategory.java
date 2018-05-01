@@ -21,6 +21,12 @@ import java.util.List;
 public class GetCategory extends AsyncTask<JSONObject, Void, List<Category>> implements SetOnRequestListener {
 
     public OnRequestListener listener;
+    private String token;
+    private String url = Constants.DOMAIN + "api/get-categories";
+
+    public GetCategory(String token) {
+        this.token = token;
+    }
 
     public void setOnRequestListener(OnRequestListener listener) {
         this.listener = listener;
@@ -29,7 +35,7 @@ public class GetCategory extends AsyncTask<JSONObject, Void, List<Category>> imp
     @Override
     protected List<Category> doInBackground(JSONObject... jsonObjects) {
         try {
-            JSONObject response = RequestPost.sendRequest(jsonObjects[0]);
+            JSONObject response = RequestGet.sendRequest(this.url, Constants.CONTENT_TYPE, this.token);
             assert response != null;
             JSONObject responseData = response.getJSONObject(Constants.RESPONSE_DATA_KEY);
             JSONArray arrayResponse = responseData.getJSONArray("categories");

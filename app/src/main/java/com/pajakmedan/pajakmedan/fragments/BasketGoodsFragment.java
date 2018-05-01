@@ -70,17 +70,14 @@ public class BasketGoodsFragment extends Fragment {
         try {
             Basket basket = Hawk.get(Constants.BASKET_KEY);
 
-            GetBasketGoods getBasketGoods = new GetBasketGoods();
+            GetBasketGoods getBasketGoods = new GetBasketGoods(String.valueOf(Hawk.get(Constants.USER_API_TOKEN_KEY)));
             getBasketGoods.execute(new JSONObject()
-                    .put("data", new JSONObject()
-                            .put("url", Constants.DOMAIN + "api/get-basket-goods")
-                            .put("api_token", Hawk.get(Constants.USER_API_TOKEN_KEY))
-                            .put("basket_id", basket.basketId)
-                    ));
+                    .put("basket_id", basket.basketId)
+            );
 
             getBasketGoods.setOnRequestListener(new OnRequestListener() {
                 @Override
-                public <T> void onRequest(T basketGoods, String key) throws JSONException {
+                public <T> void onRequest(T basketGoods, String key) {
                     basketGoodsList = (List<BasketGoods>) basketGoods;
                     BasketGoodsAdapter basketGoodsAdapter = new BasketGoodsAdapter(getActivity(), basketGoodsList);
                     basketGoodsAdapter.setClickListener(new BasketGoodsAdapter.ClickListener() {

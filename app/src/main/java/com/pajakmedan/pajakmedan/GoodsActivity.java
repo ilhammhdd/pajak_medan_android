@@ -54,16 +54,12 @@ public class GoodsActivity extends BaseActivity {
     public void showGoods() {
         try {
             Category category = Hawk.get(Constants.CURRENT_CATEGORY_KEY);
-            JSONObject request = new JSONObject();
-            request.put("url", Constants.DOMAIN + "api/get-goods");
-            request.put("api_token", Hawk.get(Constants.USER_API_TOKEN_KEY));
-            request.put("category_id", category.categoryId);
 
-            JSONObject requestChunk = new JSONObject();
-            requestChunk.put("data", request);
-//List<Goods>
-            GetGoods getGoods = new GetGoods();
-            getGoods.execute(requestChunk);
+            JSONObject data = new JSONObject();
+            data.put("category_id", category.categoryId);
+
+            GetGoods getGoods = new GetGoods(String.valueOf(Hawk.get(Constants.USER_API_TOKEN_KEY)));
+            getGoods.execute(data);
             getGoods.setOnRequestListener(new OnRequestListener() {
                 @Override
                 public <T> void onRequest(T goodsList, String key) throws JSONException {

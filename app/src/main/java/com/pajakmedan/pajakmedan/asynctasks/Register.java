@@ -27,6 +27,7 @@ import javax.net.ssl.HttpsURLConnection;
 public class Register extends AsyncTask<JSONObject, Void, JSONObject> implements SetOnRequestListener {
 
     private OnRequestListener listener;
+    private String url = Constants.DOMAIN + "api/register";
 
     @Override
     public void setOnRequestListener(OnRequestListener listener) {
@@ -35,7 +36,7 @@ public class Register extends AsyncTask<JSONObject, Void, JSONObject> implements
 
     @Override
     protected JSONObject doInBackground(JSONObject... jsonObjects) {
-        return RequestPost.sendRequest(jsonObjects[0]);
+        return RequestPost.sendRequest(url, jsonObjects[0], Constants.CONTENT_TYPE, "");
     }
 
     @Override

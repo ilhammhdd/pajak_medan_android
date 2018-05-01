@@ -4,7 +4,6 @@ import android.content.DialogInterface;
 import android.content.Intent;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
-import android.support.constraint.ConstraintLayout;
 import android.support.design.widget.NavigationView;
 import android.support.v4.widget.DrawerLayout;
 import android.support.v7.app.AlertDialog;
@@ -31,13 +30,9 @@ import com.pajakmedan.pajakmedan.adapters.CategoryAdapter;
 import com.pajakmedan.pajakmedan.adapters.CategoryAdapter.ClickListener;
 import com.pajakmedan.pajakmedan.asynctasks.GetCategory;
 import com.pajakmedan.pajakmedan.asynctasks.GetEvent;
-import com.pajakmedan.pajakmedan.asynctasks.RequestPost;
 import com.pajakmedan.pajakmedan.listeners.OnRequestListener;
-import com.pajakmedan.pajakmedan.models.Basket;
 import com.pajakmedan.pajakmedan.models.Category;
-import com.pajakmedan.pajakmedan.models.Payment;
 import com.pajakmedan.pajakmedan.models.Profile;
-import com.pajakmedan.pajakmedan.models.User;
 
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -217,30 +212,17 @@ public class CustomerHomeActivity extends BaseActivity implements NavigationView
     }
 
     public void showCategories() {
-        try {
-            Log.d("MY_USER_API_TOKEN", String.valueOf(Hawk.get(Constants.USER_API_TOKEN_KEY)));
-            JSONObject request = new JSONObject();
-            request.put("url", Constants.DOMAIN + "api/get-categories");
-            request.put("api_token", Hawk.get(Constants.USER_API_TOKEN_KEY));
-
-            JSONObject requestChunk = new JSONObject();
-            requestChunk.put("data", request);
-
-            GetCategory getCategory = new GetCategory();
-            getCategory.execute(requestChunk);
-            getCategory.setOnRequestListener(new OnRequestListener() {
-                @Override
-                public <T> void onRequest(T categories, String key) throws JSONException {
-                    CategoryAdapter categoryAdapter = new CategoryAdapter(CustomerHomeActivity.this, (List<Category>) categories);
-                    categoryAdapter.setClickListener(CustomerHomeActivity.this);
-                    recyclerView_category.setAdapter(categoryAdapter);
-                    recyclerView_category.setLayoutManager(new LinearLayoutManager(CustomerHomeActivity.this, LinearLayoutManager.VERTICAL, false));
-                }
-            });
-
-        } catch (JSONException e) {
-            e.printStackTrace();
-        }
+        GetCategory getCategory = new GetCategory(String.valueOf(Hawk.get(Constants.USER_API_TOKEN_KEY)));
+        getCategory.execute();
+        getCategory.setOnRequestListener(new OnRequestListener() {
+            @Override
+            public <T> void onRequest(T categories, String key) {
+                CategoryAdapter categoryAdapter = new CategoryAdapter(CustomerHomeActivity.this, (List<Category>) categories);
+                categoryAdapter.setClickListener(CustomerHomeActivity.this);
+                recyclerView_category.setAdapter(categoryAdapter);
+                recyclerView_category.setLayoutManager(new LinearLayoutManager(CustomerHomeActivity.this, LinearLayoutManager.VERTICAL, false));
+            }
+        });
     }
 
     @Override
@@ -251,39 +233,27 @@ public class CustomerHomeActivity extends BaseActivity implements NavigationView
     }
 
     public void showEvents() {
-        try {
-            JSONObject request = new JSONObject();
-            request.put("url", Constants.DOMAIN + "api/get-events");
-            request.put("api_token", Hawk.get(Constants.USER_API_TOKEN_KEY));
-            Log.d("TRACKING_GET_EVENTS", "API TOKEN :" + Hawk.get(Constants.USER_API_TOKEN_KEY));
+        GetEvent getEvent = new GetEvent(String.valueOf(Hawk.get(Constants.USER_API_TOKEN_KEY)));
+        getEvent.execute();
+        getEvent.setOnRequestListener(new OnRequestListener() {
+            @Override
+            public <T> void onRequest(T eventsGeneric, String key) throws JSONException {
+                HashMap<String, String> events = (HashMap<String, String>) eventsGeneric;
+                for (String name : events.keySet()) {
+                    TextSliderView textSliderView = new TextSliderView(CustomerHomeActivity.this);
 
-            JSONObject requestChunk = new JSONObject();
-            requestChunk.put("data", request);
-
-            GetEvent getEvent = new GetEvent();
-            getEvent.execute(requestChunk);
-            getEvent.setOnRequestListener(new OnRequestListener() {
-                @Override
-                public <T> void onRequest(T eventsGeneric, String key) throws JSONException {
-                    HashMap<String, String> events = (HashMap<String, String>) eventsGeneric;
-                    for (String name : events.keySet()) {
-                        TextSliderView textSliderView = new TextSliderView(CustomerHomeActivity.this);
-
-                        textSliderView.description(name).image(events.get(name)).setScaleType(BaseSliderView.ScaleType.Fit).setOnSliderClickListener(CustomerHomeActivity.this);
-                        textSliderView.bundle(new Bundle());
-                        textSliderView.getBundle().putString("extra", name);
-                        sliderLayout_event.addSlider(textSliderView);
-                    }
-
-                    sliderLayout_event.setPresetTransformer(SliderLayout.Transformer.Accordion);
-                    sliderLayout_event.setPresetIndicator(SliderLayout.PresetIndicators.Center_Bottom);
-                    sliderLayout_event.setCustomAnimation(new DescriptionAnimation());
-                    sliderLayout_event.setDuration(2000);
-                    sliderLayout_event.addOnPageChangeListener(CustomerHomeActivity.this);
+                    textSliderView.description(name).image(events.get(name)).setScaleType(BaseSliderView.ScaleType.Fit).setOnSliderClickListener(CustomerHomeActivity.this);
+                    textSliderView.bundle(new Bundle());
+                    textSliderView.getBundle().putString("extra", name);
+                    sliderLayout_event.addSlider(textSliderView);
                 }
-            });
-        } catch (JSONException e) {
-            e.printStackTrace();
-        }
+
+                sliderLayout_event.setPresetTransformer(SliderLayout.Transformer.Accordion);
+                sliderLayout_event.setPresetIndicator(SliderLayout.PresetIndicators.Center_Bottom);
+                sliderLayout_event.setCustomAnimation(new DescriptionAnimation());
+                sliderLayout_event.setDuration(2000);
+                sliderLayout_event.addOnPageChangeListener(CustomerHomeActivity.this);
+            }
+        });
     }
 }
