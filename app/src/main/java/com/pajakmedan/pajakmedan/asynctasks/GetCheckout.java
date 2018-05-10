@@ -19,8 +19,8 @@ public class GetCheckout extends AsyncTask<JSONObject, Void, List<Checkout>> {
 
     @Override
     protected List<Checkout> doInBackground(JSONObject... jsonObjects) {
-        try {
-            JSONObject response = RequestPost.sendRequest(jsonObjects[0]);
+        /*try {
+            JSONObject response = RequestPost.sendRequest(jsonObjects);
             assert response != null;
             JSONArray checkoutJSONArray = response.getJSONArray("checkouts");
             List<Checkout> checkoutList = new ArrayList<>();
@@ -31,7 +31,7 @@ public class GetCheckout extends AsyncTask<JSONObject, Void, List<Checkout>> {
             return checkoutList;
         } catch (JSONException e) {
             e.printStackTrace();
-        }
+        }*/
         return null;
     }
 

@@ -129,20 +129,6 @@ public class RegisterActivity extends BaseAuthenticationActivity {
                                         Toasty.error(RegisterActivity.this, getResources().getString(R.string.registrasi_username_atau_email_terpakai), Toast.LENGTH_SHORT, true).show();
 
                                     }
-//                                    switch (messages.getString(i)) {
-//                                        case ("The selected auth_type is invalid."): {
-//                                            Toasty.error(RegisterActivity.this, getResources().getString(R.string.tipe_otentikasi_tidak_boleh), Toast.LENGTH_SHORT, true).show();
-//                                            break;
-//                                        }
-//                                        case ("The email has already been taken."): {
-//                                            Toasty.error(RegisterActivity.this, getResources().getString(R.string.registrasi_username_atau_email_terpakai), Toast.LENGTH_SHORT, true).show();
-//                                            break;
-//                                        }
-//                                        case ("The username has already been taken."): {
-//                                            Toasty.error(RegisterActivity.this, getResources().getString(R.string.registrasi_username_atau_email_terpakai), Toast.LENGTH_SHORT, true).show();
-//                                            break;
-//                                        }
-//                                    }
                                 }
                             }
                         }

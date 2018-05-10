@@ -19,18 +19,30 @@ public class GetMainAddress extends AsyncTask<JSONObject, Double, JSONObject> im
 
     private OnRequestListener onRequestListener;
 
+    private String url = Constants.DOMAIN + "api/get-main-address";
+    private String token;
+
+    public GetMainAddress(String token) {
+        this.token = token;
+    }
+
     @Override
     protected JSONObject doInBackground(JSONObject... jsonObjects) {
-        try {
-            Log.d("LOGGING_MAIN_ADDRESS", "REQUEST : "+String.valueOf(jsonObjects[0]));
-            JSONObject response = RequestPost.sendRequest(jsonObjects[0]);
-            assert response != null;
-            if (response.getJSONObject(Constants.RESPONSE_DATA_KEY).has("main_address")) {
-                return response.getJSONObject(Constants.RESPONSE_DATA_KEY).getJSONObject("main_address");
-            }
-        } catch (JSONException e) {
-            e.printStackTrace();
+//        try {
+        Log.d("URL", this.url);
+        Log.d("TOKENNYA", this.token);
+        Log.d("CONTENT_TYPE", Constants.CONTENT_TYPE);
+        JSONObject response = RequestGet.sendRequest(this.url, Constants.CONTENT_TYPE, this.token);
+//        assert response != null;
+        if (response != null) {
+            Log.d("RESPONSE", response.toString());
         }
+//            if (response.getJSONObject(Constants.RESPONSE_DATA_KEY).has("main_address")) {
+//                return response.getJSONObject(Constants.RESPONSE_DATA_KEY).getJSONObject("main_address");
+//            }
+//        } catch (JSONException e) {
+//            e.printStackTrace();
+//        }
         return null;
     }
 

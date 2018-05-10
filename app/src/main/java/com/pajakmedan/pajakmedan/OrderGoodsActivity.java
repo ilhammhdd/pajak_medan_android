@@ -45,13 +45,9 @@ public class OrderGoodsActivity extends BaseActivity {
 
     private void showCheckoutBasketGoods() {
         try {
-            GetCheckoutBasketGoods getCheckoutBasketGoods = new GetCheckoutBasketGoods();
+            GetCheckoutBasketGoods getCheckoutBasketGoods = new GetCheckoutBasketGoods(String.valueOf(Hawk.get(Constants.USER_API_TOKEN_KEY)));
             getCheckoutBasketGoods.execute(new JSONObject()
-                    .put("data", new JSONObject()
-                            .put("url", Constants.DOMAIN + "api/get-checkout-basket-goods")
-                            .put("api_token", Hawk.get(Constants.USER_API_TOKEN_KEY))
-                            .put("checkout_id", Hawk.get(Constants.CURRENT_CHECKOUT_ID_KEY))
-                    )
+                    .put("checkout_id", Hawk.get(Constants.CURRENT_CHECKOUT_ID_KEY))
             );
 
             getCheckoutBasketGoods.setOnRequestListener(new OnRequestListener() {

@@ -17,10 +17,16 @@ import org.json.JSONObject;
 public class PostEditAddress extends AsyncTask<JSONObject, Double, JSONObject> implements SetOnRequestListener {
     OnRequestListener onRequestListener;
 
+    private String url = Constants.DOMAIN + "api/post-edit-address";
+    private String token;
+
+    public PostEditAddress(String token) {
+        this.token = token;
+    }
+
     @Override
     protected JSONObject doInBackground(JSONObject... jsonObjects) {
-        Log.d("POSTEDITADDRESS_REQUEST", jsonObjects[0].toString());
-        JSONObject response = RequestPost.sendRequest(jsonObjects[0]);
+        JSONObject response = RequestPost.sendRequest(this.url, jsonObjects[0], Constants.CONTENT_TYPE, this.token);
         assert response != null;
         try {
             return response.getJSONObject(Constants.RESPONSE_DATA_KEY);

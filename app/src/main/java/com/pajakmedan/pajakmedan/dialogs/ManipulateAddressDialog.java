@@ -44,17 +44,11 @@ public class ManipulateAddressDialog extends BaseDialog {
         buttonDone.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                PostAddAddress postAddAddress = new PostAddAddress();
-                Customer customer = Hawk.get(Constants.CUSTOMER_KEY);
+                PostAddAddress postAddAddress = new PostAddAddress(String.valueOf(Hawk.get(Constants.USER_API_TOKEN_KEY)));
                 try {
                     postAddAddress.execute(new JSONObject()
-                            .put("data", new JSONObject()
-                                    .put("url", Constants.DOMAIN + "api/post-add-address")
-                                    .put("api_token", Hawk.get(Constants.USER_API_TOKEN_KEY))
-                                    .put("customer_id", customer.customerId)
-                                    .put("name", editTextName.getText().toString())
-                                    .put("main", checkBoxMain.isChecked())
-                            )
+                            .put("name", editTextName.getText().toString())
+                            .put("main", checkBoxMain.isChecked())
                     );
 
                     postAddAddress.setOnRequestListener(new OnRequestListener() {
@@ -84,21 +78,15 @@ public class ManipulateAddressDialog extends BaseDialog {
         super.activity = context;
         setValues(addressList.get(position));
         editTextName.setMovementMethod(new ScrollingMovementMethod());
-        final Customer customer = Hawk.get(Constants.CUSTOMER_KEY);
         buttonDone.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                PostEditAddress postEditAddress = new PostEditAddress();
+                PostEditAddress postEditAddress = new PostEditAddress(String.valueOf(Hawk.get(Constants.USER_API_TOKEN_KEY)));
                 try {
                     postEditAddress.execute(new JSONObject()
-                            .put("data", new JSONObject()
-                                    .put("url", Constants.DOMAIN + "api/post-edit-address")
-                                    .put("api_token", String.valueOf(Hawk.get(Constants.USER_API_TOKEN_KEY)))
-                                    .put("customer_id", customer.customerId)
-                                    .put("address_id", addressList.get(position).addressId)
-                                    .put("name", editTextName.getText().toString())
-                                    .put("main", checkBoxMain.isChecked() ? 1 : 0)
-                            )
+                            .put("address_id", addressList.get(position).addressId)
+                            .put("name", editTextName.getText().toString())
+                            .put("main", checkBoxMain.isChecked() ? 1 : 0)
                     );
                 } catch (JSONException e) {
                     e.printStackTrace();

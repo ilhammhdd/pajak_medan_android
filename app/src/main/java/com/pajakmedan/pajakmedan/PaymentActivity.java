@@ -49,57 +49,45 @@ public class PaymentActivity extends BaseActivity {
     }
 
     void showPayment() {
-        try {
-            GetPayment getPayment = new GetPayment();
-            getPayment.execute(
-                    new JSONObject()
-                            .put("data",
-                                    new JSONObject()
-                                            .put("url", Constants.DOMAIN + "api/get-payment-method")
-                                            .put("api_token", Hawk.get(Constants.USER_API_TOKEN_KEY))
-                            )
-            );
-//            List<Payment>
-            getPayment.setOnRequestListener(new OnRequestListener() {
-                @Override
-                public <T> void onRequest(T paymentList, String key) {
-                    PaymentAdapter paymentAdapter = new PaymentAdapter(PaymentActivity.this, (List<Payment>) paymentList);
-                    paymentAdapter.setClickListener(new PaymentAdapter.ClickListener() {
-                        @Override
-                        public void clickItem(View view, final Payment payment) {
-                            String toastMessage = String.valueOf(
-                                    payment.paymentId + '\n'
-                                            + payment.paymentImageUrl
-                                            + '\n' + payment.paymentName
-                                            + '\n' + payment.paymentDetail
-                            );
-                            Toast.makeText(PaymentActivity.this, toastMessage, Toast.LENGTH_SHORT).show();
-                            new AlertDialog.Builder(PaymentActivity.this)
-                                    .setMessage(getResources().getString(R.string.pilih_pembayaran) + " " + payment.paymentName + ", " + getResources().getString(R.string.lanjutkan))
-                                    .setCancelable(false)
-                                    .setPositiveButton(R.string.ya, new DialogInterface.OnClickListener() {
-                                        public void onClick(DialogInterface dialog, int id) {
-                                            Hawk.put(Constants.CURRENT_PAYMENT_KEY, payment);
-                                            startActivity(new Intent(PaymentActivity.this, PaymentIssuedActivity.class));
-                                            startService(new Intent(PaymentActivity.this, BroadcastService.class));
+        GetPayment getPayment = new GetPayment(String.valueOf(Hawk.get(Constants.USER_API_TOKEN_KEY)));
+        getPayment.execute();
+        getPayment.setOnRequestListener(new OnRequestListener() {
+            @Override
+            public <T> void onRequest(T paymentList, String key) {
+                PaymentAdapter paymentAdapter = new PaymentAdapter(PaymentActivity.this, (List<Payment>) paymentList);
+                paymentAdapter.setClickListener(new PaymentAdapter.ClickListener() {
+                    @Override
+                    public void clickItem(View view, final Payment payment) {
+                        String toastMessage = String.valueOf(
+                                payment.paymentId + '\n'
+                                        + payment.paymentImageUrl
+                                        + '\n' + payment.paymentName
+                                        + '\n' + payment.paymentDetail
+                        );
+                        Toast.makeText(PaymentActivity.this, toastMessage, Toast.LENGTH_SHORT).show();
+                        new AlertDialog.Builder(PaymentActivity.this)
+                                .setMessage(getResources().getString(R.string.pilih_pembayaran) + " " + payment.paymentName + ", " + getResources().getString(R.string.lanjutkan))
+                                .setCancelable(false)
+                                .setPositiveButton(R.string.ya, new DialogInterface.OnClickListener() {
+                                    public void onClick(DialogInterface dialog, int id) {
+                                        Hawk.put(Constants.CURRENT_PAYMENT_KEY, payment);
+                                        startActivity(new Intent(PaymentActivity.this, PaymentIssuedActivity.class));
+                                        startService(new Intent(PaymentActivity.this, BroadcastService.class));
 
-                                            postPaymentIssued();
+                                        postPaymentIssued();
 
-                                            PaymentActivity.this.finish();
-                                            BasketActivity.basketActivity.finish();
-                                        }
-                                    })
-                                    .setNegativeButton(R.string.tidak, null)
-                                    .show();
-                        }
-                    });
-                    recyclerViewPayment.setAdapter(paymentAdapter);
-                    recyclerViewPayment.setLayoutManager(new LinearLayoutManager(PaymentActivity.this, LinearLayoutManager.VERTICAL, false));
-                }
-            });
-        } catch (JSONException e) {
-            e.printStackTrace();
-        }
+                                        PaymentActivity.this.finish();
+                                        BasketActivity.basketActivity.finish();
+                                    }
+                                })
+                                .setNegativeButton(R.string.tidak, null)
+                                .show();
+                    }
+                });
+                recyclerViewPayment.setAdapter(paymentAdapter);
+                recyclerViewPayment.setLayoutManager(new LinearLayoutManager(PaymentActivity.this, LinearLayoutManager.VERTICAL, false));
+            }
+        });
     }
 
     @OnClick(R.id.imageView_payment_back)
@@ -114,7 +102,7 @@ public class PaymentActivity extends BaseActivity {
         Calendar calendarIssued = Calendar.getInstance();
         calendarExpired.add(Calendar.HOUR, 2);
         String expiredDateTime = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss", new Locale("en")).format(calendarExpired.getTime());
-        String issuedDateTime = new SimpleDateFormat("yyy-MM-dd HH:mm:ss", new Locale("en")).format(calendarIssued.getTime());
+        String issuedDateTime = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss", new Locale("en")).format(calendarIssued.getTime());
 
         PostIssueCheckout postIssueCheckout = new PostIssueCheckout(String.valueOf(Hawk.get(Constants.USER_API_TOKEN_KEY)));
         try {

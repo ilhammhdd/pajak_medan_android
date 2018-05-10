@@ -1,5 +1,6 @@
 package com.pajakmedan.pajakmedan.asynctasks;
 
+import android.util.Log;
 import android.webkit.URLUtil;
 
 import org.json.JSONException;
@@ -38,7 +39,13 @@ public class RequestGet {
             httpURLConnection.setRequestMethod("GET");
             httpURLConnection.setDoInput(true);
 
-            BufferedReader bufferedReader = new BufferedReader(new InputStreamReader(httpURLConnection.getInputStream()));
+            int responseCode = httpURLConnection.getResponseCode();
+            BufferedReader bufferedReader;
+            if (responseCode < HttpURLConnection.HTTP_BAD_REQUEST) {
+                bufferedReader = new BufferedReader(new InputStreamReader(httpURLConnection.getInputStream()));
+            } else {
+                bufferedReader = new BufferedReader(new InputStreamReader(httpURLConnection.getErrorStream()));
+            }
 
             String line;
             StringBuilder sb = new StringBuilder();
@@ -62,14 +69,20 @@ public class RequestGet {
             connection.setRequestMethod("GET");
             connection.setDoInput(true);
 
-            BufferedReader bufferedReader = new BufferedReader(new InputStreamReader(connection.getInputStream()));
+            int responseCode = connection.getResponseCode();
+            BufferedReader bufferedReader;
+            if (responseCode < HttpsURLConnection.HTTP_BAD_REQUEST) {
+                bufferedReader = new BufferedReader(new InputStreamReader(connection.getInputStream()));
+            } else {
+                bufferedReader = new BufferedReader(new InputStreamReader(connection.getErrorStream()));
+            }
 
             String line;
             StringBuilder sb = new StringBuilder();
             while ((line = bufferedReader.readLine()) != null) {
                 sb.append(line);
             }
-
+            Log.d("LOGGING_RESPONSE", sb.toString());
             return new JSONObject(sb.toString());
         } catch (JSONException | IOException e) {
             e.printStackTrace();

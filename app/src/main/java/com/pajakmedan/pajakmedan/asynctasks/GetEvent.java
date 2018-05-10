@@ -34,7 +34,7 @@ public class GetEvent extends AsyncTask<JSONObject, Void, HashMap<String, String
     @Override
     protected HashMap<String, String> doInBackground(JSONObject... jsonObjects) {
         try {
-            JSONObject response = RequestPost.sendRequest(this.url, jsonObjects[0], Constants.CONTENT_TYPE, this.token);
+            JSONObject response = RequestGet.sendRequest(this.url, Constants.CONTENT_TYPE, this.token);
             assert response != null;
             JSONObject responseData = response.getJSONObject(Constants.RESPONSE_DATA_KEY);
             JSONArray eventsJSON = responseData.getJSONArray("events");

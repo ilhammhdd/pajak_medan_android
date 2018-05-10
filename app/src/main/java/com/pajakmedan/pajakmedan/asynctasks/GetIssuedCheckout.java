@@ -25,9 +25,16 @@ public class GetIssuedCheckout extends AsyncTask<JSONObject, Double, List<Order>
     List<Order> orderList;
     OnRequestListener listener;
 
+    private String url = Constants.DOMAIN + "api/get-issued-checkout";
+    private String token;
+
+    public GetIssuedCheckout(String token) {
+        this.token = token;
+    }
+
     @Override
     protected List<Order> doInBackground(JSONObject... jsonObjects) {
-        JSONObject response = RequestPost.sendRequest(jsonObjects[0]);
+        JSONObject response = RequestGet.sendRequest(this.url, Constants.CONTENT_TYPE, this.token);
         orderList = new ArrayList<>();
         try {
             if (response != null) {

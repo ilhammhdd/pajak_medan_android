@@ -45,39 +45,25 @@ public class OrderHistoryActivity extends BaseActivity {
 
     @Override
     void insideOnCreate() {
-        GetIssuedCheckout getIssuedCheckout = new GetIssuedCheckout();
-        Customer customer = Hawk.get(Constants.CUSTOMER_KEY);
-        try {
-            getIssuedCheckout.execute(new JSONObject()
-                    .put("data", new JSONObject()
-                            .put("url", Constants.DOMAIN + "api/get-issued-checkout")
-                            .put("api_token", Hawk.get(Constants.USER_API_TOKEN_KEY))
-                            .put("customer_id", customer.customerId)
-                    )
-            );
-            getIssuedCheckout.setOnRequestListener(new OnRequestListener() {
-                @Override
-                public <T> void onRequest(T responseGeneric, String key) throws JSONException {
-                    OrderHistoryAdapter orderHistoryAdapter = new OrderHistoryAdapter(OrderHistoryActivity.this, (List<Order>) responseGeneric);
-
-                    orderHistoryAdapter.setAdapterItemClickListener(new AdapterItemClickListener() {
-                        @Override
-                        public <E> void clickItem(View view, int position, E object) {
-                            startActivity(new Intent(OrderHistoryActivity.this, OrderGoodsActivity.class));
-                        }
-                    });
-
-                    if (responseGeneric != null) {
-                        Log.d("LOGGING_SOMETHING", responseGeneric.toString());
-                        recyclerViewOrderHistory.setLayoutManager(new LinearLayoutManager(OrderHistoryActivity.this, LinearLayoutManager.VERTICAL, false));
-                        recyclerViewOrderHistory.setAdapter(orderHistoryAdapter);
+        GetIssuedCheckout getIssuedCheckout = new GetIssuedCheckout(String.valueOf(Hawk.get(Constants.USER_API_TOKEN_KEY)));
+        getIssuedCheckout.execute();
+        getIssuedCheckout.setOnRequestListener(new OnRequestListener() {
+            @Override
+            public <T> void onRequest(T responseGeneric, String key) throws JSONException {
+                OrderHistoryAdapter orderHistoryAdapter = new OrderHistoryAdapter(OrderHistoryActivity.this, (List<Order>) responseGeneric);
+                orderHistoryAdapter.setAdapterItemClickListener(new AdapterItemClickListener() {
+                    @Override
+                    public <E> void clickItem(View view, int position, E object) {
+                        startActivity(new Intent(OrderHistoryActivity.this, OrderGoodsActivity.class));
                     }
-//                    assert responseGeneric != null;
+                });
+
+                if (responseGeneric != null) {
+                    recyclerViewOrderHistory.setLayoutManager(new LinearLayoutManager(OrderHistoryActivity.this, LinearLayoutManager.VERTICAL, false));
+                    recyclerViewOrderHistory.setAdapter(orderHistoryAdapter);
                 }
-            });
-        } catch (JSONException e) {
-            e.printStackTrace();
-        }
+            }
+        });
     }
 
     @OnClick(R.id.imageView_orderHistory_back)

@@ -19,14 +19,6 @@ public class GetCurrentBasketGoodQuantity extends AsyncTask<JSONObject, Void, JS
 
     @Override
     protected JSONObject doInBackground(JSONObject... jsonObjects) {
-        try {
-            JSONObject response = RequestPost.sendRequest(jsonObjects[0]);
-            assert response != null;
-            Log.d("anjeng", response.getJSONObject(Constants.RESPONSE_DATA_KEY).toString());
-            return response.getJSONObject(Constants.RESPONSE_DATA_KEY);
-        } catch (JSONException e) {
-            e.printStackTrace();
-        }
         return null;
     }
 

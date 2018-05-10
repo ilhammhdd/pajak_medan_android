@@ -1,5 +1,6 @@
 package com.pajakmedan.pajakmedan.asynctasks;
 
+import android.util.Log;
 import android.webkit.URLUtil;
 
 import org.json.JSONException;
@@ -36,7 +37,7 @@ public class RequestPost {
             URL url = new URL(stringUrl);
             HttpURLConnection httpURLConnection = (HttpURLConnection) url.openConnection();
             httpURLConnection.setRequestProperty("Content-Type", contentType);
-            httpURLConnection.setRequestProperty("X-PajaMedan-Token", token);
+            httpURLConnection.setRequestProperty("X-PajakMedan-Token", token);
             httpURLConnection.setRequestMethod("POST");
             httpURLConnection.setDoOutput(true);
 
@@ -46,14 +47,20 @@ public class RequestPost {
             bufferedOutputStream.flush();
             bufferedOutputStream.close();
 
-            BufferedReader bufferedReader = new BufferedReader(new InputStreamReader(httpURLConnection.getInputStream()));
+            int statusCode = httpURLConnection.getResponseCode();
+            BufferedReader bufferedReader;
+            if (statusCode < HttpURLConnection.HTTP_BAD_REQUEST) {
+                bufferedReader = new BufferedReader(new InputStreamReader(httpURLConnection.getInputStream()));
+            } else {
+                bufferedReader = new BufferedReader(new InputStreamReader(httpURLConnection.getErrorStream()));
+            }
 
             String line;
             StringBuilder sb = new StringBuilder();
             while ((line = bufferedReader.readLine()) != null) {
                 sb.append(line);
             }
-
+            Log.d("POST_RESPONSE", sb.toString());
             bufferedReader.close();
             return new JSONObject(sb.toString());
         } catch (JSONException | IOException e) {

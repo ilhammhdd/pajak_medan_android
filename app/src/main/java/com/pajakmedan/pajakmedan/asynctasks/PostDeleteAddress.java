@@ -17,9 +17,16 @@ import org.json.JSONObject;
 public class PostDeleteAddress extends AsyncTask<JSONObject, Double, Boolean> implements SetOnRequestListener {
     OnRequestListener onRequestListener;
 
+    private String url = Constants.DOMAIN + "api/post-delete-address";
+    private String token;
+
+    public PostDeleteAddress(String token) {
+        this.token = token;
+    }
+
     @Override
     protected Boolean doInBackground(JSONObject... jsonObjects) {
-        JSONObject responseAll = RequestPost.sendRequest(jsonObjects[0]);
+        JSONObject responseAll = RequestPost.sendRequest(this.url, jsonObjects[0], Constants.CONTENT_TYPE, this.token);
         assert responseAll != null;
         try {
             JSONObject responseData = responseAll.getJSONObject(Constants.RESPONSE_DATA_KEY);

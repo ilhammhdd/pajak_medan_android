@@ -48,11 +48,7 @@ public class AddressesActivity extends BaseActivity {
 
     @Override
     void insideOnCreate() {
-        try {
-            getAllAddresses();
-        } catch (JSONException e) {
-            e.printStackTrace();
-        }
+        getAllAddresses();
         fabAdd.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
@@ -95,17 +91,10 @@ public class AddressesActivity extends BaseActivity {
         recyclerViewAddress.setLayoutManager(new LinearLayoutManager(AddressesActivity.this, LinearLayoutManager.VERTICAL, false));
     }
 
-    private void getAllAddresses() throws JSONException {
-        Customer customer = Hawk.get(Constants.CUSTOMER_KEY);
-        GetAllAddresses getAllAddresses = new GetAllAddresses();
+    private void getAllAddresses() {
+        GetAllAddresses getAllAddresses = new GetAllAddresses(String.valueOf(Hawk.get(Constants.USER_API_TOKEN_KEY)));
 
-        getAllAddresses.execute(new JSONObject()
-                .put("data", new JSONObject()
-                        .put("url", Constants.DOMAIN + "api/get-all-addresses")
-                        .put("api_token", Hawk.get(Constants.USER_API_TOKEN_KEY))
-                        .put("customer_id", customer.customerId)
-                )
-        );
+        getAllAddresses.execute();
 
         getAllAddresses.setOnRequestListener(new OnRequestListener() {
             @Override

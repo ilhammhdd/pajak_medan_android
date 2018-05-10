@@ -20,11 +20,16 @@ import java.util.List;
 public class GetCheckoutBasketGoods extends AsyncTask<JSONObject, Double, List<BasketGoods>> implements SetOnRequestListener {
     OnRequestListener onRequestListener;
 
+    private String url = Constants.DOMAIN + "api/get-checkout-basket-goods";
+    private String token;
+
+    public GetCheckoutBasketGoods(String token) {
+        this.token = token;
+    }
+
     @Override
     protected List<BasketGoods> doInBackground(JSONObject... jsonObjects) {
-        Log.d("JUST_LOGGIN_REQUEST", jsonObjects[0].toString());
-        JSONObject response = RequestPost.sendRequest(jsonObjects[0]);
-        Log.d("JUST_LOGGING", response.toString());
+        JSONObject response = RequestPost.sendRequest(this.url, jsonObjects[0], Constants.CONTENT_TYPE, this.token);
         assert response != null;
         try {
             return BasketGoods.getCheckoutBasketGoods(response.getJSONObject(Constants.RESPONSE_DATA_KEY).getJSONArray("checkout_basket_goods"));

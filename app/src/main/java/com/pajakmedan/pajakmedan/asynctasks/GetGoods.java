@@ -1,6 +1,7 @@
 package com.pajakmedan.pajakmedan.asynctasks;
 
 import android.os.AsyncTask;
+import android.util.Log;
 
 import com.pajakmedan.pajakmedan.Constants;
 import com.pajakmedan.pajakmedan.listeners.OnRequestListener;
@@ -41,9 +42,7 @@ public class GetGoods extends AsyncTask<JSONObject, Void, List<Goods>> implement
             if (response != null) {
                 JSONObject responseData = response.getJSONObject(Constants.RESPONSE_DATA_KEY);
                 JSONArray jsonArrayGoods = responseData.getJSONArray("goods");
-                boolean available;
                 for (int n = 0; n < jsonArrayGoods.length(); n++) {
-                    available = jsonArrayGoods.getJSONObject(n).getInt("available") == 1;
                     goodsList.add(
                             new Goods(
                                     jsonArrayGoods.getJSONObject(n).getInt("id"),
@@ -51,7 +50,7 @@ public class GetGoods extends AsyncTask<JSONObject, Void, List<Goods>> implement
                                     jsonArrayGoods.getJSONObject(n).getString("name"),
                                     jsonArrayGoods.getJSONObject(n).getInt("price"),
                                     jsonArrayGoods.getJSONObject(n).getString("unit"),
-                                    available,
+                                    jsonArrayGoods.getJSONObject(n).getInt("available") == 1,
                                     jsonArrayGoods.getJSONObject(n).getInt("min_order"),
                                     jsonArrayGoods.getJSONObject(n).getString("condition")
                             )

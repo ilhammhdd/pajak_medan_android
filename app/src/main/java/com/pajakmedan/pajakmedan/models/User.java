@@ -35,7 +35,7 @@ public class User {
                     jsonObject.getInt("id"),
                     jsonObject.getInt("role_id"),
                     jsonObject.getInt("login_type_id"),
-                    jsonObject.has("file_id") ? jsonObject.getInt("file_id") : 0,
+                    jsonObject.get("file_id") == null ? jsonObject.getInt("file_id") : 0,
                     jsonObject.getString("email"),
                     jsonObject.getString("username"),
                     jsonObject.getString("token")

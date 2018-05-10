@@ -214,6 +214,7 @@ public abstract class BaseAuthenticationActivity extends BaseActivity implements
 
     private void authenticationResponse(JSONObject response) {
         try {
+            Log.d("LOGIN_RESPONSE", response.toString());
             if (response.getBoolean("success")) {
                 JSONObject responseData = response.getJSONObject("response_data");
 

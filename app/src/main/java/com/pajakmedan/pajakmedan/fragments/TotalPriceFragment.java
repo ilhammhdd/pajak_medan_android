@@ -29,10 +29,6 @@ public class TotalPriceFragment extends Fragment {
     public CardView cardViewTotalPrice;
     @BindView(R.id.textView_basket_totalBasketPrice)
     TextView textViewTotalPricekontolpepek;
-//    @BindView(R.id.textView_basket_deliveryCostNumber)
-//    TextView textViewDeliveryCost;
-//    @BindView(R.id.textView_basket_totalPaymentNumber)
-//    TextView textViewTotalPayment;
 
     @Nullable
     @Override

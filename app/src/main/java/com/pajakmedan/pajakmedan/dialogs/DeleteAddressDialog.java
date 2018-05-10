@@ -35,16 +35,10 @@ public class DeleteAddressDialog extends BaseDialog {
         buttonYes.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                Customer customer = Hawk.get(Constants.CUSTOMER_KEY);
-                PostDeleteAddress postDeleteAddress = new PostDeleteAddress();
+                PostDeleteAddress postDeleteAddress = new PostDeleteAddress(String.valueOf(Hawk.get(Constants.USER_API_TOKEN_KEY)));
                 try {
                     postDeleteAddress.execute(new JSONObject()
-                            .put("data", new JSONObject()
-                                    .put("url", Constants.DOMAIN + "api/post-delete-address")
-                                    .put("api_token", Hawk.get(Constants.USER_API_TOKEN_KEY))
-                                    .put("customer_id", customer.customerId)
-                                    .put("address_id", address.addressId)
-                            )
+                            .put("address_id", address.addressId)
                     );
                     postDeleteAddress.setOnRequestListener(new OnRequestListener() {
                         @Override

@@ -24,11 +24,17 @@ public class GetAllAddresses extends AsyncTask<JSONObject, Double, List<Address>
 
     OnRequestListener onRequestListener;
 
+    private String url = Constants.DOMAIN + "api/get-all-addresses";
+    private String token;
+
+    public GetAllAddresses(String token) {
+        this.token = token;
+    }
+
     @Override
     protected List<Address> doInBackground(JSONObject... jsonObjects) {
-        JSONObject response = RequestPost.sendRequest(jsonObjects[0]);
+        JSONObject response = RequestGet.sendRequest(this.url, Constants.CONTENT_TYPE, this.token);
         assert response != null;
-        Log.d("ALL_ADDRESS_RESPONSE", response.toString());
         try {
             if (response.getJSONObject(Constants.RESPONSE_DATA_KEY).has("all_addresses")) {
                 JSONArray addressesJsonArray = response.getJSONObject(Constants.RESPONSE_DATA_KEY).getJSONArray("all_addresses");

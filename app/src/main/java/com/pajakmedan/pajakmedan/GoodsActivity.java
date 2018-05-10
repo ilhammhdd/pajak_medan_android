@@ -3,6 +3,7 @@ package com.pajakmedan.pajakmedan;
 import android.content.Intent;
 import android.support.v7.widget.GridLayoutManager;
 import android.support.v7.widget.RecyclerView;
+import android.util.Log;
 import android.view.View;
 import android.widget.TextView;
 
@@ -54,7 +55,6 @@ public class GoodsActivity extends BaseActivity {
     public void showGoods() {
         try {
             Category category = Hawk.get(Constants.CURRENT_CATEGORY_KEY);
-
             JSONObject data = new JSONObject();
             data.put("category_id", category.categoryId);
 

@@ -115,32 +115,22 @@ public abstract class BaseActivity extends AppCompatActivity {
     }
 
     public void getMainAddress() {
-        Customer customer = Hawk.get(Constants.CUSTOMER_KEY);
-        GetMainAddress getMainAddress = new GetMainAddress();
-        try {
-            getMainAddress.execute(new JSONObject()
-                    .put("data", new JSONObject()
-                            .put("url", Constants.DOMAIN + "api/get-main-address")
-                            .put("api_token", Hawk.get(Constants.USER_API_TOKEN_KEY))
-                            .put("customer_id", customer.customerId)
-                    ));
-            getMainAddress.setOnRequestListener(new OnRequestListener() {
-                @Override
-                public <T> void onRequest(T responseGeneric, String key) throws JSONException {
-//                    Address.saveAddress((JSONObject) responseGeneric);
-                    if (responseGeneric == null) {
-                        Log.d("LOGGING_MAIN_ADDRESS", "RESPONSE : NULL");
-                        Address.saveEmptyMainAddress();
-                        return;
-                    }
+        GetMainAddress getMainAddress = new GetMainAddress(String.valueOf(Hawk.get(Constants.USER_API_TOKEN_KEY)));
 
-                    Log.d("LOGGING_MAIN_ADDRESS", "RESPONSE : " + responseGeneric.toString());
-                    Address.saveMainAddress((JSONObject) responseGeneric);
+        getMainAddress.execute();
+        getMainAddress.setOnRequestListener(new OnRequestListener() {
+            @Override
+            public <T> void onRequest(T responseGeneric, String key) {
+                if (responseGeneric == null) {
+                    Log.d("LOGGING_MAIN_ADDRESS", "RESPONSE : NULL");
+                    Address.saveEmptyMainAddress();
+                    return;
                 }
-            });
-        } catch (JSONException e) {
-            e.printStackTrace();
-        }
+
+                Log.d("LOGGING_MAIN_ADDRESS", "RESPONSE : " + responseGeneric.toString());
+                Address.saveMainAddress((JSONObject) responseGeneric);
+            }
+        });
     }
 
     void getBasket() {

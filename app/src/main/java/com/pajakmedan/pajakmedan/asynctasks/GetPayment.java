@@ -22,19 +22,23 @@ public class GetPayment extends AsyncTask<JSONObject, Void, List<Payment>> imple
     List<Payment> paymentList;
     private OnRequestListener onRequestListener;
 
+    private String url = Constants.DOMAIN + "api/get-payment-method";
+    private String token;
+
+    public GetPayment(String token) {
+        this.token = token;
+        this.paymentList = new ArrayList<>();
+    }
+
     @Override
     public void setOnRequestListener(OnRequestListener listener) {
         onRequestListener = listener;
     }
 
-    public GetPayment() {
-        this.paymentList = new ArrayList<>();
-    }
-
     @Override
     protected List<Payment> doInBackground(JSONObject... jsonObjects) {
         try {
-            JSONObject response = RequestPost.sendRequest(jsonObjects[0]);
+            JSONObject response = RequestGet.sendRequest(this.url, Constants.CONTENT_TYPE, this.token);
             assert response != null;
             JSONObject responseData = response.getJSONObject(Constants.RESPONSE_DATA_KEY);
             JSONArray payments = responseData.getJSONArray("payments");
