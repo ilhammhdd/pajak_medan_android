@@ -6,7 +6,7 @@ import org.json.JSONException;
 import org.json.JSONObject;
 
 public class Constants {
-    public static final String DOMAIN = "http://192.168.1.17/";
+    public static final String DOMAIN = "http://192.168.0.104/";
     public static final String CONTENT_TYPE = "application/json";
 
     public static GoogleApiClient GOOGLE_API_CLIENT;

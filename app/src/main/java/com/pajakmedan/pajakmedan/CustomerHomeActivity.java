@@ -74,7 +74,7 @@ public class CustomerHomeActivity extends BaseActivity implements NavigationView
 
         showEvents();
         showCategories();
-        Log.d("DEVICE_HEIGHT_CUSTHOME", String.valueOf(getDeviceHeight()));
+
         navigationView.bringToFront();
         navigationView.setNavigationItemSelectedListener(this);
         setNavigationValues();

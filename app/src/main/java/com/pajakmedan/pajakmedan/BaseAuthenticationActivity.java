@@ -214,7 +214,6 @@ public abstract class BaseAuthenticationActivity extends BaseActivity implements
 
     private void authenticationResponse(JSONObject response) {
         try {
-            Log.d("LOGIN_RESPONSE", response.toString());
             if (response.getBoolean("success")) {
                 JSONObject responseData = response.getJSONObject("response_data");
 
@@ -233,7 +232,7 @@ public abstract class BaseAuthenticationActivity extends BaseActivity implements
                 startActivity(new Intent(getApplicationContext(), CustomerHomeActivity.class));
                 finish();
             } else {
-                Toasty.error(getApplicationContext(), getResources().getString(R.string.password_salah), Toast.LENGTH_SHORT, true).show();
+                Toasty.error(getApplicationContext(), getResources().getString(R.string.login_gagal), Toast.LENGTH_SHORT, true).show();
                 logout(getApplicationContext());
             }
         } catch (JSONException e) {

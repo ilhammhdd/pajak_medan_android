@@ -58,14 +58,7 @@ public class RegisterActivity extends BaseAuthenticationActivity {
     EditText editText_password;
     @BindView(R.id.editText_register_confirmPassword)
     EditText editText_confirmPassword;
-//    @BindView(R.id.textView_register_text)
-//    TextView textView_status;
 
-    //    GoogleSignInOptions gso;
-//    GoogleApiClient gac;
-//    CallbackManager callbackManager;
-//
-//    private static final int REQ_CODE = 9002;
     private final String TAG = "REGISTER_ACTIVITY";
 
     @Override
@@ -78,7 +71,7 @@ public class RegisterActivity extends BaseAuthenticationActivity {
         super.insideOnCreate();
 
         if (Hawk.get(Constants.USER_API_TOKEN_KEY) != null) {
-            Log.d(TAG, "User already authenticated");
+
             startActivity(new Intent(RegisterActivity.this, CustomerHomeActivity.class));
             finish();
         }

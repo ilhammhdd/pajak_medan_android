@@ -1,6 +1,7 @@
 package com.pajakmedan.pajakmedan.asynctasks;
 
 import android.os.AsyncTask;
+import android.util.Log;
 
 import com.pajakmedan.pajakmedan.Constants;
 import com.pajakmedan.pajakmedan.listeners.OnRequestListener;
@@ -40,18 +41,20 @@ public class GetPayment extends AsyncTask<JSONObject, Void, List<Payment>> imple
         try {
             JSONObject response = RequestGet.sendRequest(this.url, Constants.CONTENT_TYPE, this.token);
             assert response != null;
-            JSONObject responseData = response.getJSONObject(Constants.RESPONSE_DATA_KEY);
-            JSONArray payments = responseData.getJSONArray("payments");
-            for (int i = 0; i < payments.length(); i++) {
-                paymentList.add(
-                        new Payment(
-                                payments.getJSONObject(i).getInt("payment_id"),
-                                payments.getJSONObject(i).getString("payment_image_url"),
-                                payments.getJSONObject(i).getString("payment_name"),
-                                payments.getJSONObject(i).getString("payment_detail")
-                        ));
-            }
 
+            if (response.getBoolean("success")) {
+                JSONObject responseData = response.getJSONObject(Constants.RESPONSE_DATA_KEY);
+                JSONArray payments = responseData.getJSONArray("payments");
+                for (int i = 0; i < payments.length(); i++) {
+                    paymentList.add(
+                            new Payment(
+                                    payments.getJSONObject(i).getInt("payment_id"),
+                                    payments.getJSONObject(i).getString("payment_image_url"),
+                                    payments.getJSONObject(i).getString("payment_name"),
+                                    payments.getJSONObject(i).getString("payment_detail")
+                            ));
+                }
+            }
             return paymentList;
         } catch (JSONException e) {
             e.printStackTrace();
