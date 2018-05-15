@@ -73,8 +73,8 @@ public class PaymentActivity extends BaseActivity {
                                     .setPositiveButton(R.string.ya, new DialogInterface.OnClickListener() {
                                         public void onClick(DialogInterface dialog, int id) {
                                             Hawk.put(Constants.CURRENT_PAYMENT_KEY, payment);
-                                            startActivity(new Intent(PaymentActivity.this, PaymentIssuedActivity.class));
-                                            startService(new Intent(PaymentActivity.this, BroadcastService.class));
+//                                            startActivity(new Intent(PaymentActivity.this, PaymentIssuedActivity.class));
+//                                            startService(new Intent(PaymentActivity.this, BroadcastService.class));
 
                                             postPaymentIssued();
 

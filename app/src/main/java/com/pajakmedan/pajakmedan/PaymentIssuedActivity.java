@@ -70,22 +70,22 @@ public class PaymentIssuedActivity extends BaseActivity {
     @Override
     protected void onPause() {
         super.onPause();
-//        unregisterReceiver(broadcastReceiver);
+        unregisterReceiver(broadcastReceiver);
     }
 
     @Override
     protected void onStop() {
-//        try {
-//            unregisterReceiver(broadcastReceiver);
-//        } catch (Exception e) {
-//            e.printStackTrace();
-//        }
+        try {
+            unregisterReceiver(broadcastReceiver);
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
         super.onStop();
     }
 
     @Override
     protected void onDestroy() {
-//        stopService(new Intent(this, BroadcastService.class));
+        stopService(new Intent(this, BroadcastService.class));
         super.onDestroy();
     }
 

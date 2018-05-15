@@ -23,7 +23,7 @@ import java.util.List;
  * Created by milha on 3/1/2018.
  */
 
-public class BasketGoodsAdapter extends RecyclerView.Adapter<BasketGoodsAdapter.BasketGoodsViewHolder> {
+public class BasketGoodsAdapter extends BaseAdapter {
 
     static ClickListener clickListener;
     private LayoutInflater inflater;
@@ -31,6 +31,7 @@ public class BasketGoodsAdapter extends RecyclerView.Adapter<BasketGoodsAdapter.
     public List<BasketGoods> basketGoods;
 
     public BasketGoodsAdapter(Context context, List<BasketGoods> basketGoods) {
+        super(context);
         this.inflater = LayoutInflater.from(context);
         this.basketGoods = basketGoods;
         this.context = context;
@@ -43,11 +44,12 @@ public class BasketGoodsAdapter extends RecyclerView.Adapter<BasketGoodsAdapter.
     }
 
     @Override
-    public void onBindViewHolder(BasketGoodsAdapter.BasketGoodsViewHolder holder, int position) {
+    public void onBindViewHolder(BaseViewHolder baseViewHolder, int position) {
+        BasketGoodsViewHolder holder = (BasketGoodsViewHolder) baseViewHolder;
         Goods goods = this.basketGoods.get(position).goods;
         Glide.with(context).load(goods.goodsImageUrl).into(holder.imageViewImage);
         holder.textViewName.setText(goods.goodsName);
-        holder.textViewPricee.setText(String.valueOf(goods.goodsPrice));
+        holder.textViewPricee.setText(this.numberFormat.format(goods.goodsPrice));
         String totalAndUnit = String.valueOf(this.basketGoods.get(position).goodsQuantity) + " " + String.valueOf(goods.goodsUnit);
         holder.textViewTotalAndUnit.setText(totalAndUnit);
     }
@@ -57,7 +59,7 @@ public class BasketGoodsAdapter extends RecyclerView.Adapter<BasketGoodsAdapter.
         return basketGoods.size();
     }
 
-    public class BasketGoodsViewHolder extends RecyclerView.ViewHolder implements View.OnClickListener {
+    public class BasketGoodsViewHolder extends BaseViewHolder {
 
         ConstraintLayout layoutBasketGoods;
         ImageView imageViewImage;
@@ -69,7 +71,10 @@ public class BasketGoodsAdapter extends RecyclerView.Adapter<BasketGoodsAdapter.
 
         public BasketGoodsViewHolder(View itemView) {
             super(itemView);
-            itemView.setOnClickListener(this);
+        }
+
+        @Override
+        void initComponent(View itemView) {
             layoutBasketGoods = itemView.findViewById(R.id.layout_basketGoods);
             imageViewDelete = itemView.findViewById(R.id.imageView_basketGoods_delete);
             imageViewEdit = itemView.findViewById(R.id.imageView_basketGoods_edit);

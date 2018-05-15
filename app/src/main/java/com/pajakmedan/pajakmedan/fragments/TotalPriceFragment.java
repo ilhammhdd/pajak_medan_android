@@ -15,6 +15,9 @@ import com.pajakmedan.pajakmedan.Constants;
 import com.pajakmedan.pajakmedan.R;
 import com.pajakmedan.pajakmedan.models.Basket;
 
+import java.text.NumberFormat;
+import java.util.Locale;
+
 import butterknife.BindView;
 import butterknife.ButterKnife;
 import es.dmoral.toasty.Toasty;
@@ -23,25 +26,30 @@ import es.dmoral.toasty.Toasty;
  * Created by milha on 3/28/2018.
  */
 
-public class TotalPriceFragment extends Fragment {
+public class TotalPriceFragment extends BaseFragment {
 
     @BindView(R.id.cardView_basket_totalPrice)
     public CardView cardViewTotalPrice;
     @BindView(R.id.textView_basket_totalBasketPrice)
-    TextView textViewTotalPricekontolpepek;
+    TextView textViewTotalPrice;
 
-    @Nullable
+//    @Nullable
+//    @Override
+//    public View onCreateView(LayoutInflater inflater, @Nullable ViewGroup container, Bundle savedInstanceState) {
+//        View view = inflater.inflate(R.layout.fragment_total_price, container, false);
+//        ButterKnife.bind(this, view);
+//        return view;
+//    }
+
     @Override
-    public View onCreateView(LayoutInflater inflater, @Nullable ViewGroup container, Bundle savedInstanceState) {
-        View view = inflater.inflate(R.layout.fragment_total_price, container, false);
-        ButterKnife.bind(this, view);
-        return view;
+    int getLayoutId() {
+        return R.layout.fragment_total_price;
     }
 
     @Override
     public void onActivityCreated(@Nullable Bundle savedInstanceState) {
         super.onActivityCreated(savedInstanceState);
         Basket basket = Hawk.get(Constants.BASKET_KEY);
-        textViewTotalPricekontolpepek.setText(String.valueOf(basket.total));
+        textViewTotalPrice.setText(this.numberFormat.format(basket.total));
     }
 }

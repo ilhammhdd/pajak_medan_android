@@ -33,6 +33,9 @@ import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
+import java.text.NumberFormat;
+import java.util.Locale;
+
 import butterknife.ButterKnife;
 
 /**
@@ -43,12 +46,18 @@ public abstract class BaseActivity extends AppCompatActivity {
 
     static DisplayMetrics displaymetrics = new DisplayMetrics();
 
+    Locale locale;
+    NumberFormat numberFormat;
+
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(getContentId());
         ButterKnife.bind(this);
         Hawk.init(getApplicationContext()).build();
+
+        this.locale = new Locale("id", "ID");
+        this.numberFormat = NumberFormat.getInstance(locale);
 
         this.getWindowManager().getDefaultDisplay().getMetrics(displaymetrics);
         insideOnCreate();

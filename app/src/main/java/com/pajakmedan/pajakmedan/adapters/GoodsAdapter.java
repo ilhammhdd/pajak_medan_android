@@ -17,19 +17,19 @@ import com.pajakmedan.pajakmedan.models.Goods;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Locale;
 
 /**
  * Created by milha on 2/19/2018.
  */
 
-public class GoodsAdapter extends RecyclerView.Adapter<GoodsAdapter.GoodsViewHolder> {
+public class GoodsAdapter extends BaseAdapter {
 
     static ClickListener listener;
-    public List<Goods> goodsList = new ArrayList<>();
-    public Context context;
-    public LayoutInflater layoutInflater;
+    public List<Goods> goodsList;
 
     public GoodsAdapter(Context context, List<Goods> goodsList) {
+        super(context);
         this.layoutInflater = LayoutInflater.from(context);
         this.goodsList = goodsList;
         this.context = context;
@@ -42,10 +42,10 @@ public class GoodsAdapter extends RecyclerView.Adapter<GoodsAdapter.GoodsViewHol
     }
 
     @Override
-    public void onBindViewHolder(GoodsAdapter.GoodsViewHolder holder, int position) {
+    public void onBindViewHolder(BaseViewHolder baseViewHolder, int position) {
+        GoodsViewHolder holder = (GoodsViewHolder) baseViewHolder;
         holder.layout_goodsItem.getLayoutParams().height = Constants.DEVICE_HEIGHT / 3;
         Goods goods = goodsList.get(position);
-        Log.d("TOOOL", "" + goods.goodsAvalibility);
         Glide.with(context).load(goods.goodsImageUrl).into(holder.imageView_goodsImage);
         if (goods.goodsAvalibility) {
             holder.textViewAvailibility.setText(R.string.tersedia);
@@ -58,7 +58,8 @@ public class GoodsAdapter extends RecyclerView.Adapter<GoodsAdapter.GoodsViewHol
         }
         holder.textView_goodsName.setText(goods.goodsName);
         holder.textView_goodsUnit.setText(goods.goodsUnit);
-        holder.textView_goodsPrice.setText(String.valueOf(goods.goodsPrice));
+//        holder.textView_goodsPrice.setText(String.valueOf(goods.goodsPrice));
+        holder.textView_goodsPrice.setText(this.numberFormat.format(goods.goodsPrice));
     }
 
     @Override
@@ -66,7 +67,7 @@ public class GoodsAdapter extends RecyclerView.Adapter<GoodsAdapter.GoodsViewHol
         return goodsList.size();
     }
 
-    public class GoodsViewHolder extends RecyclerView.ViewHolder implements View.OnClickListener {
+    public class GoodsViewHolder extends BaseViewHolder {
 
         ImageView imageView_goodsImage;
         TextView textViewAvailibility;
@@ -77,7 +78,10 @@ public class GoodsAdapter extends RecyclerView.Adapter<GoodsAdapter.GoodsViewHol
 
         GoodsViewHolder(View itemView) {
             super(itemView);
-            itemView.setOnClickListener(this);
+        }
+
+        @Override
+        void initComponent(View itemView) {
             imageView_goodsImage = itemView.findViewById(R.id.imageView_goods_image);
             textViewAvailibility = itemView.findViewById(R.id.textView_goods_availibility);
             textView_goodsName = itemView.findViewById(R.id.textView_goods_name);

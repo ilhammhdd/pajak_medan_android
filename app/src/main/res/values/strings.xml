@@ -104,4 +104,5 @@
     <string name="password_salah">Password salah</string>
     <string name="berhasil_checkout">Berhasil melakukan checkout</string>
     <string name="gagal_checkout">Gagal melakukan checkout</string>
+    <string name="checkout_gagal_expired">Checkout gagal atau expired</string>
 </resources>

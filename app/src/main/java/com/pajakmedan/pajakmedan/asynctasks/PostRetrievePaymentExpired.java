@@ -9,20 +9,16 @@ import com.pajakmedan.pajakmedan.listeners.SetOnRequestListener;
 import org.json.JSONException;
 import org.json.JSONObject;
 
-/**
- * Created by milha on 3/30/2018.
- */
+public class PostRetrievePaymentExpired extends AsyncTask<JSONObject, Double, JSONObject> implements SetOnRequestListener {
 
-public class PostIssueCheckout extends AsyncTask<JSONObject, Double, JSONObject> implements SetOnRequestListener {
-
-    private static OnRequestListener onRequestListener;
-
-    private String url = Constants.DOMAIN + "api/post-issue-checkout";
+    private String url = Constants.DOMAIN + "api/get-payment-expired";
     private String token;
 
-    public PostIssueCheckout(String token) {
+    public PostRetrievePaymentExpired(String token) {
         this.token = token;
     }
+
+    public static OnRequestListener listener;
 
     @Override
     protected JSONObject doInBackground(JSONObject... jsonObjects) {
@@ -32,7 +28,7 @@ public class PostIssueCheckout extends AsyncTask<JSONObject, Double, JSONObject>
     @Override
     protected void onPostExecute(JSONObject jsonObject) {
         try {
-            onRequestListener.onRequest(jsonObject, Constants.RESPONSE_DATA_KEY);
+            listener.onRequest(jsonObject, Constants.RESPONSE_DATA_KEY);
         } catch (JSONException e) {
             e.printStackTrace();
         }
@@ -40,6 +36,6 @@ public class PostIssueCheckout extends AsyncTask<JSONObject, Double, JSONObject>
 
     @Override
     public void setOnRequestListener(OnRequestListener listener) {
-        PostIssueCheckout.onRequestListener = listener;
+        PostRetrievePaymentExpired.listener = listener;
     }
 }

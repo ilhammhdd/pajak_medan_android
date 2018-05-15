@@ -7,12 +7,14 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ImageView;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import com.orhanobut.hawk.Hawk;
 import com.pajakmedan.pajakmedan.Constants;
 import com.pajakmedan.pajakmedan.OrderGoodsActivity;
 import com.pajakmedan.pajakmedan.PaymentIssuedActivity;
 import com.pajakmedan.pajakmedan.R;
+import com.pajakmedan.pajakmedan.asynctasks.PostRetrievePaymentExpired;
 import com.pajakmedan.pajakmedan.listeners.OnRequestListener;
 import com.pajakmedan.pajakmedan.models.Order;
 import com.pajakmedan.pajakmedan.service.BroadcastService;
@@ -29,6 +31,8 @@ import java.util.Calendar;
 import java.util.Date;
 import java.util.List;
 import java.util.Locale;
+
+import es.dmoral.toasty.Toasty;
 
 /**
  * Created by milha on 4/2/2018.
@@ -125,28 +129,61 @@ public class OrderHistoryAdapter extends BaseAdapter {
                     break;
                 }
                 default: {
-                    Calendar calendar = Calendar.getInstance();
-                    Calendar currentCalendar = Calendar.getInstance();
-                    String expiration = OrderHistoryAdapter.this.orderList.get(getAdapterPosition()).expired;
-                    SimpleDateFormat simpleDateFormat = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss", Locale.ENGLISH);
-
-                    long subtractedTime;
+                    PostRetrievePaymentExpired postRetrievePaymentExpired = new PostRetrievePaymentExpired(Constants.getUserToken());
                     try {
-                        calendar.setTime(simpleDateFormat.parse(expiration));
-                        Date expirationDate = calendar.getTime();
-                        Date currentDate = currentCalendar.getTime();
-
-                        long longExpirationDate = expirationDate.getTime();
-                        long longCurrentDate = currentDate.getTime();
-                        subtractedTime = longExpirationDate - longCurrentDate;
-                        Log.d("SUBTRACTED", "EXPIRATION - CURRENT : " + String.valueOf(subtractedTime));
-
-                        Hawk.put(Constants.CURRENT_CHECKOUT_EXPIRATION, subtractedTime);
-                        context.startActivity(new Intent(context, PaymentIssuedActivity.class));
-                        context.startService(new Intent(context, BroadcastService.class));
-                    } catch (ParseException e) {
+                        postRetrievePaymentExpired.execute(new JSONObject()
+                                .put("checkout_id", OrderHistoryAdapter.this.orderList.get(getAdapterPosition()).checkoutId)
+                        );
+                    } catch (JSONException e) {
                         e.printStackTrace();
                     }
+                    postRetrievePaymentExpired.setOnRequestListener(new OnRequestListener() {
+                        @Override
+                        public <T> void onRequest(T responseGeneric, String key) throws JSONException {
+                            Log.d("LOGGING", "CHECKOUT_ID => " + String.valueOf(OrderHistoryAdapter.this.orderList.get(getAdapterPosition()).checkoutId));
+                            JSONObject responseJson = (JSONObject) responseGeneric;
+                            if (responseJson.getBoolean("success")) {
+                                JSONObject responseData = responseJson.getJSONObject(Constants.RESPONSE_DATA_KEY);
+                                try {
+//                                    Date temp = Calendar.getInstance().getTime();
+//                                    long longCurrent = temp.getTime();
+//                                    long longExpired = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss", Locale.ENGLISH).parse(responseData.getString("expired_time")).getTime();
+//                                    long timeLeft = longExpired - longCurrent;
+//                                    Hawk.put(Constants.CURRENT_CHECKOUT_EXPIRATION, timeLeft);
+                                    long timeLeft = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss", Locale.ENGLISH).parse(responseData.getString("expired_time")).getTime() - Calendar.getInstance().getTime().getTime();
+                                    BroadcastService.bi.putExtra("time_left",timeLeft);
+                                    context.startActivity(new Intent(context, PaymentIssuedActivity.class));
+                                    context.startService(new Intent(context, BroadcastService.class));
+                                } catch (ParseException e) {
+                                    e.printStackTrace();
+                                }
+                                return;
+                            }
+                            Toasty.error(context, context.getResources().getString(R.string.checkout_gagal_expired), Toast.LENGTH_SHORT, true).show();
+                        }
+                    });
+//                    Calendar calendar = Calendar.getInstance();
+//                    Calendar currentCalendar = Calendar.getInstance();
+//                    String expiration = OrderHistoryAdapter.this.orderList.get(getAdapterPosition()).expired;
+//                    SimpleDateFormat simpleDateFormat = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss", Locale.ENGLISH);
+//
+//                    long subtractedTime;
+//                    try {
+//                        calendar.setTime(simpleDateFormat.parse(expiration));
+//                        Date expirationDate = calendar.getTime();
+//                        Date currentDate = currentCalendar.getTime();
+//
+//                        long longExpirationDate = expirationDate.getTime();
+//                        long longCurrentDate = currentDate.getTime();
+//                        subtractedTime = longExpirationDate - longCurrentDate;
+//                        Log.d("SUBTRACTED", "EXPIRATION - CURRENT : " + String.valueOf(subtractedTime));
+//
+//                        Hawk.put(Constants.CURRENT_CHECKOUT_EXPIRATION, subtractedTime);
+//                        context.startActivity(new Intent(context, PaymentIssuedActivity.class));
+//                        context.startService(new Intent(context, BroadcastService.class));
+//                    } catch (ParseException e) {
+//                        e.printStackTrace();
+//                    }
                 }
             }
         }

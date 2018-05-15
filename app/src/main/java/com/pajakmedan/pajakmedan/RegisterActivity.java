@@ -108,6 +108,7 @@ public class RegisterActivity extends BaseAuthenticationActivity {
                         public <T> void onRequest(T responseGeneric, String key) throws JSONException {
                             JSONObject response = (JSONObject) responseGeneric;
                             if (response.getBoolean("success")) {
+                                emptyAllField();
                                 Toasty.success(RegisterActivity.this, getResources().getString(R.string.registrasi_berhasil), Toast.LENGTH_SHORT, true).show();
                             } else {
                                 JSONArray messages = response.getJSONArray("message");
@@ -164,5 +165,14 @@ public class RegisterActivity extends BaseAuthenticationActivity {
                 editText_email.getText().toString().equals("") ||
                 editText_username.getText().toString().equals("") ||
                 editText_password.getText().toString().equals("");
+    }
+
+    private void emptyAllField() {
+        editText_nama.setText("");
+        editText_noHp.setText("");
+        editText_email.setText("");
+        editText_username.setText("");
+        editText_password.setText("");
+        editText_confirmPassword.setText("");
     }
 }

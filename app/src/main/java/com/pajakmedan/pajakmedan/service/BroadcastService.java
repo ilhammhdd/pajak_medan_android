@@ -18,17 +18,22 @@ public class BroadcastService extends Service {
     private final static String TAG = "BroadcastService";
 
     public static final String COUNTDOWN_BR = "com.pajakmedan.pajakmedan.countdown_br";
-    Intent bi = new Intent(COUNTDOWN_BR);
+    public static Intent bi = new Intent(COUNTDOWN_BR);
 
     CountDownTimer cdt = null;
+
+//    private long expired;
+//
+//    public BroadcastService(long expired) {
+//        this.expired = expired;
+//    }
 
     @Override
     public void onCreate() {
         super.onCreate();
 
         Log.i(TAG, "Starting timer...");
-
-        cdt = new CountDownTimer((long) Hawk.get(Constants.CURRENT_CHECKOUT_EXPIRATION), 250) {
+        cdt = new CountDownTimer(bi.getLongExtra("time_left", 0), 250) {
             @Override
             public void onTick(long millisUntilFinished) {
                 bi.putExtra("countdown", millisUntilFinished);
@@ -46,7 +51,6 @@ public class BroadcastService extends Service {
 
     @Override
     public void onDestroy() {
-
         cdt.cancel();
         Log.i(TAG, "Timer cancelled");
         super.onDestroy();

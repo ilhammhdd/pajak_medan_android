@@ -1,6 +1,7 @@
 package com.pajakmedan.pajakmedan;
 
 import com.google.android.gms.common.api.GoogleApiClient;
+import com.orhanobut.hawk.Hawk;
 
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -39,5 +40,9 @@ public class Constants {
     public static <T> Object getResponseDataGeneric(T responseGeneric, String key) throws JSONException {
         JSONObject responseAll = (JSONObject) responseGeneric;
         return responseAll.get(key);
+    }
+
+    public static String getUserToken() {
+        return String.valueOf(Hawk.get(Constants.USER_API_TOKEN_KEY));
     }
 }

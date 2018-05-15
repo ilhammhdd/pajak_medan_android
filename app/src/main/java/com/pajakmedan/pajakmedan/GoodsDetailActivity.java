@@ -81,7 +81,8 @@ public class GoodsDetailActivity extends BaseActivity {
         Glide.with(getApplicationContext()).load(goods.goodsImageUrl).into(imageViewGoods);
         imageViewStar.setImageLevel(0);
         textViewGoodsName.setText(goods.goodsName);
-        textViewGoodsPrice.setText(String.valueOf(goods.goodsPrice));
+//        textViewGoodsPrice.setText(String.valueOf(goods.goodsPrice));
+        textViewGoodsPrice.setText(this.numberFormat.format(goods.goodsPrice));
         textViewAvailibility.setText(tersedia);
         textViewGoodsSatuan.setText(goods.goodsUnit);
         textViewGoodsMinPemesanan.setText(minPemesanan);

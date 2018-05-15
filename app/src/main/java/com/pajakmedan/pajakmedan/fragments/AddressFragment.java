@@ -10,7 +10,9 @@ import android.view.ViewGroup;
 import android.widget.Button;
 import android.widget.TextView;
 
+import com.pajakmedan.pajakmedan.Constants;
 import com.pajakmedan.pajakmedan.R;
+import com.pajakmedan.pajakmedan.asynctasks.GetMainAddress;
 
 import butterknife.BindView;
 import butterknife.ButterKnife;
