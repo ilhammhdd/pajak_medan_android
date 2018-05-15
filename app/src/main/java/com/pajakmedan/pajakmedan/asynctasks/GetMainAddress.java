@@ -28,21 +28,16 @@ public class GetMainAddress extends AsyncTask<JSONObject, Double, JSONObject> im
 
     @Override
     protected JSONObject doInBackground(JSONObject... jsonObjects) {
-//        try {
-        Log.d("URL", this.url);
-        Log.d("TOKENNYA", this.token);
-        Log.d("CONTENT_TYPE", Constants.CONTENT_TYPE);
+
         JSONObject response = RequestGet.sendRequest(this.url, Constants.CONTENT_TYPE, this.token);
-//        assert response != null;
-        if (response != null) {
-            Log.d("RESPONSE", response.toString());
+        assert response != null;
+        try {
+            if (response.getBoolean("success")) {
+                return response.getJSONObject(Constants.RESPONSE_DATA_KEY).getJSONObject("main_address");
+            }
+        } catch (JSONException e) {
+            e.printStackTrace();
         }
-//            if (response.getJSONObject(Constants.RESPONSE_DATA_KEY).has("main_address")) {
-//                return response.getJSONObject(Constants.RESPONSE_DATA_KEY).getJSONObject("main_address");
-//            }
-//        } catch (JSONException e) {
-//            e.printStackTrace();
-//        }
         return null;
     }
 

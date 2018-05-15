@@ -98,9 +98,11 @@ public class AddressesActivity extends BaseActivity {
 
         getAllAddresses.setOnRequestListener(new OnRequestListener() {
             @Override
-            public <T> void onRequest(T responseGeneric, String key) throws JSONException {
+            public <T> void onRequest(T responseGeneric, String key) {
                 Hawk.delete(Constants.ALL_ADDRESS_KEY);
-                setValues((List<Address>) responseGeneric);
+                if (responseGeneric != null) {
+                    setValues((List<Address>) responseGeneric);
+                }
             }
         });
     }

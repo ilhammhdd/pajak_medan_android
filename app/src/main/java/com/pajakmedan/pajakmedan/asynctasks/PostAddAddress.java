@@ -28,8 +28,7 @@ public class PostAddAddress extends AsyncTask<JSONObject, Double, Boolean> imple
         JSONObject responseAll = RequestPost.sendRequest(this.url, jsonObjects[0], Constants.CONTENT_TYPE, this.token);
         assert responseAll != null;
         try {
-            JSONObject responseData = responseAll.getJSONObject(Constants.RESPONSE_DATA_KEY);
-            return responseData.getBoolean("add_success");
+            return responseAll.getBoolean("success");
         } catch (JSONException e) {
             e.printStackTrace();
         }

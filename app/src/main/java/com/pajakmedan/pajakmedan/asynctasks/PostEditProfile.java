@@ -1,7 +1,6 @@
 package com.pajakmedan.pajakmedan.asynctasks;
 
 import android.os.AsyncTask;
-import android.util.Log;
 
 import com.pajakmedan.pajakmedan.Constants;
 import com.pajakmedan.pajakmedan.listeners.OnRequestListener;
@@ -10,38 +9,31 @@ import com.pajakmedan.pajakmedan.listeners.SetOnRequestListener;
 import org.json.JSONException;
 import org.json.JSONObject;
 
-/**
- * Created by milha on 3/24/2018.
- */
+public class PostEditProfile extends AsyncTask<JSONObject, Double, Boolean> implements SetOnRequestListener {
 
-public class PostEditAddress extends AsyncTask<JSONObject, Double, JSONObject> implements SetOnRequestListener {
-    OnRequestListener onRequestListener;
+    public String url = Constants.DOMAIN + "api/post-edit-profile";
+    public String token;
 
-    private String url = Constants.DOMAIN + "api/post-edit-address";
-    private String token;
-
-    public PostEditAddress(String token) {
+    public PostEditProfile(String token) {
         this.token = token;
     }
 
-    @Override
-    protected JSONObject doInBackground(JSONObject... jsonObjects) {
-        JSONObject response = RequestPost.sendRequest(this.url, jsonObjects[0], Constants.CONTENT_TYPE, this.token);
-        assert response != null;
-        return response;
-    }
+    public static OnRequestListener listener;
 
     @Override
-    protected void onPostExecute(JSONObject jsonObject) {
+    protected Boolean doInBackground(JSONObject... jsonObjects) {
+        JSONObject response = RequestPost.sendRequest(this.url, jsonObjects[0], Constants.CONTENT_TYPE, this.token);
+        assert response != null;
         try {
-            onRequestListener.onRequest(jsonObject, Constants.RESPONSE_DATA_KEY);
+            return response.getBoolean("success");
         } catch (JSONException e) {
             e.printStackTrace();
         }
+        return null;
     }
 
     @Override
     public void setOnRequestListener(OnRequestListener listener) {
-        onRequestListener = listener;
+        PostEditProfile.listener = listener;
     }
 }

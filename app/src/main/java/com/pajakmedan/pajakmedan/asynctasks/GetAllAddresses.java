@@ -36,7 +36,7 @@ public class GetAllAddresses extends AsyncTask<JSONObject, Double, List<Address>
         JSONObject response = RequestGet.sendRequest(this.url, Constants.CONTENT_TYPE, this.token);
         assert response != null;
         try {
-            if (response.getJSONObject(Constants.RESPONSE_DATA_KEY).has("all_addresses")) {
+            if (response.getBoolean("success")) {
                 JSONArray addressesJsonArray = response.getJSONObject(Constants.RESPONSE_DATA_KEY).getJSONArray("all_addresses");
                 for (int i = 0; i < addressesJsonArray.length(); i++) {
                     Address.saveAddressToList(Address.extractTheAddress(addressesJsonArray.getJSONObject(i)));

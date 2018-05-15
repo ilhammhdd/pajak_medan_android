@@ -29,8 +29,7 @@ public class PostDeleteAddress extends AsyncTask<JSONObject, Double, Boolean> im
         JSONObject responseAll = RequestPost.sendRequest(this.url, jsonObjects[0], Constants.CONTENT_TYPE, this.token);
         assert responseAll != null;
         try {
-            JSONObject responseData = responseAll.getJSONObject(Constants.RESPONSE_DATA_KEY);
-            return responseData.getBoolean("deleted");
+            return responseAll.getBoolean("success");
         } catch (JSONException e) {
             e.printStackTrace();
         }

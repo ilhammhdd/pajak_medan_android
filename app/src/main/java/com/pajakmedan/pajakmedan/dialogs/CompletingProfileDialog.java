@@ -12,7 +12,11 @@ import android.widget.TextView;
 import com.orhanobut.hawk.Hawk;
 import com.pajakmedan.pajakmedan.Constants;
 import com.pajakmedan.pajakmedan.R;
+import com.pajakmedan.pajakmedan.asynctasks.PostEditProfile;
 import com.pajakmedan.pajakmedan.models.Profile;
+
+import org.json.JSONException;
+import org.json.JSONObject;
 
 import butterknife.BindView;
 
@@ -57,7 +61,15 @@ public class CompletingProfileDialog extends BaseDialog {
         buttonDone.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-
+                PostEditProfile postEditProfile = new PostEditProfile(String.valueOf(Hawk.get(Constants.USER_API_TOKEN_KEY)));
+                try {
+                    postEditProfile.execute(new JSONObject()
+                            .put("full_name", editTextFullName.getText().toString().equals("") ? null : editTextFullName.getText().toString())
+                            .put("phone_number", editTextPhone.getText().toString().equals("") ? null : editTextPhone.getText())
+                    );
+                } catch (JSONException e) {
+                    e.printStackTrace();
+                }
             }
         });
     }

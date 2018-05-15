@@ -95,8 +95,8 @@ public class ManipulateAddressDialog extends BaseDialog {
                     @Override
                     public <T> void onRequest(T responseGeneric, String key) throws JSONException {
                         JSONObject responseJSONObject = (JSONObject) responseGeneric;
-                        Address address = Address.extractTheAddress(responseJSONObject.getJSONObject("edited_address"));
-                        if (responseJSONObject.getBoolean("edit_success")) {
+                        Address address = Address.extractTheAddress(responseJSONObject.getJSONObject(Constants.RESPONSE_DATA_KEY).getJSONObject("edited_address"));
+                        if (responseJSONObject.getBoolean("success")) {
                             dismiss();
                             Toasty.success(context, context.getResources().getString(R.string.berhasil_diedit)).show();
                             addressList.set(position, address);
