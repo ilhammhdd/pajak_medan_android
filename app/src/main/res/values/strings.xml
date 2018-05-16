@@ -25,8 +25,8 @@
     <string name="facebook_app_id">159800427983228</string>
     <string name="fb_login_protocol_scheme">fb159800427983228</string>
     <string name="title_activity_testing_drawer">TestingDrawer</string>
-    <string name="navigation_drawer_open">Open navigation drawer</string>
-    <string name="navigation_drawer_close">Close navigation drawer</string>
+    <string name="navigation_drawer_open">Buka navigation drawer</string>
+    <string name="navigation_drawer_close">Tutup navigation drawer</string>
     <string name="action_settings">Pengaturan</string>
     <string name="notifikasi">Notifikasi</string>
     <string name="keranjang_belanja">Keranjang</string>
@@ -79,7 +79,7 @@
     <string name="alamat">Alamat</string>
     <string name="gunakan_profile_lain">Gunakan profile lain</string>
     <string name="bust_profile">Buat profile</string>
-    <string name="belum_diisi">belum diisi</string>
+    <string name="tidak_ada_alamat_utama">tidak ada alamat utama</string>
     <string name="ubah_profile">Edit Profile</string>
     <string name="tambah_alamat">Tambah alamat</string>
     <string name="selesai">Selesai</string>

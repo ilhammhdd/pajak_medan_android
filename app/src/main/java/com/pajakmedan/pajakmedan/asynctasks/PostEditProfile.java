@@ -9,7 +9,7 @@ import com.pajakmedan.pajakmedan.listeners.SetOnRequestListener;
 import org.json.JSONException;
 import org.json.JSONObject;
 
-public class PostEditProfile extends AsyncTask<JSONObject, Double, Boolean> implements SetOnRequestListener {
+public class PostEditProfile extends AsyncTask<JSONObject, Double, JSONObject> implements SetOnRequestListener {
 
     public String url = Constants.DOMAIN + "api/post-edit-profile";
     public String token;
@@ -21,15 +21,17 @@ public class PostEditProfile extends AsyncTask<JSONObject, Double, Boolean> impl
     public static OnRequestListener listener;
 
     @Override
-    protected Boolean doInBackground(JSONObject... jsonObjects) {
-        JSONObject response = RequestPost.sendRequest(this.url, jsonObjects[0], Constants.CONTENT_TYPE, this.token);
-        assert response != null;
+    protected JSONObject doInBackground(JSONObject... jsonObjects) {
+        return RequestPost.sendRequest(this.url, jsonObjects[0], Constants.CONTENT_TYPE, this.token);
+    }
+
+    @Override
+    protected void onPostExecute(JSONObject object) {
         try {
-            return response.getBoolean("success");
+            PostEditProfile.listener.onRequest(object, Constants.RESPONSE_DATA_KEY);
         } catch (JSONException e) {
             e.printStackTrace();
         }
-        return null;
     }
 
     @Override

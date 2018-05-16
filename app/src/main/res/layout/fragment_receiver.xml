@@ -54,20 +54,6 @@
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toTopOf="@+id/textView_receiver_email" />
 
-        <Button
-            android:id="@+id/button_basket_addReceiver"
-            android:layout_width="wrap_content"
-            android:layout_height="35dp"
-            android:layout_marginBottom="4dp"
-            android:background="@color/colorButton"
-            android:paddingEnd="2dp"
-            android:paddingStart="2dp"
-            android:text="@string/data_penerima"
-            android:textColor="@color/colorWhite"
-            app:layout_constraintBottom_toBottomOf="parent"
-            app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintStart_toStartOf="parent" />
-
         <TextView
             android:id="@+id/textView_receiver_name"
             android:layout_width="wrap_content"
@@ -101,7 +87,7 @@
             android:layout_marginBottom="8dp"
             android:layout_marginEnd="8dp"
             android:text="TextView"
-            app:layout_constraintBottom_toTopOf="@+id/button_basket_addReceiver"
+            app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintTop_toBottomOf="@+id/textView_receiver_phone"
             app:layout_constraintVertical_chainStyle="packed" />

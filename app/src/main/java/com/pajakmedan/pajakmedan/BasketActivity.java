@@ -4,6 +4,7 @@ import android.app.FragmentManager;
 import android.app.FragmentTransaction;
 import android.content.Intent;
 import android.media.Image;
+import android.os.Bundle;
 import android.support.constraint.ConstraintLayout;
 import android.support.constraint.Guideline;
 import android.support.v7.widget.CardView;
@@ -113,16 +114,12 @@ public class BasketActivity extends BaseActivity {
                 if (!expanded) {
                     imageViewExpandIcon.setImageLevel(0);
                     frameLayoutBasketGoods.getLayoutParams().height = getDeviceHeight() - toolbarBasket5.getLayoutParams().height - buttonContinuePayment.getLayoutParams().height - imageViewExpandIcon.getLayoutParams().height;
-                    Log.d("IMAGEVIEW_EXPAND_ICON", String.valueOf(imageViewExpandIcon.getLayoutParams().height));
                     frameLayoutAddress.setVisibility(View.GONE);
                     frameLayoutReceiverData.setVisibility(View.GONE);
                     frameLayoutTotalPrice.setVisibility(View.GONE);
-                    Log.d("LOGGING_DEVICE_HEIGHT", String.valueOf(getDeviceHeight()));
                     return;
                 }
                 imageViewExpandIcon.setImageLevel(1);
-                Log.d("LOGGING_HEIGHT", String.valueOf(frameLayoutBasketGoodsHeight));
-                Log.d("LOGGING_DEVICE_HEIGHT", String.valueOf(getDeviceHeight()));
                 frameLayoutBasketGoods.getLayoutParams().height = (int) frameLayoutBasketGoodsHeight;
                 frameLayoutAddress.setVisibility(View.VISIBLE);
                 frameLayoutReceiverData.setVisibility(View.VISIBLE);

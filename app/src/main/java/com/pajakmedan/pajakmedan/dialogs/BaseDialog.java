@@ -71,4 +71,14 @@ public abstract class BaseDialog extends Dialog {
             }
         });
     }
+
+    protected String errorMessageWithAttribute(String rule, String attribute) {
+        return String.valueOf(rule.replace(":attribute", attribute));
+    }
+
+    protected String errorMessageWithAttribute(String rule, String attribute, String digits) {
+        rule  = rule.replace(":attribute", attribute);
+        rule = rule.replace(":digits", digits);
+        return rule;
+    }
 }

@@ -36,6 +36,7 @@ public class Constants {
     public static String ERROR_MESSAGE_EXISTS = "The selected :attribute is invalid.";
     public static String ERROR_MESSAGE_UNIQUE = "The :attribute has already been taken.";
     public static String ERROR_MESSAGE_REQUIRED = "The :attribute field is required.";
+    public static String ERROR_MESSAGE_DIGITS = "The :attribute must be :digits digits.";
 
     public static <T> Object getResponseDataGeneric(T responseGeneric, String key) throws JSONException {
         JSONObject responseAll = (JSONObject) responseGeneric;

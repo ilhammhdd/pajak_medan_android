@@ -34,12 +34,11 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_marginEnd="8dp"
-        android:layout_marginStart="8dp"
         android:text="@string/edtTxt_noHp"
         app:layout_constraintBottom_toBottomOf="@id/editText_completingProfile_phoneNumber"
         app:layout_constraintEnd_toStartOf="@+id/editText_completingProfile_phoneNumber"
         app:layout_constraintHorizontal_bias="0"
-        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintStart_toStartOf="@id/textView_completingProfile_forName"
         app:layout_constraintTop_toTopOf="@id/editText_completingProfile_phoneNumber" />
 
     <EditText
@@ -67,6 +66,7 @@
         android:id="@+id/editText_completingProfile_email"
         android:layout_width="0dp"
         android:layout_height="wrap_content"
+        android:focusable="false"
         android:textSize="14sp"
         app:layout_constraintBottom_toTopOf="@id/button_completingProfile_done"
         app:layout_constraintEnd_toEndOf="@+id/editText_completingProfile_fullName"

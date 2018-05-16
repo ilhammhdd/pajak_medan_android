@@ -82,10 +82,11 @@ public class ProfileActivity extends BaseActivity {
         if (!profile.phoneNumber.equals("")) {
             Constants.PROFILE_COMPLETE = true;
             textViewPhone.setText(profile.phoneNumber);
+            textViewPhone.setTextColor(getResources().getColor(R.color.colorBlack));
         } else {
             Constants.PROFILE_COMPLETE = false;
             buttonManipulateProfile.setText(R.string.lengkapi_profile);
-            textViewPhone.setText(R.string.belum_diisi);
+            textViewPhone.setText(R.string.tidak_ada_alamat_utama);
             textViewPhone.setTextColor(getResources().getColor(R.color.colorRedAlert));
         }
     }
@@ -101,9 +102,10 @@ public class ProfileActivity extends BaseActivity {
         if (!address.name.equals("")) {
             buttonManipulateAddress.setText(R.string.edit_alamat);
             textViewAddress.setText(address.name);
+            textViewAddress.setTextColor(getResources().getColor(R.color.colorBlack));
         } else {
             buttonManipulateAddress.setText(R.string.tambah_alamat);
-            textViewAddress.setText(R.string.belum_diisi);
+            textViewAddress.setText(R.string.tidak_ada_alamat_utama);
             textViewAddress.setTextColor(getResources().getColor(R.color.colorRedAlert));
         }
     }

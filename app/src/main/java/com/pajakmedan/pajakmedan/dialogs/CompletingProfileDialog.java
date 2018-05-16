@@ -8,17 +8,20 @@ import android.view.View;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import com.orhanobut.hawk.Hawk;
 import com.pajakmedan.pajakmedan.Constants;
 import com.pajakmedan.pajakmedan.R;
 import com.pajakmedan.pajakmedan.asynctasks.PostEditProfile;
+import com.pajakmedan.pajakmedan.listeners.OnRequestListener;
 import com.pajakmedan.pajakmedan.models.Profile;
 
 import org.json.JSONException;
 import org.json.JSONObject;
 
 import butterknife.BindView;
+import es.dmoral.toasty.Toasty;
 
 /**
  * Created by milha on 3/20/2018.
@@ -70,6 +73,28 @@ public class CompletingProfileDialog extends BaseDialog {
                 } catch (JSONException e) {
                     e.printStackTrace();
                 }
+                postEditProfile.setOnRequestListener(new OnRequestListener() {
+                    @Override
+                    public <T> void onRequest(T responseGeneric, String key) throws JSONException {
+                        JSONObject responseJson = (JSONObject) responseGeneric;
+                        if (responseJson.getBoolean("success")) {
+                            Log.d("LOGGING", "PROFILE EDITING SUCCESS");
+                            Toasty.success(CompletingProfileDialog.super.activity, "Berhasil edit profile", Toast.LENGTH_SHORT, true).show();
+                            dismiss();
+                        } else {
+                            Log.d("LOGGING", "PROFILE EDITING ERROR");
+                            for (int i = 0; i < responseJson.getJSONArray("message").length(); i++) {
+                                Log.d("LOGGING", "PROFILE ERROR MESSAGE => " + responseJson.getJSONArray("message").getString(i));
+                                if (responseJson.getJSONArray("message").getString(i).equals(errorMessageWithAttribute(Constants.ERROR_MESSAGE_UNIQUE, "phone number"))) {
+                                    Toasty.error(CompletingProfileDialog.super.activity, "Nomor telepon sudah terpakai", Toast.LENGTH_SHORT, true).show();
+                                } else if (responseJson.getJSONArray("message").getString(i).equals(errorMessageWithAttribute(Constants.ERROR_MESSAGE_DIGITS, "phone number", "10"))) {
+                                    Toasty.error(CompletingProfileDialog.super.activity, "Jumlah digit nomor telepon tidak valid", Toast.LENGTH_SHORT, true).show();
+                                }
+                            }
+                            dismiss();
+                        }
+                    }
+                });
             }
         });
     }
