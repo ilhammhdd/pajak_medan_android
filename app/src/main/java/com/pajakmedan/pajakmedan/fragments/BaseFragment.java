@@ -9,17 +9,16 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 
-import com.orhanobut.hawk.Hawk;
-import com.pajakmedan.pajakmedan.Constants;
-import com.pajakmedan.pajakmedan.R;
-import com.pajakmedan.pajakmedan.asynctasks.GetMainAddress;
-import com.pajakmedan.pajakmedan.listeners.OnRequestListener;
+import com.pajakmedan.pajakmedan.asynctasks.MyAsyncTask;
+import com.pajakmedan.pajakmedan.listeners.ExecuteAsyncTaskListener;
 import com.pajakmedan.pajakmedan.models.Address;
+import com.pajakmedan.pajakmedan.requests.CustomerRequest;
 
-import org.json.JSONException;
 import org.json.JSONObject;
 
 import java.text.NumberFormat;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Locale;
 
 import butterknife.ButterKnife;
@@ -33,6 +32,8 @@ public abstract class BaseFragment extends Fragment {
     protected Locale locale;
     protected NumberFormat numberFormat;
     protected Context context;
+
+    protected List<MyAsyncTask> myAsyncTaskList = new ArrayList<>();
 
     public BaseFragment(){
         this.locale = new Locale("id", "ID");
@@ -49,21 +50,46 @@ public abstract class BaseFragment extends Fragment {
 
     abstract int getLayoutId();
 
+    @Override
+    public void onStop() {
+        super.onStop();
+        if (!myAsyncTaskList.isEmpty()) {
+            for (int i = 0; i < myAsyncTaskList.size(); i++) {
+                clearAsyncTask(myAsyncTaskList.get(i));
+            }
+        }
+    }
+
+    public void clearAsyncTask(MyAsyncTask asyncTask) {
+        if (asyncTask != null) {
+            if (!asyncTask.isCancelled()) {
+                asyncTask.cancel(true);
+            }
+        }
+        asyncTask = null;
+    }
+
     public void getMainAddress() {
-        GetMainAddress getMainAddress = new GetMainAddress(String.valueOf(Hawk.get(Constants.USER_API_TOKEN_KEY)));
-        getMainAddress.execute();
-        getMainAddress.setOnRequestListener(new OnRequestListener() {
+        CustomerRequest customerRequest = new CustomerRequest();
+        customerRequest.setListener(new ExecuteAsyncTaskListener() {
             @Override
-            public <T> void onRequest(T responseGeneric, String key) throws JSONException {
-                if (responseGeneric == null) {
-                    Log.d("RESPONSE_MAIN_ADDRESS", "NULL");
+            public void onPreExecute(MyAsyncTask myAsyncTask) {
+                myAsyncTaskList.add(myAsyncTask);
+            }
+
+            @Override
+            public void onPostExecute(Object t) {
+                JSONObject responseJson = (JSONObject) t;
+                if (responseJson == null) {
+                    Log.d("LOGGING_MAIN_ADDRESS", "RESPONSE JSON => NULL");
                     Address.saveEmptyMainAddress();
                     return;
                 }
+                Log.d("LOGGING_MAIN_ADDRESS", "RESPONSE JSON => " + responseJson.toString());
 
-                Log.d("RESPONSE_MAIN_ADDRESS", responseGeneric.toString());
-                Address.saveMainAddress((JSONObject) responseGeneric);
+                Address.saveMainAddress(responseJson);
             }
         });
+        customerRequest.getMainAddress();
     }
 }

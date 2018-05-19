@@ -3,23 +3,19 @@ package com.pajakmedan.pajakmedan.dialogs;
 import android.app.Activity;
 import android.app.Dialog;
 import android.content.Context;
-import android.os.Bundle;
-import android.support.annotation.NonNull;
-import android.util.Log;
-import android.view.View;
 import android.view.Window;
 
-import com.orhanobut.hawk.Hawk;
 import com.pajakmedan.pajakmedan.Constants;
-import com.pajakmedan.pajakmedan.asynctasks.GetMainAddress;
-import com.pajakmedan.pajakmedan.listeners.OnRequestListener;
+import com.pajakmedan.pajakmedan.asynctasks.MyAsyncTask;
+import com.pajakmedan.pajakmedan.listeners.ExecuteAsyncTaskListener;
 import com.pajakmedan.pajakmedan.models.Address;
-import com.pajakmedan.pajakmedan.models.Customer;
+import com.pajakmedan.pajakmedan.requests.CustomerRequest;
 
 import org.json.JSONException;
 import org.json.JSONObject;
 
-import butterknife.ButterKnife;
+import java.util.ArrayList;
+import java.util.List;
 
 /**
  * Created by milha on 3/17/2018.
@@ -27,10 +23,13 @@ import butterknife.ButterKnife;
 
 public abstract class BaseDialog extends Dialog {
     Activity activity;
+    Context context;
+
+    protected List<MyAsyncTask> myAsyncTaskList = new ArrayList<>();
 
     public BaseDialog(Context context) {
         super(context);
-//        Hawk.init(context);
+        this.context = context;
         requestWindowFeature(Window.FEATURE_NO_TITLE);
         setContentView(getContentId());
         initComponent();
@@ -44,6 +43,26 @@ public abstract class BaseDialog extends Dialog {
     public void insideOnCreate() {
     }
 
+    @Override
+    protected void onStop() {
+        super.onStop();
+        if (!myAsyncTaskList.isEmpty()) {
+            for (int i = 0; i < myAsyncTaskList.size(); i++) {
+                clearAsyncTask(myAsyncTaskList.get(i));
+            }
+        }
+    }
+
+    protected void clearAsyncTask(MyAsyncTask asyncTask) {
+        if (asyncTask != null) {
+            if (!asyncTask.isCancelled()) {
+                asyncTask.cancel(true);
+            }
+        }
+        asyncTask = null;
+    }
+
+
     public <T> JSONObject getResponseData(T responseAll) {
         try {
             JSONObject response = (JSONObject) responseAll;
@@ -55,21 +74,24 @@ public abstract class BaseDialog extends Dialog {
     }
 
     public void getMainAddress() {
-        GetMainAddress getMainAddress = new GetMainAddress(String.valueOf(Hawk.get(Constants.USER_API_TOKEN_KEY)));
-        getMainAddress.execute();
-        getMainAddress.setOnRequestListener(new OnRequestListener() {
+        CustomerRequest customerRequest = new CustomerRequest();
+        customerRequest.setListener(new ExecuteAsyncTaskListener() {
             @Override
-            public <T> void onRequest(T responseGeneric, String key) throws JSONException {
-                if (responseGeneric == null) {
-                    Log.d("RESPONSE_MAIN_ADDRESS", "NULL");
+            public void onPreExecute(MyAsyncTask myAsyncTask) {
+                myAsyncTaskList.add(myAsyncTask);
+            }
+
+            @Override
+            public void onPostExecute(Object t) {
+                JSONObject responseJson = (JSONObject) t;
+                if (responseJson == null) {
                     Address.saveEmptyMainAddress();
                     return;
                 }
-
-                Log.d("RESPONSE_MAIN_ADDRESS", responseGeneric.toString());
-                Address.saveMainAddress((JSONObject) responseGeneric);
+                Address.saveMainAddress(responseJson);
             }
         });
+        customerRequest.getMainAddress();
     }
 
     protected String errorMessageWithAttribute(String rule, String attribute) {
@@ -77,7 +99,7 @@ public abstract class BaseDialog extends Dialog {
     }
 
     protected String errorMessageWithAttribute(String rule, String attribute, String digits) {
-        rule  = rule.replace(":attribute", attribute);
+        rule = rule.replace(":attribute", attribute);
         rule = rule.replace(":digits", digits);
         return rule;
     }

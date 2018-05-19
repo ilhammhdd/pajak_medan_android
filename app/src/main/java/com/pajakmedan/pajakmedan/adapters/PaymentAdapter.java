@@ -1,7 +1,6 @@
 package com.pajakmedan.pajakmedan.adapters;
 
 import android.content.Context;
-import android.media.Image;
 import android.support.constraint.ConstraintLayout;
 import android.support.v7.widget.RecyclerView;
 import android.view.LayoutInflater;

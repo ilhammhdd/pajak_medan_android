@@ -3,43 +3,22 @@ package com.pajakmedan.pajakmedan;
 import android.app.FragmentManager;
 import android.app.FragmentTransaction;
 import android.content.Intent;
-import android.media.Image;
-import android.os.Bundle;
 import android.support.constraint.ConstraintLayout;
-import android.support.constraint.Guideline;
-import android.support.v7.widget.CardView;
-import android.support.v7.widget.LinearLayoutManager;
-import android.support.v7.widget.RecyclerView;
 import android.support.v7.widget.Toolbar;
-import android.util.Log;
 import android.view.View;
-import android.view.ViewGroup;
 import android.widget.Button;
 import android.widget.FrameLayout;
 import android.widget.ImageView;
-import android.widget.TextView;
-import android.widget.Toast;
 
 import com.orhanobut.hawk.Hawk;
-import com.pajakmedan.pajakmedan.adapters.BasketGoodsAdapter;
-import com.pajakmedan.pajakmedan.asynctasks.GetBasketGoods;
 import com.pajakmedan.pajakmedan.fragments.AddressFragment;
 import com.pajakmedan.pajakmedan.fragments.BasketGoodsFragment;
 import com.pajakmedan.pajakmedan.fragments.ReceiverDataFragment;
 import com.pajakmedan.pajakmedan.fragments.TotalPriceFragment;
 import com.pajakmedan.pajakmedan.listeners.BasketActivityFragmentListener;
-import com.pajakmedan.pajakmedan.listeners.OnRequestListener;
 import com.pajakmedan.pajakmedan.models.Basket;
-import com.pajakmedan.pajakmedan.models.BasketGoods;
 
-import org.json.JSONException;
-import org.json.JSONObject;
-
-import java.util.List;
-
-import butterknife.BindDimen;
 import butterknife.BindView;
-import butterknife.BindViews;
 import butterknife.OnClick;
 
 /**
@@ -74,6 +53,7 @@ public class BasketActivity extends BaseActivity {
     void insideOnCreate() {
         basketActivity = this;
         fragmentManager = getFragmentManager();
+        getBasket();
         if (basketIsEmpty()) {
             imageViewBasketEmpty.setImageResource(R.drawable.ic_shopping_basket_grey);
             buttonContinuePayment.setText(getResources().getString(R.string.mulai_belanja));
@@ -83,6 +63,15 @@ public class BasketActivity extends BaseActivity {
         eachFragmentsListener();
         frameLayoutBasketGoodsHeight = frameLayoutBasketGoods.getLayoutParams().height;
     }
+
+//    @Override
+//    protected void onResume() {
+//        super.onResume();
+//        setFragments();
+//        eachFragmentsListener();
+//        frameLayoutBasketGoodsHeight = frameLayoutBasketGoods.getLayoutParams().height;
+//    }
+
 
     private void setFragments() {
         basketGoodsFragment = new BasketGoodsFragment();

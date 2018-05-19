@@ -1,39 +1,32 @@
 package com.pajakmedan.pajakmedan;
 
-import android.app.Activity;
 import android.content.Context;
 import android.content.Intent;
 import android.os.Bundle;
-import android.os.PersistableBundle;
 import android.support.annotation.NonNull;
-import android.support.annotation.Nullable;
 import android.support.v7.app.AppCompatActivity;
 import android.util.DisplayMetrics;
 import android.util.Log;
 
 import com.facebook.AccessToken;
-import com.facebook.FacebookSdk;
-import com.facebook.GraphRequest;
-import com.facebook.GraphResponse;
-import com.facebook.HttpMethod;
 import com.facebook.login.LoginManager;
 import com.google.android.gms.auth.api.Auth;
 import com.google.android.gms.common.api.ResultCallback;
 import com.google.android.gms.common.api.Status;
 import com.orhanobut.hawk.Hawk;
-import com.pajakmedan.pajakmedan.asynctasks.GetBasket;
-import com.pajakmedan.pajakmedan.asynctasks.GetMainAddress;
-import com.pajakmedan.pajakmedan.listeners.OnRequestListener;
+import com.pajakmedan.pajakmedan.asynctasks.MyAsyncTask;
+import com.pajakmedan.pajakmedan.listeners.ExecuteAsyncTaskListener;
 import com.pajakmedan.pajakmedan.models.Address;
 import com.pajakmedan.pajakmedan.models.Basket;
-import com.pajakmedan.pajakmedan.models.Customer;
-import com.pajakmedan.pajakmedan.models.Payment;
+import com.pajakmedan.pajakmedan.requests.BasketRequest;
+import com.pajakmedan.pajakmedan.requests.CustomerRequest;
 
-import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
 import java.text.NumberFormat;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Locale;
 
 import butterknife.ButterKnife;
@@ -48,6 +41,8 @@ public abstract class BaseActivity extends AppCompatActivity {
 
     Locale locale;
     NumberFormat numberFormat;
+
+    public List<MyAsyncTask> myAsyncTaskList = new ArrayList<>();
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
@@ -66,6 +61,25 @@ public abstract class BaseActivity extends AppCompatActivity {
     abstract int getContentId();
 
     abstract void insideOnCreate();
+
+    @Override
+    protected void onStop() {
+        super.onStop();
+        if (!myAsyncTaskList.isEmpty()) {
+            for (int i = 0; i < myAsyncTaskList.size(); i++) {
+                clearAsyncTask(myAsyncTaskList.get(i));
+            }
+        }
+    }
+
+    public void clearAsyncTask(MyAsyncTask asyncTask) {
+        if (asyncTask != null) {
+            if (!asyncTask.isCancelled()) {
+                asyncTask.cancel(true);
+            }
+        }
+        asyncTask = null;
+    }
 
     public static int getDeviceWidth() {
         return displaymetrics.widthPixels;
@@ -99,72 +113,60 @@ public abstract class BaseActivity extends AppCompatActivity {
         finish();
     }
 
-    public void getAllCheckout() {
-        try {
-            Customer customer = Hawk.get(Constants.CUSTOMER_KEY);
-            JSONObject request = new JSONObject()
-                    .put("data", new JSONObject()
-                            .put("api_token", Hawk.get(Constants.USER_API_TOKEN_KEY))
-                            .put("customer_id", customer.customerId)
-                    );
-
-
-        } catch (JSONException e) {
-            e.printStackTrace();
-        }
-    }
-
     public void openBasket(Context context) {
-//        Payment payment = Hawk.get(Constants.CURRENT_PAYMENT_KEY);
-//        if (payment != null) {
-//            Log.d("LOGGING_CURRENT_PAYMENT", "payment still exists");
-//            startActivity(new Intent(context, PaymentIssuedActivity.class));
-//            return;
-//        }
-//
-//        Log.d("LOGGING_CURRENT_PAYMENT", "payment doesn't exists");
-
         startActivity(new Intent(context, BasketActivity.class));
     }
 
     public void getMainAddress() {
-        GetMainAddress getMainAddress = new GetMainAddress(String.valueOf(Hawk.get(Constants.USER_API_TOKEN_KEY)));
-
-        getMainAddress.execute();
-        getMainAddress.setOnRequestListener(new OnRequestListener() {
+        CustomerRequest customerRequest = new CustomerRequest();
+        customerRequest.setListener(new ExecuteAsyncTaskListener() {
             @Override
-            public <T> void onRequest(T responseGeneric, String key) {
-                if (responseGeneric == null) {
-                    Log.d("LOGGING_MAIN_ADDRESS", "RESPONSE : NULL");
+            public void onPreExecute(MyAsyncTask myAsyncTask) {
+                myAsyncTaskList.add(myAsyncTask);
+            }
+
+            @Override
+            public void onPostExecute(Object t) {
+                JSONObject responseJson = (JSONObject) t;
+                if (responseJson == null) {
+                    Log.d("LOGGING_MAIN_ADDRESS", "RESPONSE JSON => NULL");
                     Address.saveEmptyMainAddress();
                     return;
                 }
+                Log.d("LOGGING_MAIN_ADDRESS", "RESPONSE JSON => " + responseJson.toString());
 
-                Log.d("LOGGING_MAIN_ADDRESS", "RESPONSE : " + responseGeneric.toString());
-                Address.saveMainAddress((JSONObject) responseGeneric);
+                Address.saveMainAddress(responseJson);
             }
         });
+        customerRequest.getMainAddress();
     }
 
     void getBasket() {
-        GetBasket getBasket = new GetBasket(String.valueOf(Hawk.get(Constants.USER_API_TOKEN_KEY)));
-        getBasket.execute();
-
-        getBasket.setOnRequestListener(new OnRequestListener() {
+        BasketRequest basketRequest = new BasketRequest();
+        basketRequest.setListener(new ExecuteAsyncTaskListener() {
             @Override
-            public <T> void onRequest(T responseGeneric, String key) throws JSONException {
-                JSONObject response = (JSONObject) responseGeneric;
-                Log.d("MY_LOGGING_GET_BASKET", response.toString());
-                JSONObject responseData = response.getJSONObject("response_data");
-                if (responseData.has("basket")) {
-                    JSONObject basket = responseData.getJSONObject("basket");
-                    Log.d("RESPONSE_BASKET", basket.toString());
-                    Basket.saveBasket(basket, basket.getString("description") != null);
-                    return;
+            public void onPreExecute(MyAsyncTask myAsyncTask) {
+                myAsyncTaskList.add(myAsyncTask);
+            }
+
+            @Override
+            public void onPostExecute(Object t) {
+                JSONObject response = (JSONObject) t;
+                Log.d("LOGGING", "GET BASKET RESPONSE => " + response.toString());
+                try {
+                    JSONObject responseData = response.getJSONObject("response_data");
+                    if (responseData.has("basket")) {
+                        JSONObject basket = responseData.getJSONObject("basket");
+                        Basket.saveBasket(basket, basket.getString("description") != null);
+                        return;
+                    }
+                    Basket.saveEmptyBasket();
+                } catch (JSONException e) {
+                    e.printStackTrace();
                 }
-                Basket.saveEmptyBasket();
             }
         });
+        basketRequest.getBasket();
     }
 
     protected String errorMessageWithAttribute(String rule, String attribute) {

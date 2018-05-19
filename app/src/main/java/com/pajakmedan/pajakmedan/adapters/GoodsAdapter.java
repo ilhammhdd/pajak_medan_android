@@ -2,8 +2,6 @@ package com.pajakmedan.pajakmedan.adapters;
 
 import android.content.Context;
 import android.support.constraint.ConstraintLayout;
-import android.support.v7.widget.RecyclerView;
-import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -15,9 +13,7 @@ import com.pajakmedan.pajakmedan.Constants;
 import com.pajakmedan.pajakmedan.R;
 import com.pajakmedan.pajakmedan.models.Goods;
 
-import java.util.ArrayList;
 import java.util.List;
-import java.util.Locale;
 
 /**
  * Created by milha on 2/19/2018.

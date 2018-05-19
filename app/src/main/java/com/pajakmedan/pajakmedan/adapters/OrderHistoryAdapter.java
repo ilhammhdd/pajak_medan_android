@@ -10,13 +10,15 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import com.orhanobut.hawk.Hawk;
+import com.pajakmedan.pajakmedan.BaseActivity;
 import com.pajakmedan.pajakmedan.Constants;
 import com.pajakmedan.pajakmedan.OrderGoodsActivity;
 import com.pajakmedan.pajakmedan.PaymentIssuedActivity;
 import com.pajakmedan.pajakmedan.R;
-import com.pajakmedan.pajakmedan.asynctasks.PostRetrievePaymentExpired;
-import com.pajakmedan.pajakmedan.listeners.OnRequestListener;
+import com.pajakmedan.pajakmedan.asynctasks.MyAsyncTask;
+import com.pajakmedan.pajakmedan.listeners.ExecuteAsyncTaskListener;
 import com.pajakmedan.pajakmedan.models.Order;
+import com.pajakmedan.pajakmedan.requests.CheckoutRequest;
 import com.pajakmedan.pajakmedan.service.BroadcastService;
 import com.shehabic.droppy.DroppyClickCallbackInterface;
 import com.shehabic.droppy.DroppyMenuItem;
@@ -28,7 +30,6 @@ import org.json.JSONObject;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.Calendar;
-import java.util.Date;
 import java.util.List;
 import java.util.Locale;
 
@@ -129,39 +130,77 @@ public class OrderHistoryAdapter extends BaseAdapter {
                     break;
                 }
                 default: {
-                    PostRetrievePaymentExpired postRetrievePaymentExpired = new PostRetrievePaymentExpired(Constants.getUserToken());
-                    try {
-                        postRetrievePaymentExpired.execute(new JSONObject()
-                                .put("checkout_id", OrderHistoryAdapter.this.orderList.get(getAdapterPosition()).checkoutId)
-                        );
-                    } catch (JSONException e) {
-                        e.printStackTrace();
-                    }
-                    postRetrievePaymentExpired.setOnRequestListener(new OnRequestListener() {
+                    CheckoutRequest checkoutRequest = new CheckoutRequest();
+                    checkoutRequest.setListener(new ExecuteAsyncTaskListener() {
                         @Override
-                        public <T> void onRequest(T responseGeneric, String key) throws JSONException {
-                            Log.d("LOGGING", "CHECKOUT_ID => " + String.valueOf(OrderHistoryAdapter.this.orderList.get(getAdapterPosition()).checkoutId));
-                            JSONObject responseJson = (JSONObject) responseGeneric;
-                            if (responseJson.getBoolean("success")) {
-                                JSONObject responseData = responseJson.getJSONObject(Constants.RESPONSE_DATA_KEY);
-                                try {
-//                                    Date temp = Calendar.getInstance().getTime();
-//                                    long longCurrent = temp.getTime();
-//                                    long longExpired = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss", Locale.ENGLISH).parse(responseData.getString("expired_time")).getTime();
-//                                    long timeLeft = longExpired - longCurrent;
-//                                    Hawk.put(Constants.CURRENT_CHECKOUT_EXPIRATION, timeLeft);
-                                    long timeLeft = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss", Locale.ENGLISH).parse(responseData.getString("expired_time")).getTime() - Calendar.getInstance().getTime().getTime();
-                                    BroadcastService.bi.putExtra("time_left",timeLeft);
-                                    context.startActivity(new Intent(context, PaymentIssuedActivity.class));
-                                    context.startService(new Intent(context, BroadcastService.class));
-                                } catch (ParseException e) {
-                                    e.printStackTrace();
+                        public void onPreExecute(MyAsyncTask myAsyncTask) {
+                            BaseActivity baseActivity = (BaseActivity) context;
+                            baseActivity.myAsyncTaskList.add(myAsyncTask);
+                        }
+
+                        @Override
+                        public void onPostExecute(Object t) {
+                            JSONObject responseJson = (JSONObject) t;
+                            try {
+                                if (responseJson.getBoolean("success")) {
+                                    JSONObject responseData = responseJson.getJSONObject(Constants.RESPONSE_DATA_KEY);
+                                    try {
+                                        long timeLeft = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss", Locale.ENGLISH).parse(responseData.getString("expired_time")).getTime() - Calendar.getInstance().getTime().getTime();
+                                        BroadcastService.bi.putExtra("time_left", timeLeft);
+                                        context.startActivity(new Intent(context, PaymentIssuedActivity.class));
+                                        context.startService(new Intent(context, BroadcastService.class));
+                                    } catch (ParseException e) {
+                                        e.printStackTrace();
+                                    }
+                                    return;
                                 }
-                                return;
+                            } catch (JSONException e) {
+                                e.printStackTrace();
                             }
                             Toasty.error(context, context.getResources().getString(R.string.checkout_gagal_expired), Toast.LENGTH_SHORT, true).show();
                         }
                     });
+                    try {
+                        checkoutRequest.getPaymentExpired(new JSONObject()
+                                .put("checkout_id", OrderHistoryAdapter.this.orderList.get(getAdapterPosition()).checkoutId));
+                    } catch (JSONException e) {
+                        e.printStackTrace();
+                    }
+
+//                    PostRetrievePaymentExpired postRetrievePaymentExpired = new PostRetrievePaymentExpired(Constants.getUserToken());
+//                    try {
+//                        postRetrievePaymentExpired.execute(new JSONObject()
+//                                .put("checkout_id", OrderHistoryAdapter.this.orderList.get(getAdapterPosition()).checkoutId)
+//                        );
+//                    } catch (JSONException e) {
+//                        e.printStackTrace();
+//                    }
+//                    postRetrievePaymentExpired.setOnRequestListener(new OnRequestListener() {
+//                        @Override
+//                        public <T> void onRequest(T responseGeneric, String key) throws JSONException {
+//                            Log.d("LOGGING", "CHECKOUT_ID => " + String.valueOf(OrderHistoryAdapter.this.orderList.get(getAdapterPosition()).checkoutId));
+//                            JSONObject responseJson = (JSONObject) responseGeneric;
+//                            if (responseJson.getBoolean("success")) {
+//                                JSONObject responseData = responseJson.getJSONObject(Constants.RESPONSE_DATA_KEY);
+//                                try {
+////                                    Date temp = Calendar.getInstance().getTime();
+////                                    long longCurrent = temp.getTime();
+////                                    long longExpired = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss", Locale.ENGLISH).parse(responseData.getString("expired_time")).getTime();
+////                                    long timeLeft = longExpired - longCurrent;
+////                                    Hawk.put(Constants.CURRENT_CHECKOUT_EXPIRATION, timeLeft);
+//                                    long timeLeft = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss", Locale.ENGLISH).parse(responseData.getString("expired_time")).getTime() - Calendar.getInstance().getTime().getTime();
+//                                    BroadcastService.bi.putExtra("time_left", timeLeft);
+//                                    context.startActivity(new Intent(context, PaymentIssuedActivity.class));
+//                                    context.startService(new Intent(context, BroadcastService.class));
+//                                } catch (ParseException e) {
+//                                    e.printStackTrace();
+//                                }
+//                                return;
+//                            }
+//                            Toasty.error(context, context.getResources().getString(R.string.checkout_gagal_expired), Toast.LENGTH_SHORT, true).show();
+//                        }
+//                    });
+
 //                    Calendar calendar = Calendar.getInstance();
 //                    Calendar currentCalendar = Calendar.getInstance();
 //                    String expiration = OrderHistoryAdapter.this.orderList.get(getAdapterPosition()).expired;

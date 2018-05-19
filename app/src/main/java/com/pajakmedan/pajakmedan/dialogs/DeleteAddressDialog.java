@@ -1,24 +1,20 @@
 package com.pajakmedan.pajakmedan.dialogs;
 
 import android.app.Activity;
-import android.content.Context;
 import android.content.Intent;
 import android.view.View;
 import android.widget.Button;
 
-import com.orhanobut.hawk.Hawk;
 import com.pajakmedan.pajakmedan.AddressesActivity;
-import com.pajakmedan.pajakmedan.Constants;
 import com.pajakmedan.pajakmedan.R;
-import com.pajakmedan.pajakmedan.asynctasks.PostDeleteAddress;
-import com.pajakmedan.pajakmedan.listeners.OnRequestListener;
+import com.pajakmedan.pajakmedan.asynctasks.MyAsyncTask;
+import com.pajakmedan.pajakmedan.listeners.ExecuteAsyncTaskListener;
 import com.pajakmedan.pajakmedan.models.Address;
-import com.pajakmedan.pajakmedan.models.Customer;
+import com.pajakmedan.pajakmedan.requests.CustomerRequest;
 
 import org.json.JSONException;
 import org.json.JSONObject;
 
-import butterknife.BindView;
 import es.dmoral.toasty.Toasty;
 
 /**
@@ -35,26 +31,30 @@ public class DeleteAddressDialog extends BaseDialog {
         buttonYes.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                PostDeleteAddress postDeleteAddress = new PostDeleteAddress(String.valueOf(Hawk.get(Constants.USER_API_TOKEN_KEY)));
-                try {
-                    postDeleteAddress.execute(new JSONObject()
-                            .put("address_id", address.addressId)
-                    );
-                    postDeleteAddress.setOnRequestListener(new OnRequestListener() {
-                        @Override
-                        public <T> void onRequest(T responseGeneric, String key) throws JSONException {
-                            if ((Boolean) responseGeneric) {
-                                Toasty.success(context, context.getResources().getString(R.string.berhasil_hapus)).show();
-                                dismiss();
-                                context.finish();
-                                context.startActivity(new Intent(context, AddressesActivity.class));
-                                return;
-                            }
+                CustomerRequest customerRequest = new CustomerRequest();
+                customerRequest.setListener(new ExecuteAsyncTaskListener() {
+                    @Override
+                    public void onPreExecute(MyAsyncTask myAsyncTask) {
+                        myAsyncTaskList.add(myAsyncTask);
+                    }
 
-                            Toasty.error(context, context.getResources().getString(R.string.gagal_hapus)).show();
+                    @Override
+                    public void onPostExecute(Object t) {
+                        if ((Boolean) t) {
+                            Toasty.success(context, context.getResources().getString(R.string.berhasil_hapus)).show();
                             dismiss();
+                            context.finish();
+                            context.startActivity(new Intent(context, AddressesActivity.class));
+                            return;
                         }
-                    });
+
+                        Toasty.error(context, context.getResources().getString(R.string.gagal_hapus)).show();
+                        dismiss();
+                    }
+                });
+                try {
+                    customerRequest.postDeleteAddress(new JSONObject()
+                            .put("address_id", address.addressId));
                 } catch (JSONException e) {
                     e.printStackTrace();
                 }

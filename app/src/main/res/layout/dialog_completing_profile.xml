@@ -9,24 +9,22 @@
         android:id="@+id/textView_completingProfile_forName"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_margin="4dp"
         android:text="@string/edtTxt_nama"
         app:layout_constraintBottom_toBottomOf="@id/editText_completingProfile_fullName"
         app:layout_constraintEnd_toStartOf="@id/editText_completingProfile_fullName"
+        app:layout_constraintHorizontal_bias="0"
         app:layout_constraintHorizontal_chainStyle="spread_inside"
-        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintStart_toStartOf="@id/textView_completingProfile_forPhone"
         app:layout_constraintTop_toTopOf="@id/editText_completingProfile_fullName" />
 
     <EditText
         android:id="@+id/editText_completingProfile_fullName"
-        android:layout_width="250dp"
+        android:layout_width="0dp"
         android:layout_height="wrap_content"
-        android:layout_marginEnd="8dp"
-        android:layout_marginStart="8dp"
         android:textSize="14sp"
         app:layout_constraintBottom_toTopOf="@id/editText_completingProfile_phoneNumber"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toEndOf="@+id/textView_completingProfile_forName"
+        app:layout_constraintEnd_toEndOf="@id/editText_completingProfile_phoneNumber"
+        app:layout_constraintStart_toStartOf="@id/editText_completingProfile_phoneNumber"
         app:layout_constraintTop_toTopOf="parent" />
 
     <TextView
@@ -34,44 +32,27 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_marginEnd="8dp"
+        android:layout_marginStart="8dp"
         android:text="@string/edtTxt_noHp"
         app:layout_constraintBottom_toBottomOf="@id/editText_completingProfile_phoneNumber"
         app:layout_constraintEnd_toStartOf="@+id/editText_completingProfile_phoneNumber"
         app:layout_constraintHorizontal_bias="0"
-        app:layout_constraintStart_toStartOf="@id/textView_completingProfile_forName"
+        app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="@id/editText_completingProfile_phoneNumber" />
 
     <EditText
         android:id="@+id/editText_completingProfile_phoneNumber"
-        android:layout_width="0dp"
+        android:layout_width="250dp"
         android:layout_height="wrap_content"
+        android:layout_marginEnd="8dp"
+        android:layout_marginStart="8dp"
         android:inputType="phone"
         android:textSize="14sp"
-        app:layout_constraintBottom_toTopOf="@id/editText_completingProfile_email"
-        app:layout_constraintEnd_toEndOf="@+id/editText_completingProfile_fullName"
-        app:layout_constraintStart_toStartOf="@+id/editText_completingProfile_fullName"
-        app:layout_constraintTop_toBottomOf="@id/editText_completingProfile_fullName" />
-
-    <TextView
-        android:id="@+id/textView_completingProfile_forEmail"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_margin="4dp"
-        android:text="@string/edtTxt_email"
-        app:layout_constraintBottom_toBottomOf="@id/editText_completingProfile_email"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="@id/editText_completingProfile_email" />
-
-    <EditText
-        android:id="@+id/editText_completingProfile_email"
-        android:layout_width="0dp"
-        android:layout_height="wrap_content"
-        android:focusable="false"
-        android:textSize="14sp"
         app:layout_constraintBottom_toTopOf="@id/button_completingProfile_done"
-        app:layout_constraintEnd_toEndOf="@+id/editText_completingProfile_fullName"
-        app:layout_constraintStart_toStartOf="@+id/editText_completingProfile_fullName"
-        app:layout_constraintTop_toBottomOf="@id/editText_completingProfile_phoneNumber" />
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintHorizontal_chainStyle="packed"
+        app:layout_constraintStart_toEndOf="@id/textView_completingProfile_forPhone"
+        app:layout_constraintTop_toBottomOf="@id/editText_completingProfile_fullName" />
 
     <android.support.constraint.Guideline
         android:id="@+id/guideline99"
@@ -84,13 +65,12 @@
         android:id="@+id/button_completingProfile_done"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_margin="8dp"
         android:background="@color/colorButton"
         android:text="@string/selesai"
         android:textColor="@color/colorWhite"
         app:layout_constraintBottom_toBottomOf="parent"
-        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintEnd_toEndOf="@+id/editText_completingProfile_phoneNumber"
         app:layout_constraintHorizontal_bias="1"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@id/editText_completingProfile_email" />
+        app:layout_constraintTop_toBottomOf="@id/editText_completingProfile_phoneNumber" />
 </android.support.constraint.ConstraintLayout>

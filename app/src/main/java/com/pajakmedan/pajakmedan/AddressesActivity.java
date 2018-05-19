@@ -1,32 +1,23 @@
 package com.pajakmedan.pajakmedan;
 
-import android.app.AlertDialog;
-import android.content.DialogInterface;
 import android.support.design.widget.FloatingActionButton;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
-import android.util.Log;
 import android.view.View;
 import android.widget.ImageView;
 
-import com.orhanobut.hawk.Hawk;
 import com.pajakmedan.pajakmedan.adapters.AddressesAdapter;
-import com.pajakmedan.pajakmedan.asynctasks.GetAllAddresses;
-import com.pajakmedan.pajakmedan.asynctasks.GetMainAddress;
+import com.pajakmedan.pajakmedan.asynctasks.MyAsyncTask;
 import com.pajakmedan.pajakmedan.dialogs.DeleteAddressDialog;
 import com.pajakmedan.pajakmedan.dialogs.ManipulateAddressDialog;
 import com.pajakmedan.pajakmedan.listeners.OnRecyclerViewItemClickListener;
-import com.pajakmedan.pajakmedan.listeners.OnRequestListener;
+import com.pajakmedan.pajakmedan.listeners.ExecuteAsyncTaskListener;
 import com.pajakmedan.pajakmedan.models.Address;
-import com.pajakmedan.pajakmedan.models.Customer;
-
-import org.json.JSONException;
-import org.json.JSONObject;
+import com.pajakmedan.pajakmedan.requests.CustomerRequest;
 
 import java.util.List;
 
 import butterknife.BindView;
-import es.dmoral.toasty.Toasty;
 
 /**
  * Created by milha on 3/21/2018.
@@ -48,7 +39,6 @@ public class AddressesActivity extends BaseActivity {
 
     @Override
     void insideOnCreate() {
-        getAllAddresses();
         fabAdd.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
@@ -64,45 +54,48 @@ public class AddressesActivity extends BaseActivity {
         });
     }
 
-    public void setValues(final List<Address> addressList) {
-        AddressesAdapter addressesAdapter = new AddressesAdapter(AddressesActivity.this, addressList);
-        addressesAdapter.setClickListener(new OnRecyclerViewItemClickListener() {
-            @Override
-            public void clickItem(View view, int position) {
-                switch (view.getId()) {
-                    case R.id.imageView_address_edit: {
-                        ManipulateAddressDialog manipulateAddressDialog = new ManipulateAddressDialog(
-                                AddressesActivity.this,
-                                addressList,
-                                position,
-                                recyclerViewAddress
-                        );
-                        manipulateAddressDialog.show();
-                        break;
-                    }
-                    case R.id.imageView_address_delete: {
-                        new DeleteAddressDialog(AddressesActivity.this, addressList.get(position)).show();
-                        break;
-                    }
-                }
-            }
-        });
-        recyclerViewAddress.setAdapter(addressesAdapter);
-        recyclerViewAddress.setLayoutManager(new LinearLayoutManager(AddressesActivity.this, LinearLayoutManager.VERTICAL, false));
+    @Override
+    protected void onStart() {
+        super.onStart();
+        setValues();
     }
 
-    private void getAllAddresses() {
-        GetAllAddresses getAllAddresses = new GetAllAddresses(String.valueOf(Hawk.get(Constants.USER_API_TOKEN_KEY)));
-
-        getAllAddresses.execute();
-
-        getAllAddresses.setOnRequestListener(new OnRequestListener() {
+    public void setValues() {
+        CustomerRequest customerRequest = new CustomerRequest();
+        customerRequest.getAllAddresses();
+        customerRequest.setListener(new ExecuteAsyncTaskListener() {
             @Override
-            public <T> void onRequest(T responseGeneric, String key) {
-                Hawk.delete(Constants.ALL_ADDRESS_KEY);
-                if (responseGeneric != null) {
-                    setValues((List<Address>) responseGeneric);
-                }
+            public void onPostExecute(Object t) {
+                final List<Address> addressList = (List<Address>) t;
+                AddressesAdapter addressesAdapter = new AddressesAdapter(AddressesActivity.this, addressList);
+                addressesAdapter.setClickListener(new OnRecyclerViewItemClickListener() {
+                    @Override
+                    public void clickItem(View view, int position) {
+                        switch (view.getId()) {
+                            case R.id.imageView_address_edit: {
+                                ManipulateAddressDialog manipulateAddressDialog = new ManipulateAddressDialog(
+                                        AddressesActivity.this,
+                                        addressList,
+                                        position,
+                                        recyclerViewAddress
+                                );
+                                manipulateAddressDialog.show();
+                                break;
+                            }
+                            case R.id.imageView_address_delete: {
+                                new DeleteAddressDialog(AddressesActivity.this, addressList.get(position)).show();
+                                break;
+                            }
+                        }
+                    }
+                });
+                recyclerViewAddress.setAdapter(addressesAdapter);
+                recyclerViewAddress.setLayoutManager(new LinearLayoutManager(AddressesActivity.this, LinearLayoutManager.VERTICAL, false));
+            }
+
+            @Override
+            public void onPreExecute(MyAsyncTask myAsyncTask) {
+                myAsyncTaskList.add(myAsyncTask);
             }
         });
     }

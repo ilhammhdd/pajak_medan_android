@@ -5,8 +5,6 @@ import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
 import android.os.Bundle;
-import android.os.CountDownTimer;
-import android.util.Log;
 import android.widget.ImageView;
 import android.widget.TextView;
 
@@ -75,12 +73,12 @@ public class PaymentIssuedActivity extends BaseActivity {
 
     @Override
     protected void onStop() {
+        super.onStop();
         try {
             unregisterReceiver(broadcastReceiver);
         } catch (Exception e) {
             e.printStackTrace();
         }
-        super.onStop();
     }
 
     @Override

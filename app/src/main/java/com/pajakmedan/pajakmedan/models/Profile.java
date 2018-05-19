@@ -40,4 +40,11 @@ public class Profile {
             return null;
         }
     }
+
+    public static void updateProfile(String fullName, String phoneNumber) {
+        Profile profile = Hawk.get(Constants.PROFILE_KEY);
+        profile.fullName = fullName;
+        profile.phoneNumber = phoneNumber;
+        Hawk.put(Constants.PROFILE_KEY, profile);
+    }
 }

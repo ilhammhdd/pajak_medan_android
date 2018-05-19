@@ -3,19 +3,15 @@ package com.pajakmedan.pajakmedan;
 import android.content.Intent;
 import android.support.v7.widget.GridLayoutManager;
 import android.support.v7.widget.RecyclerView;
-import android.util.Log;
 import android.view.View;
 import android.widget.TextView;
 
 import com.orhanobut.hawk.Hawk;
 import com.pajakmedan.pajakmedan.adapters.GoodsAdapter;
-import com.pajakmedan.pajakmedan.asynctasks.GetGoods;
-import com.pajakmedan.pajakmedan.listeners.OnRequestListener;
+import com.pajakmedan.pajakmedan.listeners.ExecuteAsyncTaskListener;
 import com.pajakmedan.pajakmedan.models.Category;
 import com.pajakmedan.pajakmedan.models.Goods;
-
-import org.json.JSONException;
-import org.json.JSONObject;
+import com.pajakmedan.pajakmedan.requests.GoodRequest;
 
 import java.util.List;
 
@@ -53,31 +49,24 @@ public class GoodsActivity extends BaseActivity {
     }
 
     public void showGoods() {
-        try {
-            Category category = Hawk.get(Constants.CURRENT_CATEGORY_KEY);
-            JSONObject data = new JSONObject();
-            data.put("category_id", category.categoryId);
-
-            GetGoods getGoods = new GetGoods(String.valueOf(Hawk.get(Constants.USER_API_TOKEN_KEY)));
-            getGoods.execute(data);
-            getGoods.setOnRequestListener(new OnRequestListener() {
-                @Override
-                public <T> void onRequest(T goodsList, String key) throws JSONException {
-                    GoodsAdapter goodsAdapter = new GoodsAdapter(GoodsActivity.this, (List<Goods>) goodsList);
-                    goodsAdapter.setClickListener(new GoodsAdapter.ClickListener() {
-                        @Override
-                        public void clickItem(View view, int position, Goods goods) {
-                            Hawk.put(Constants.CURRENT_GOODS_KEY, goods);
-                            startActivity(new Intent(GoodsActivity.this, GoodsDetailActivity.class));
-                        }
-                    });
-                    recyclerView_goods.setLayoutManager(new GridLayoutManager(GoodsActivity.this, 2));
-                    recyclerView_goods.setAdapter(goodsAdapter);
-                }
-            });
-        } catch (JSONException e) {
-            e.printStackTrace();
-        }
+        Category category = Hawk.get(Constants.CURRENT_CATEGORY_KEY);
+        GoodRequest goodRequest = new GoodRequest();
+        goodRequest.setListener(new ExecuteAsyncTaskListener() {
+            @Override
+            public void onPostExecute(Object t) {
+                GoodsAdapter goodsAdapter = new GoodsAdapter(GoodsActivity.this, (List<Goods>) t);
+                goodsAdapter.setClickListener(new GoodsAdapter.ClickListener() {
+                    @Override
+                    public void clickItem(View view, int position, Goods goods) {
+                        Hawk.put(Constants.CURRENT_GOODS_KEY, goods);
+                        startActivity(new Intent(GoodsActivity.this, GoodsDetailActivity.class));
+                    }
+                });
+                recyclerView_goods.setLayoutManager(new GridLayoutManager(GoodsActivity.this, 2));
+                recyclerView_goods.setAdapter(goodsAdapter);
+            }
+        });
+        goodRequest.getGoods(category);
     }
 
     @OnClick(R.id.imageView_goods_back)

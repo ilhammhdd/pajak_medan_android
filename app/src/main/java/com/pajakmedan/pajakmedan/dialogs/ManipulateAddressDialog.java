@@ -10,15 +10,13 @@ import android.widget.Button;
 import android.widget.CheckBox;
 import android.widget.EditText;
 
-import com.orhanobut.hawk.Hawk;
 import com.pajakmedan.pajakmedan.AddressesActivity;
 import com.pajakmedan.pajakmedan.Constants;
 import com.pajakmedan.pajakmedan.R;
-import com.pajakmedan.pajakmedan.asynctasks.PostAddAddress;
-import com.pajakmedan.pajakmedan.asynctasks.PostEditAddress;
-import com.pajakmedan.pajakmedan.listeners.OnRequestListener;
+import com.pajakmedan.pajakmedan.asynctasks.MyAsyncTask;
+import com.pajakmedan.pajakmedan.listeners.ExecuteAsyncTaskListener;
 import com.pajakmedan.pajakmedan.models.Address;
-import com.pajakmedan.pajakmedan.models.Customer;
+import com.pajakmedan.pajakmedan.requests.CustomerRequest;
 
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -44,28 +42,31 @@ public class ManipulateAddressDialog extends BaseDialog {
         buttonDone.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                PostAddAddress postAddAddress = new PostAddAddress(String.valueOf(Hawk.get(Constants.USER_API_TOKEN_KEY)));
-                try {
-                    postAddAddress.execute(new JSONObject()
-                            .put("name", editTextName.getText().toString())
-                            .put("main", checkBoxMain.isChecked())
-                    );
+                CustomerRequest customerRequest = new CustomerRequest();
+                customerRequest.setListener(new ExecuteAsyncTaskListener() {
+                    @Override
+                    public void onPreExecute(MyAsyncTask myAsyncTask) {
+                        myAsyncTaskList.add(myAsyncTask);
+                    }
 
-                    postAddAddress.setOnRequestListener(new OnRequestListener() {
-                        @Override
-                        public <T> void onRequest(T responseGeneric, String key) throws JSONException {
-                            if ((Boolean) responseGeneric) {
-                                Toasty.success(context, context.getResources().getString(R.string.berhasil_ditambah)).show();
-                                dismiss();
-                                context.finish();
-                                context.startActivity(new Intent(context, AddressesActivity.class));
-                                return;
-                            }
-                            Toasty.error(context, context.getResources().getString(R.string.gagal_ditambah)).show();
+                    @Override
+                    public void onPostExecute(Object t) {
+                        if ((Boolean) t) {
+                            Toasty.success(context, context.getResources().getString(R.string.berhasil_ditambah)).show();
                             dismiss();
-                            getMainAddress();
+                            context.finish();
+                            context.startActivity(new Intent(context, AddressesActivity.class));
+                            return;
                         }
-                    });
+                        Toasty.error(context, context.getResources().getString(R.string.gagal_ditambah)).show();
+                        dismiss();
+                        getMainAddress();
+                    }
+                });
+                try {
+                    customerRequest.postAddAddress(new JSONObject()
+                            .put("name", editTextName.getText().toString())
+                            .put("main", checkBoxMain.isChecked() ? 1 : 0));
                 } catch (JSONException e) {
                     e.printStackTrace();
                 }
@@ -81,35 +82,44 @@ public class ManipulateAddressDialog extends BaseDialog {
         buttonDone.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                PostEditAddress postEditAddress = new PostEditAddress(String.valueOf(Hawk.get(Constants.USER_API_TOKEN_KEY)));
-                try {
-                    postEditAddress.execute(new JSONObject()
-                            .put("address_id", addressList.get(position).addressId)
-                            .put("name", editTextName.getText().toString())
-                            .put("main", checkBoxMain.isChecked() ? 1 : 0)
-                    );
-                } catch (JSONException e) {
-                    e.printStackTrace();
-                }
-                postEditAddress.setOnRequestListener(new OnRequestListener() {
+                CustomerRequest customerRequest = new CustomerRequest();
+                customerRequest.setListener(new ExecuteAsyncTaskListener() {
                     @Override
-                    public <T> void onRequest(T responseGeneric, String key) throws JSONException {
-                        JSONObject responseJSONObject = (JSONObject) responseGeneric;
-                        Address address = Address.extractTheAddress(responseJSONObject.getJSONObject(Constants.RESPONSE_DATA_KEY).getJSONObject("edited_address"));
-                        if (responseJSONObject.getBoolean("success")) {
-                            dismiss();
-                            Toasty.success(context, context.getResources().getString(R.string.berhasil_diedit)).show();
-                            addressList.set(position, address);
-                            context.finish();
-                            context.startActivity(new Intent(context, AddressesActivity.class));
-                        } else {
-                            Log.d("EDIT_ADDRESS_FAILED", responseJSONObject.toString());
-                            dismiss();
-                            Toasty.error(context, ManipulateAddressDialog.super.activity.getResources().getString(R.string.gagal_diedit)).show();
+                    public void onPreExecute(MyAsyncTask myAsyncTask) {
+                        myAsyncTaskList.add(myAsyncTask);
+                    }
+
+                    @Override
+                    public void onPostExecute(Object t) {
+                        JSONObject responseJSONObject = (JSONObject) t;
+                        Address address;
+                        try {
+                            address = Address.extractTheAddress(responseJSONObject.getJSONObject(Constants.RESPONSE_DATA_KEY).getJSONObject("edited_address"));
+                            if (responseJSONObject.getBoolean("success")) {
+                                dismiss();
+                                Toasty.success(context, context.getResources().getString(R.string.berhasil_diedit)).show();
+                                addressList.set(position, address);
+                                context.finish();
+                                context.startActivity(new Intent(context, AddressesActivity.class));
+                            } else {
+                                Log.d("EDIT_ADDRESS_FAILED", responseJSONObject.toString());
+                                dismiss();
+                                Toasty.error(context, ManipulateAddressDialog.super.activity.getResources().getString(R.string.gagal_diedit)).show();
+                            }
+                        } catch (JSONException e) {
+                            e.printStackTrace();
                         }
                         getMainAddress();
                     }
                 });
+                try {
+                    customerRequest.postEditAddress(new JSONObject()
+                            .put("address_id", addressList.get(position).addressId)
+                            .put("name", editTextName.getText().toString())
+                            .put("main", checkBoxMain.isChecked() ? 1 : 0));
+                } catch (JSONException e) {
+                    e.printStackTrace();
+                }
             }
         });
     }

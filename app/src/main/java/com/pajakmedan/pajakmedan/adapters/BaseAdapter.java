@@ -4,10 +4,11 @@ import android.content.Context;
 import android.support.v7.widget.RecyclerView;
 import android.view.LayoutInflater;
 
+import com.pajakmedan.pajakmedan.asynctasks.MyAsyncTask;
 import com.pajakmedan.pajakmedan.listeners.AdapterItemClickListener;
-import com.pajakmedan.pajakmedan.models.Checkout;
 
 import java.text.NumberFormat;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Locale;
 
@@ -23,6 +24,8 @@ public abstract class BaseAdapter extends RecyclerView.Adapter<BaseViewHolder> {
 
     Locale locale;
     NumberFormat numberFormat;
+
+    protected List<MyAsyncTask> myAsyncTaskList = new ArrayList<>();
 
     BaseAdapter(Context context) {
         this.context = context;

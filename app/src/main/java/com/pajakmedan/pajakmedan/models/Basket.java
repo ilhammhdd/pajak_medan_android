@@ -1,7 +1,5 @@
 package com.pajakmedan.pajakmedan.models;
 
-import android.content.Context;
-
 import com.orhanobut.hawk.Hawk;
 import com.pajakmedan.pajakmedan.Constants;
 

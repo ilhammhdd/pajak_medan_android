@@ -1,13 +1,7 @@
 package com.pajakmedan.pajakmedan.dialogs;
 
 import android.app.Activity;
-import android.app.Dialog;
-import android.content.Context;
-import android.os.Bundle;
-import android.support.annotation.NonNull;
-import android.util.Log;
 import android.view.View;
-import android.view.Window;
 import android.widget.Button;
 import android.widget.ImageView;
 import android.widget.TextView;
@@ -16,17 +10,15 @@ import android.widget.Toast;
 import com.orhanobut.hawk.Hawk;
 import com.pajakmedan.pajakmedan.Constants;
 import com.pajakmedan.pajakmedan.R;
-import com.pajakmedan.pajakmedan.asynctasks.PostBuyGoods;
-import com.pajakmedan.pajakmedan.listeners.OnRequestListener;
+import com.pajakmedan.pajakmedan.asynctasks.MyAsyncTask;
+import com.pajakmedan.pajakmedan.listeners.ExecuteAsyncTaskListener;
 import com.pajakmedan.pajakmedan.models.Basket;
-import com.pajakmedan.pajakmedan.models.Customer;
 import com.pajakmedan.pajakmedan.models.Goods;
+import com.pajakmedan.pajakmedan.requests.GoodRequest;
 
 import org.json.JSONException;
 import org.json.JSONObject;
 
-import butterknife.BindView;
-import butterknife.OnClick;
 import es.dmoral.toasty.Toasty;
 
 /**
@@ -53,6 +45,9 @@ public class GoodsQuantityDialog extends BaseDialog {
         imageViewPlus = findViewById(R.id.imageView_goodsQuantity_plus);
         imageViewMinus = findViewById(R.id.imageView_goodsQuantity_minus);
     }
+
+    boolean berhasilTambah;
+    MyAsyncTask temp;
 
     public GoodsQuantityDialog(Activity context) {
         super(context);
@@ -82,29 +77,64 @@ public class GoodsQuantityDialog extends BaseDialog {
             @Override
             public void onClick(View view) {
                 Goods goods = Hawk.get(Constants.CURRENT_GOODS_KEY);
-                try {
-                    PostBuyGoods postBuyGoods = new PostBuyGoods(String.valueOf(Hawk.get(Constants.USER_API_TOKEN_KEY)));
-                    postBuyGoods.execute(
-                            new JSONObject()
-                                    .put("good_id", goods.goodsId)
-                                    .put("good_quantity", Integer.parseInt(textViewQuantity.getText().toString()))
-                                    .put("good_price", goods.goodsPrice)
-                    );
+                GoodRequest goodRequest = new GoodRequest();
+                goodRequest.setListener(new ExecuteAsyncTaskListener() {
+                    @Override
+                    public void onPreExecute(MyAsyncTask myAsyncTask) {
+                        temp = myAsyncTask;
+                        myAsyncTaskList.add(myAsyncTask);
+                    }
 
-                    postBuyGoods.setOnRequestListener(new OnRequestListener() {
-                        @Override
-                        public <T> void onRequest(T responseGeneric, String key) throws JSONException {
-                            JSONObject responseData = getResponseData(responseGeneric);
-                            Basket basket = Hawk.get(Constants.BASKET_KEY);
-                            basket.total = responseData.getInt("basket_total");
-                            Hawk.put(Constants.BASKET_KEY, basket);
+                    @Override
+                    public void onPostExecute(Object t) {
+                        JSONObject responseAll = (JSONObject) t;
+                        try {
+                            berhasilTambah = responseAll.getBoolean("success");
+                            if (!responseAll.getBoolean("success")) {
+                                return;
+                            }
+                        } catch (JSONException e) {
+                            e.printStackTrace();
                         }
-                    });
+                        JSONObject responseData = getResponseData(t);
+                        Basket basket = Hawk.get(Constants.BASKET_KEY);
+                        try {
+                            basket.total = responseData.getInt("basket_total");
+                        } catch (JSONException e) {
+                            e.printStackTrace();
+                        }
+                        Hawk.put(Constants.BASKET_KEY, basket);
+                    }
+                });
+                try {
+                    goodRequest.buyGoods(new JSONObject()
+                            .put("good_id", goods.goodsId)
+                            .put("good_quantity", Integer.parseInt(textViewQuantity.getText().toString()))
+                            .put("good_price", goods.goodsPrice));
                 } catch (JSONException e) {
                     e.printStackTrace();
                 }
+
+//                try {
+//                    PostBuyGoods postBuyGoods = new PostBuyGoods(String.valueOf(Hawk.get(Constants.USER_API_TOKEN_KEY)));
+//                    postBuyGoods.execute(
+//                            new JSONObject()
+//                                    .put("good_id", goods.goodsId)
+//                                    .put("good_quantity", Integer.parseInt(textViewQuantity.getText().toString()))
+//                                    .put("good_price", goods.goodsPrice)
+//                    );
+//
+//                    postBuyGoods.setOnRequestListener(new OnRequestListener() {
+//                        @Override
+//                        public <T> void onRequest(T responseGeneric, String key) throws JSONException {
+//
+//                        }
+//                    });
+//                } catch (JSONException e) {
+//                    e.printStackTrace();
+//                }
                 dismiss();
-                Toasty.info(activity, activity.getResources().getString(R.string.barang_ditambahakan_ke_keranjang), Toast.LENGTH_SHORT, true).show();
+                Toasty.info(GoodsQuantityDialog.this.context, GoodsQuantityDialog.this.context.getResources().getString(R.string.barang_ditambahakan_ke_keranjang), Toast.LENGTH_SHORT, true).show();
             }
         });
     }

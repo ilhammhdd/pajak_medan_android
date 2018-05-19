@@ -4,23 +4,14 @@ import android.content.Intent;
 import android.support.constraint.ConstraintLayout;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
-import android.util.Log;
-import android.view.Gravity;
-import android.view.LayoutInflater;
 import android.view.View;
-import android.view.ViewGroup;
-import android.widget.PopupWindow;
 
-import com.orhanobut.hawk.Hawk;
 import com.pajakmedan.pajakmedan.adapters.OrderHistoryAdapter;
-import com.pajakmedan.pajakmedan.asynctasks.GetIssuedCheckout;
+import com.pajakmedan.pajakmedan.asynctasks.MyAsyncTask;
 import com.pajakmedan.pajakmedan.listeners.AdapterItemClickListener;
-import com.pajakmedan.pajakmedan.listeners.OnRequestListener;
-import com.pajakmedan.pajakmedan.models.Customer;
+import com.pajakmedan.pajakmedan.listeners.ExecuteAsyncTaskListener;
 import com.pajakmedan.pajakmedan.models.Order;
-
-import org.json.JSONException;
-import org.json.JSONObject;
+import com.pajakmedan.pajakmedan.requests.CheckoutRequest;
 
 import java.util.List;
 
@@ -45,12 +36,26 @@ public class OrderHistoryActivity extends BaseActivity {
 
     @Override
     void insideOnCreate() {
-        GetIssuedCheckout getIssuedCheckout = new GetIssuedCheckout(String.valueOf(Hawk.get(Constants.USER_API_TOKEN_KEY)));
-        getIssuedCheckout.execute();
-        getIssuedCheckout.setOnRequestListener(new OnRequestListener() {
+
+    }
+
+    @Override
+    protected void onStart() {
+        super.onStart();
+        setAllCheckouts();
+    }
+
+    private void setAllCheckouts() {
+        CheckoutRequest checkoutRequest = new CheckoutRequest();
+        checkoutRequest.setListener(new ExecuteAsyncTaskListener() {
             @Override
-            public <T> void onRequest(T responseGeneric, String key) throws JSONException {
-                OrderHistoryAdapter orderHistoryAdapter = new OrderHistoryAdapter(OrderHistoryActivity.this, (List<Order>) responseGeneric);
+            public void onPreExecute(MyAsyncTask myAsyncTask) {
+                myAsyncTaskList.add(myAsyncTask);
+            }
+
+            @Override
+            public void onPostExecute(Object t) {
+                OrderHistoryAdapter orderHistoryAdapter = new OrderHistoryAdapter(OrderHistoryActivity.this, (List<Order>) t);
                 orderHistoryAdapter.setAdapterItemClickListener(new AdapterItemClickListener() {
                     @Override
                     public <E> void clickItem(View view, int position, E object) {
@@ -58,12 +63,13 @@ public class OrderHistoryActivity extends BaseActivity {
                     }
                 });
 
-                if (responseGeneric != null) {
+                if (t != null) {
                     recyclerViewOrderHistory.setLayoutManager(new LinearLayoutManager(OrderHistoryActivity.this, LinearLayoutManager.VERTICAL, false));
                     recyclerViewOrderHistory.setAdapter(orderHistoryAdapter);
                 }
             }
         });
+        checkoutRequest.getIssuedCheckout();
     }
 
     @OnClick(R.id.imageView_orderHistory_back)

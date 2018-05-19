@@ -7,18 +7,16 @@ import org.json.JSONException;
 import org.json.JSONObject;
 
 public class Constants {
-    public static final String DOMAIN = "http://192.168.1.2/";
+    public static final String DOMAIN = "http://api.pajakmedan.healtharoundu.com/";
     public static final String CONTENT_TYPE = "application/json";
 
     public static GoogleApiClient GOOGLE_API_CLIENT;
     public static int DEVICE_WIDTH = BaseActivity.getDeviceWidth();
     public static int DEVICE_HEIGHT = BaseActivity.getDeviceHeight();
     public static String AUTH_TYPE_KEY = "8ee5b71356cba0ce69d7c9c47d6ff835";
-    public static final String INSTALLATION = "INSTALLATION";
     public static String CURRENT_CATEGORY_KEY = "23458e5bf21c734dcbf0b582c2efd2a0";
     public static String CURRENT_GOODS_KEY = "d381a1f743f82d64096bc2cc96f4bd77";
     public static String CURRENT_PAYMENT_KEY = "452bbb672005ff2c11ab55991278767b";
-    public static String CURRENT_BASKET_GOODS_KEY = "76bdf448e5b375637f1f907b479b250a";
     public static String USER_API_TOKEN_KEY = "c9434c6b0fddf378dcf9f24e5085c6f2";
     public static String USER_KEY = "16a223f175124cb73fdee1cf0ac2a3e8";
     public static String PROFILE_KEY = "bb321de2d6143822560de05097096813";

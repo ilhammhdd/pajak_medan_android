@@ -9,7 +9,6 @@ import android.support.v4.widget.DrawerLayout;
 import android.support.v7.app.AlertDialog;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
-import android.util.Log;
 import android.view.Gravity;
 import android.view.MenuItem;
 import android.view.View;
@@ -28,14 +27,12 @@ import com.daimajia.slider.library.Tricks.ViewPagerEx;
 import com.orhanobut.hawk.Hawk;
 import com.pajakmedan.pajakmedan.adapters.CategoryAdapter;
 import com.pajakmedan.pajakmedan.adapters.CategoryAdapter.ClickListener;
-import com.pajakmedan.pajakmedan.asynctasks.GetCategory;
-import com.pajakmedan.pajakmedan.asynctasks.GetEvent;
-import com.pajakmedan.pajakmedan.listeners.OnRequestListener;
+import com.pajakmedan.pajakmedan.asynctasks.MyAsyncTask;
+import com.pajakmedan.pajakmedan.listeners.ExecuteAsyncTaskListener;
 import com.pajakmedan.pajakmedan.models.Category;
 import com.pajakmedan.pajakmedan.models.Profile;
-
-import org.json.JSONException;
-import org.json.JSONObject;
+import com.pajakmedan.pajakmedan.requests.CategoryRequest;
+import com.pajakmedan.pajakmedan.requests.CustomerRequest;
 
 import java.util.HashMap;
 import java.util.List;
@@ -61,8 +58,6 @@ public class CustomerHomeActivity extends BaseActivity implements NavigationView
     TextView navHeaderTextViewProfileName;
     TextView navHeaderTextViewProfileEmail;
 
-    private String TAG = "CUSTOMER_ACTIVITY";
-
     @Override
     int getContentId() {
         return R.layout.activity_customer_home;
@@ -71,9 +66,6 @@ public class CustomerHomeActivity extends BaseActivity implements NavigationView
     @Override
     void insideOnCreate() {
         Constants.GOOGLE_API_CLIENT.connect();
-
-        showEvents();
-        showCategories();
 
         navigationView.bringToFront();
         navigationView.setNavigationItemSelectedListener(this);
@@ -132,6 +124,14 @@ public class CustomerHomeActivity extends BaseActivity implements NavigationView
     protected void onStart() {
         super.onStart();
         Constants.GOOGLE_API_CLIENT.connect();
+        showEvents();
+        showCategories();
+    }
+
+    @Override
+    protected void onResume() {
+        super.onResume();
+        sliderLayout_event.startAutoCycle();
     }
 
     @Override
@@ -151,6 +151,7 @@ public class CustomerHomeActivity extends BaseActivity implements NavigationView
     @Override
     protected void onStop() {
         super.onStop();
+        sliderLayout_event.removeAllSliders();
         sliderLayout_event.stopAutoCycle();
     }
 
@@ -159,13 +160,6 @@ public class CustomerHomeActivity extends BaseActivity implements NavigationView
         int id = item.getItemId();
 
         switch (id) {
-            case R.id.customer_sidenav_menu_upload_file: {
-                startActivity(new Intent(CustomerHomeActivity.this, UploadFileActivity.class));
-                finish();
-
-                break;
-            }
-
             case R.id.customer_sidenav_menu_basket: {
                 openBasket(CustomerHomeActivity.this);
                 break;
@@ -212,17 +206,22 @@ public class CustomerHomeActivity extends BaseActivity implements NavigationView
     }
 
     public void showCategories() {
-        GetCategory getCategory = new GetCategory(String.valueOf(Hawk.get(Constants.USER_API_TOKEN_KEY)));
-        getCategory.execute();
-        getCategory.setOnRequestListener(new OnRequestListener() {
+        CategoryRequest categoryRequest = new CategoryRequest();
+        categoryRequest.setListener(new ExecuteAsyncTaskListener() {
             @Override
-            public <T> void onRequest(T categories, String key) {
-                CategoryAdapter categoryAdapter = new CategoryAdapter(CustomerHomeActivity.this, (List<Category>) categories);
+            public void onPostExecute(Object t) {
+                CategoryAdapter categoryAdapter = new CategoryAdapter(CustomerHomeActivity.this, (List<Category>) t);
                 categoryAdapter.setClickListener(CustomerHomeActivity.this);
                 recyclerView_category.setAdapter(categoryAdapter);
                 recyclerView_category.setLayoutManager(new LinearLayoutManager(CustomerHomeActivity.this, LinearLayoutManager.VERTICAL, false));
             }
+
+            @Override
+            public void onPreExecute(MyAsyncTask myAsyncTask) {
+                myAsyncTaskList.add(myAsyncTask);
+            }
         });
+        categoryRequest.getAllCateogies();
     }
 
     @Override
@@ -233,12 +232,11 @@ public class CustomerHomeActivity extends BaseActivity implements NavigationView
     }
 
     public void showEvents() {
-        GetEvent getEvent = new GetEvent(String.valueOf(Hawk.get(Constants.USER_API_TOKEN_KEY)));
-        getEvent.execute();
-        getEvent.setOnRequestListener(new OnRequestListener() {
+        final CustomerRequest customerRequest = new CustomerRequest();
+        customerRequest.setListener(new ExecuteAsyncTaskListener() {
             @Override
-            public <T> void onRequest(T eventsGeneric, String key) throws JSONException {
-                HashMap<String, String> events = (HashMap<String, String>) eventsGeneric;
+            public void onPostExecute(Object t) {
+                HashMap<String, String> events = (HashMap<String, String>) t;
                 for (String name : events.keySet()) {
                     TextSliderView textSliderView = new TextSliderView(CustomerHomeActivity.this);
 
@@ -251,9 +249,15 @@ public class CustomerHomeActivity extends BaseActivity implements NavigationView
                 sliderLayout_event.setPresetTransformer(SliderLayout.Transformer.Accordion);
                 sliderLayout_event.setPresetIndicator(SliderLayout.PresetIndicators.Center_Bottom);
                 sliderLayout_event.setCustomAnimation(new DescriptionAnimation());
-                sliderLayout_event.setDuration(2000);
+                sliderLayout_event.setDuration(4000);
                 sliderLayout_event.addOnPageChangeListener(CustomerHomeActivity.this);
             }
+
+            @Override
+            public void onPreExecute(MyAsyncTask myAsyncTask) {
+                myAsyncTaskList.add(myAsyncTask);
+            }
         });
+        customerRequest.getAllEvents();
     }
 }

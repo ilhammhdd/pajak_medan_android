@@ -1,14 +1,10 @@
 package com.pajakmedan.pajakmedan;
 
-import android.content.Context;
 import android.content.Intent;
 import android.net.Uri;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
-import android.support.v7.widget.LinearLayoutManager;
-import android.util.Log;
 
-import android.view.View;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -26,28 +22,16 @@ import com.google.android.gms.auth.api.signin.GoogleSignInOptions;
 import com.google.android.gms.auth.api.signin.GoogleSignInResult;
 import com.google.android.gms.common.ConnectionResult;
 import com.google.android.gms.common.api.GoogleApiClient;
-import com.google.android.gms.common.api.ResultCallback;
-import com.google.android.gms.common.api.Status;
 import com.orhanobut.hawk.Hawk;
-import com.pajakmedan.pajakmedan.adapters.AddressesAdapter;
-import com.pajakmedan.pajakmedan.asynctasks.GetAllAddresses;
-import com.pajakmedan.pajakmedan.asynctasks.GetBasket;
-import com.pajakmedan.pajakmedan.asynctasks.GetMainAddress;
-import com.pajakmedan.pajakmedan.asynctasks.Login;
-import com.pajakmedan.pajakmedan.dialogs.DeleteAddressDialog;
-import com.pajakmedan.pajakmedan.dialogs.ManipulateAddressDialog;
-import com.pajakmedan.pajakmedan.listeners.OnRecyclerViewItemClickListener;
-import com.pajakmedan.pajakmedan.listeners.OnRequestListener;
-import com.pajakmedan.pajakmedan.models.Address;
-import com.pajakmedan.pajakmedan.models.Basket;
+import com.pajakmedan.pajakmedan.asynctasks.MyAsyncTask;
+import com.pajakmedan.pajakmedan.listeners.ExecuteAsyncTaskListener;
 import com.pajakmedan.pajakmedan.models.Customer;
 import com.pajakmedan.pajakmedan.models.Profile;
 import com.pajakmedan.pajakmedan.models.User;
+import com.pajakmedan.pajakmedan.requests.LoginRequest;
 
 import org.json.JSONException;
 import org.json.JSONObject;
-
-import java.util.List;
 
 import es.dmoral.toasty.Toasty;
 
@@ -110,26 +94,28 @@ public abstract class BaseAuthenticationActivity extends BaseActivity implements
         GraphRequest graphRequest = GraphRequest.newMeRequest(accessToken, new GraphRequest.GraphJSONObjectCallback() {
             @Override
             public void onCompleted(JSONObject object, GraphResponse response) {
+                LoginRequest loginRequest = new LoginRequest();
+                loginRequest.setListener(new ExecuteAsyncTaskListener() {
+                    @Override
+                    public void onPreExecute(MyAsyncTask myAsyncTask) {
+                        myAsyncTaskList.add(myAsyncTask);
+                    }
+
+                    @Override
+                    public void onPostExecute(Object t) {
+                        JSONObject response = (JSONObject) t;
+                        authenticationResponse(response);
+                    }
+                });
                 try {
-                    Login login = new Login(true);
-
-                    JSONObject alternativeAuth = new JSONObject();
-                    alternativeAuth.put("alternative_auth", true);
-                    alternativeAuth.put("email", object.getString("email"));
-                    alternativeAuth.put("id", object.getString("id"));
-                    alternativeAuth.put("full_name", object.getString("name"));
-                    alternativeAuth.put("auth_type", "facebook");
-                    alternativeAuth.put("photo_url", "https://graph.facebook.com/" + object.getString("id") + "/picture?type=large");
-
-                    login.execute(alternativeAuth);
-
-                    login.setOnRequestListener(new OnRequestListener() {
-                        @Override
-                        public <T> void onRequest(T responseGeneric, String key) throws JSONException {
-                            JSONObject response = (JSONObject) responseGeneric;
-                            authenticationResponse(response);
-                        }
-                    });
+                    loginRequest.login(false, new JSONObject()
+                            .put("alternative_auth", true)
+                            .put("email", object.getString("email"))
+                            .put("id", object.getString("id"))
+                            .put("full_name", object.getString("name"))
+                            .put("auth_type", "facebook")
+                            .put("photo_url", "https://graph.facebook.com/" + object.getString("id") + "/picture?type=large")
+                    );
                 } catch (JSONException e) {
                     e.printStackTrace();
                 }
@@ -162,26 +148,28 @@ public abstract class BaseAuthenticationActivity extends BaseActivity implements
             if (account != null) {
                 photoUrl = account.getPhotoUrl();
 
-                Login login = new Login(true);
+                LoginRequest loginRequest = new LoginRequest();
+                loginRequest.setListener(new ExecuteAsyncTaskListener() {
+                    @Override
+                    public void onPreExecute(MyAsyncTask myAsyncTask) {
+                        myAsyncTaskList.add(myAsyncTask);
+                    }
+
+                    @Override
+                    public void onPostExecute(Object t) {
+                        JSONObject response = (JSONObject) t;
+                        authenticationResponse(response);
+                    }
+                });
                 try {
-                    JSONObject alternativeAuth = new JSONObject();
-                    alternativeAuth.put("alternative_auth", true);
-                    alternativeAuth.put("email", account.getEmail());
-                    alternativeAuth.put("id", account.getId());
-                    alternativeAuth.put("full_name", account.getDisplayName());
-                    alternativeAuth.put("auth_type", "google");
-                    alternativeAuth.put("photo_url", photoUrl == null ? "null" : photoUrl);
-
-                    login.execute(alternativeAuth);
-
-                    login.setOnRequestListener(new OnRequestListener() {
-                        @Override
-                        public <T> void onRequest(T responseGeneric, String key) throws JSONException {
-                            JSONObject response = (JSONObject) responseGeneric;
-                            authenticationResponse(response);
-                        }
-                    });
-
+                    loginRequest.login(false, new JSONObject()
+                            .put("alternative_auth", true)
+                            .put("email", account.getEmail())
+                            .put("id", account.getId())
+                            .put("full_name", account.getDisplayName())
+                            .put("auth_type", "google")
+                            .put("photo_url", photoUrl == null ? "null" : photoUrl)
+                    );
                 } catch (JSONException e) {
                     e.printStackTrace();
                 }
@@ -190,23 +178,24 @@ public abstract class BaseAuthenticationActivity extends BaseActivity implements
     }
 
     void nativeLogin(String username, String password) {
+        LoginRequest loginRequest = new LoginRequest();
+        loginRequest.setListener(new ExecuteAsyncTaskListener() {
+            @Override
+            public void onPreExecute(MyAsyncTask myAsyncTask) {
+                myAsyncTaskList.add(myAsyncTask);
+            }
+
+            @Override
+            public void onPostExecute(Object t) {
+                JSONObject response = (JSONObject) t;
+                authenticationResponse(response);
+            }
+        });
         try {
-            JSONObject data = new JSONObject();
-
-            data.put("username", username);
-            data.put("password", password);
-
-            Login login = new Login(false);
-
-            login.execute(data);
-
-            login.setOnRequestListener(new OnRequestListener() {
-                @Override
-                public <T> void onRequest(T responseGeneric, String key) throws JSONException {
-                    JSONObject response = (JSONObject) responseGeneric;
-                    authenticationResponse(response);
-                }
-            });
+            loginRequest.login(true, new JSONObject()
+                    .put("username", username)
+                    .put("password", password)
+            );
         } catch (JSONException e) {
             e.printStackTrace();
         }

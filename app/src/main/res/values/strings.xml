@@ -105,4 +105,6 @@
     <string name="berhasil_checkout">Berhasil melakukan checkout</string>
     <string name="gagal_checkout">Gagal melakukan checkout</string>
     <string name="checkout_gagal_expired">Checkout gagal atau expired</string>
+    <string name="tidak_ada_no_telepon">tidak ada nomor telepon</string>
+    <string name="barang_gagal_ditambahkan">Barang gagal ditambahkan ke keranjang</string>
 </resources>

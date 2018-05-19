@@ -1,24 +1,15 @@
 package com.pajakmedan.pajakmedan;
 
 import android.content.Intent;
-import android.content.res.Resources;
 import android.text.method.ScrollingMovementMethod;
-import android.util.Log;
 import android.view.View;
 import android.widget.Button;
 import android.widget.TextView;
 
 import com.orhanobut.hawk.Hawk;
-import com.pajakmedan.pajakmedan.asynctasks.GetMainAddress;
 import com.pajakmedan.pajakmedan.dialogs.CompletingProfileDialog;
-import com.pajakmedan.pajakmedan.listeners.OnRequestListener;
 import com.pajakmedan.pajakmedan.models.Address;
-import com.pajakmedan.pajakmedan.models.Customer;
 import com.pajakmedan.pajakmedan.models.Profile;
-
-import org.json.JSONException;
-import org.json.JSONObject;
-import org.w3c.dom.Text;
 
 import butterknife.BindView;
 import butterknife.OnClick;
@@ -72,6 +63,7 @@ public class ProfileActivity extends BaseActivity {
     @Override
     protected void onResume() {
         super.onResume();
+        setProfileValues();
         setAddressValues();
     }
 
@@ -86,7 +78,7 @@ public class ProfileActivity extends BaseActivity {
         } else {
             Constants.PROFILE_COMPLETE = false;
             buttonManipulateProfile.setText(R.string.lengkapi_profile);
-            textViewPhone.setText(R.string.tidak_ada_alamat_utama);
+            textViewPhone.setText(R.string.tidak_ada_no_telepon);
             textViewPhone.setTextColor(getResources().getColor(R.color.colorRedAlert));
         }
     }
@@ -97,8 +89,8 @@ public class ProfileActivity extends BaseActivity {
     }
 
     private void setAddressValues() {
+        getMainAddress();
         Address address = Hawk.get(Constants.MAIN_ADDRESS_KEY);
-
         if (!address.name.equals("")) {
             buttonManipulateAddress.setText(R.string.edit_alamat);
             textViewAddress.setText(address.name);

@@ -10,9 +10,6 @@ import android.os.CountDownTimer;
 import android.os.IBinder;
 import android.util.Log;
 
-import com.orhanobut.hawk.Hawk;
-import com.pajakmedan.pajakmedan.Constants;
-
 public class BroadcastService extends Service {
 
     private final static String TAG = "BroadcastService";
@@ -21,12 +18,6 @@ public class BroadcastService extends Service {
     public static Intent bi = new Intent(COUNTDOWN_BR);
 
     CountDownTimer cdt = null;
-
-//    private long expired;
-//
-//    public BroadcastService(long expired) {
-//        this.expired = expired;
-//    }
 
     @Override
     public void onCreate() {

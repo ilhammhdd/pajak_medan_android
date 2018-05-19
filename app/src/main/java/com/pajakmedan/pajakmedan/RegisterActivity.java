@@ -1,35 +1,15 @@
 package com.pajakmedan.pajakmedan;
 
 import android.content.Intent;
-import android.net.Uri;
-import android.os.Bundle;
-import android.support.annotation.NonNull;
-import android.util.Log;
 import android.widget.EditText;
-import android.widget.TextView;
 import android.widget.Toast;
 
-import com.facebook.AccessToken;
-import com.facebook.CallbackManager;
-import com.facebook.FacebookCallback;
-import com.facebook.FacebookException;
-import com.facebook.GraphRequest;
-import com.facebook.GraphResponse;
 import com.facebook.login.LoginManager;
-import com.facebook.login.LoginResult;
 import com.google.android.gms.auth.api.Auth;
-import com.google.android.gms.auth.api.signin.GoogleSignInAccount;
-import com.google.android.gms.auth.api.signin.GoogleSignInOptions;
-import com.google.android.gms.auth.api.signin.GoogleSignInResult;
-import com.google.android.gms.common.ConnectionResult;
-import com.google.android.gms.common.api.GoogleApiClient;
-import com.google.android.gms.common.api.ResultCallback;
-import com.google.android.gms.common.api.Status;
 import com.orhanobut.hawk.Hawk;
-import com.pajakmedan.pajakmedan.asynctasks.Login;
-import com.pajakmedan.pajakmedan.asynctasks.Register;
-import com.pajakmedan.pajakmedan.listeners.OnRequestListener;
-import com.pajakmedan.pajakmedan.models.User;
+import com.pajakmedan.pajakmedan.asynctasks.MyAsyncTask;
+import com.pajakmedan.pajakmedan.listeners.ExecuteAsyncTaskListener;
+import com.pajakmedan.pajakmedan.requests.RegisterRequest;
 
 import org.json.JSONArray;
 import org.json.JSONException;
@@ -87,26 +67,20 @@ public class RegisterActivity extends BaseAuthenticationActivity {
         if (fieldsNotFilled()) {
             textViewResponseStatus.setText(R.string.field_tidak_boleh_kosong);
         } else {
-            Register register = new Register();
-
             if (!editText_password.getText().toString().equals(editText_confirmPassword.getText().toString())) {
                 textViewResponseStatus.setText(R.string.konfirmasi_password);
             } else {
-                try {
-                    JSONObject data = new JSONObject();
-                    data.put("full_name", editText_nama.getText());
-                    data.put("phone_number", editText_noHp.getText());
-                    data.put("email", editText_email.getText());
-                    data.put("username", editText_username.getText());
-                    data.put("auth_type", "native");
-                    data.put("password", editText_password.getText());
+                RegisterRequest registerRequest = new RegisterRequest();
+                registerRequest.setListener(new ExecuteAsyncTaskListener() {
+                    @Override
+                    public void onPreExecute(MyAsyncTask myAsyncTask) {
+                        myAsyncTaskList.add(myAsyncTask);
+                    }
 
-                    register.execute(data);
-
-                    register.setOnRequestListener(new OnRequestListener() {
-                        @Override
-                        public <T> void onRequest(T responseGeneric, String key) throws JSONException {
-                            JSONObject response = (JSONObject) responseGeneric;
+                    @Override
+                    public void onPostExecute(Object t) {
+                        JSONObject response = (JSONObject) t;
+                        try {
                             if (response.getBoolean("success")) {
                                 emptyAllField();
                                 Toasty.success(RegisterActivity.this, getResources().getString(R.string.registrasi_berhasil), Toast.LENGTH_SHORT, true).show();
@@ -125,9 +99,20 @@ public class RegisterActivity extends BaseAuthenticationActivity {
                                     }
                                 }
                             }
+                        } catch (JSONException e) {
+                            e.printStackTrace();
                         }
-                    });
-
+                    }
+                });
+                try {
+                    registerRequest.register(new JSONObject()
+                            .put("full_name", editText_nama.getText())
+                            .put("phone_number", editText_noHp.getText())
+                            .put("email", editText_email.getText())
+                            .put("username", editText_username.getText())
+                            .put("auth_type", "native")
+                            .put("password", editText_password.getText())
+                    );
                 } catch (JSONException e) {
                     e.printStackTrace();
                 }
